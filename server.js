@@ -1,4 +1,4 @@
-```js
+```javascript
 const express = require('express');
 const path = require('path');
 const { Pool } = require('pg');
@@ -8,275 +8,286 @@ const jwt = require('jsonwebtoken');
 const app = express();
 
 const PORT = process.env.PORT || 3000;
-const JWT_SECRET =
-  process.env.JWT_SECRET || 'ponudimi-mvp-change-this-secret';
+const JWT_SECRET = process.env.JWT_SECRET || 'ponudimi-mvp-change-this-secret';
 
 if (!process.env.DATABASE_URL) {
-  console.warn(
-    'WARNING: DATABASE_URL is not set. Configure a PostgreSQL database before deploying.'
-  );
+  console.error('ERROR: DATABASE_URL nije podešen.');
 }
 
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
-  ssl:
-    process.env.NODE_ENV === 'production'
-      ? { rejectUnauthorized: false }
-      : false,
+  ssl: process.env.DATABASE_URL
+    ? { rejectUnauthorized: false }
+    : false
 });
-
-/* =========================================================
-   DATABASE INITIALIZATION
-========================================================= */
-
-async function initDb() {
-  const createUsersTable = `
-    CREATE TABLE IF NOT EXISTS users (
-      id SERIAL PRIMARY KEY,
-      type TEXT NOT NULL CHECK(type IN ('individual','company')),
-      name TEXT NOT NULL,
-      email TEXT NOT NULL UNIQUE,
-      password_hash TEXT NOT NULL,
-      company_name TEXT,
-      pib TEXT,
-      created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
-    )
-  `;
-
-  const createListingsTable = `
-    CREATE TABLE IF NOT EXISTS listings (
-      id SERIAL PRIMARY KEY,
-      user_id INTEGER REFERENCES users(id) ON DELETE SET NULL,
-      title TEXT NOT NULL,
-      category TEXT NOT NULL,
-      location TEXT NOT NULL,
-      price NUMERIC,
-      description TEXT,
-      image TEXT,
-      created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
-    )
-  `;
-
-  const createRequestsTable = `
-    CREATE TABLE IF NOT EXISTS requests (
-      id SERIAL PRIMARY KEY,
-      user_id INTEGER REFERENCES users(id) ON DELETE SET NULL,
-      title TEXT NOT NULL,
-      category TEXT,
-      location TEXT,
-      budget NUMERIC,
-      description TEXT,
-      created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
-    )
-  `;
-
-  const createSupportTicketsTable = `
-    CREATE TABLE IF NOT EXISTS support_tickets (
-      id SERIAL PRIMARY KEY,
-      user_id INTEGER REFERENCES users(id) ON DELETE SET NULL,
-      name TEXT NOT NULL,
-      email TEXT NOT NULL,
-      subject TEXT NOT NULL,
-      message TEXT NOT NULL,
-      status TEXT NOT NULL DEFAULT 'open',
-      created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
-    )
-  `;
-
-  await pool.query(createUsersTable);
-  await pool.query(createListingsTable);
-  await pool.query(createRequestsTable);
-  await pool.query(createSupportTicketsTable);
-
-  /* -------------------------------------------------------
-     DEMO USERS
-  ------------------------------------------------------- */
-
-  const seedUsers = [
-    [
-      'individual',
-      'Demo Korisnik',
-      'fizicko@ponudimi.local',
-      bcrypt.hashSync('Demo123!', 10),
-      null,
-      null,
-    ],
-    [
-      'company',
-      'Demo Firma',
-      'firma@ponudimi.local',
-      bcrypt.hashSync('Demo123!', 10),
-      'Demo Firma d.o.o.',
-      '100000001',
-    ],
-  ];
-
-  for (const user of seedUsers) {
-    await pool.query(
-      `INSERT INTO users (
-        type,
-        name,
-        email,
-        password_hash,
-        company_name,
-        pib
-      )
-      VALUES ($1,$2,$3,$4,$5,$6)
-      ON CONFLICT (email) DO NOTHING`,
-      user
-    );
-  }
-
-  /* -------------------------------------------------------
-     DEMO LISTINGS
-  ------------------------------------------------------- */
-
-  const countResult = await pool.query(
-    'SELECT COUNT(*)::int AS c FROM listings'
-  );
-
-  if (countResult.rows[0].c === 0) {
-    const demoListings = [
-      [
-        'Polovni automobili',
-        'BMW 520d xDrive',
-        'Beograd',
-        24900,
-        '2019 • 142.000 km',
-        '/assets/hero-reference.png',
-      ],
-      [
-        'Nekretnine',
-        'Stan 58m² - Novi Beograd',
-        'Novi Beograd',
-        154000,
-        '2.0 soban • novogradnja',
-        '/assets/hero-reference.png',
-      ],
-      [
-        'Mobilni telefoni',
-        'iPhone 14 Pro 128GB',
-        'Novi Sad',
-        799,
-        'Kao nov • garancija',
-        '/assets/hero-reference.png',
-      ],
-      [
-        'Usluge',
-        'Majstor za adaptaciju kupatila',
-        'Niš',
-        null,
-        'Kompletna adaptacija po dogovoru',
-        '/assets/hero-reference.png',
-      ],
-    ];
-
-    const userResult = await pool.query(
-      "SELECT id FROM users WHERE email='fizicko@ponudimi.local' LIMIT 1"
-    );
-
-    const userId = userResult.rows[0]
-      ? userResult.rows[0].id
-      : null;
-
-    for (const item of demoListings) {
-      await pool.query(
-        `INSERT INTO listings (
-          user_id,
-          title,
-          category,
-          location,
-          price,
-          description,
-          image
-        )
-        VALUES ($1,$2,$3,$4,$5,$6,$7)`,
-        [
-          userId,
-          item[1],
-          item[0],
-          item[2],
-          item[3],
-          item[4],
-          item[5],
-        ]
-      );
-    }
-  }
-}
-
-/* =========================================================
-   MIDDLEWARE
-========================================================= */
 
 app.use(express.json({ limit: '1mb' }));
 app.use(express.urlencoded({ extended: true }));
 
 /*
- * Trenutna struktura repozitorijuma je root:
- *
- * index.html
- * app.js
- * styles.css
- *
- * Zato se statički fajlovi serviraju direktno iz root foldera.
- */
+  Frontend fajlovi se nalaze direktno u root folderu GitHub repozitorijuma.
+  Zato koristimo __dirname, a ne /public.
+*/
 app.use(express.static(__dirname));
 
-/* =========================================================
-   AUTHENTICATION
-========================================================= */
+/* -------------------------------------------------------
+   POMOĆNE FUNKCIJE
+------------------------------------------------------- */
 
-function auth(req, res, next) {
-  const header = req.headers.authorization || '';
+function createToken(user) {
+  return jwt.sign(
+    {
+      id: user.id,
+      email: user.email,
+      type: user.type
+    },
+    JWT_SECRET,
+    { expiresIn: '7d' }
+  );
+}
 
-  if (!header.startsWith('Bearer ')) {
-    return res.status(401).json({
-      error: 'Potrebna je prijava.',
-    });
-  }
-
+function authRequired(req, res, next) {
   try {
-    req.user = jwt.verify(
-      header.slice(7),
-      JWT_SECRET
-    );
+    const header = req.headers.authorization || '';
 
+    if (!header.startsWith('Bearer ')) {
+      return res.status(401).json({
+        error: 'Potrebna je prijava.'
+      });
+    }
+
+    const token = header.substring(7);
+    const decoded = jwt.verify(token, JWT_SECRET);
+
+    req.user = decoded;
     next();
   } catch (error) {
     return res.status(401).json({
-      error: 'Sesija je istekla.',
+      error: 'Nevažeća ili istekla prijava.'
     });
   }
 }
 
-/* =========================================================
-   HEALTH CHECK
-========================================================= */
+/* -------------------------------------------------------
+   DATABASE
+------------------------------------------------------- */
+
+async function initDatabase() {
+  if (!process.env.DATABASE_URL) {
+    console.warn('DATABASE_URL nije podešen. Server će se pokrenuti bez baze.');
+    return;
+  }
+
+  const createUsersTable =
+    'CREATE TABLE IF NOT EXISTS users (' +
+    'id SERIAL PRIMARY KEY, ' +
+    'name TEXT NOT NULL, ' +
+    'email TEXT UNIQUE NOT NULL, ' +
+    'password_hash TEXT NOT NULL, ' +
+    'type TEXT NOT NULL DEFAULT \'individual\', ' +
+    'company_name TEXT, ' +
+    'pib TEXT, ' +
+    'package_name TEXT, ' +
+    'package_expires_at TIMESTAMP, ' +
+    'created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP' +
+    ')';
+
+  const createListingsTable =
+    'CREATE TABLE IF NOT EXISTS listings (' +
+    'id SERIAL PRIMARY KEY, ' +
+    'user_id INTEGER REFERENCES users(id) ON DELETE SET NULL, ' +
+    'title TEXT NOT NULL, ' +
+    'category TEXT, ' +
+    'location TEXT, ' +
+    'price NUMERIC, ' +
+    'description TEXT, ' +
+    'image TEXT, ' +
+    'created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP' +
+    ')';
+
+  const createRequestsTable =
+    'CREATE TABLE IF NOT EXISTS requests (' +
+    'id SERIAL PRIMARY KEY, ' +
+    'user_id INTEGER REFERENCES users(id) ON DELETE SET NULL, ' +
+    'title TEXT NOT NULL, ' +
+    'category TEXT, ' +
+    'location TEXT, ' +
+    'budget NUMERIC, ' +
+    'description TEXT, ' +
+    'created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP' +
+    ')';
+
+  const createSupportTable =
+    'CREATE TABLE IF NOT EXISTS support_tickets (' +
+    'id SERIAL PRIMARY KEY, ' +
+    'user_id INTEGER REFERENCES users(id) ON DELETE SET NULL, ' +
+    'name TEXT, ' +
+    'email TEXT NOT NULL, ' +
+    'subject TEXT NOT NULL, ' +
+    'message TEXT NOT NULL, ' +
+    'created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP' +
+    ')';
+
+  await pool.query(createUsersTable);
+  await pool.query(createListingsTable);
+  await pool.query(createRequestsTable);
+  await pool.query(createSupportTable);
+
+  console.log('Database tabela je spremna.');
+
+  await seedDemoData();
+}
+
+/* -------------------------------------------------------
+   DEMO PODACI
+------------------------------------------------------- */
+
+async function seedDemoData() {
+  try {
+    const demoPassword = await bcrypt.hash('PonudiMi123!', 10);
+
+    const existingIndividual = await pool.query(
+      'SELECT id FROM users WHERE email = $1',
+      ['demo@ponudimi.rs']
+    );
+
+    if (existingIndividual.rows.length === 0) {
+      await pool.query(
+        'INSERT INTO users (name, email, password_hash, type) VALUES ($1, $2, $3, $4)',
+        [
+          'Demo Korisnik',
+          'demo@ponudimi.rs',
+          demoPassword,
+          'individual'
+        ]
+      );
+    }
+
+    const existingCompany = await pool.query(
+      'SELECT id FROM users WHERE email = $1',
+      ['firma@ponudimi.rs']
+    );
+
+    if (existingCompany.rows.length === 0) {
+      await pool.query(
+        'INSERT INTO users (name, email, password_hash, type, company_name, pib, package_name) VALUES ($1, $2, $3, $4, $5, $6, $7)',
+        [
+          'Demo Firma',
+          'firma@ponudimi.rs',
+          demoPassword,
+          'company',
+          'PonudiMi Demo d.o.o.',
+          '123456789',
+          'Premium'
+        ]
+      );
+    }
+
+    const listingCount = await pool.query(
+      'SELECT COUNT(*)::int AS count FROM listings'
+    );
+
+    if (listingCount.rows[0].count === 0) {
+      const demoUser = await pool.query(
+        'SELECT id FROM users WHERE email = $1',
+        ['firma@ponudimi.rs']
+      );
+
+      const userId = demoUser.rows[0] ? demoUser.rows[0].id : null;
+
+      const demoImage = '/assets/hero-reference.png';
+
+      await pool.query(
+        'INSERT INTO listings (user_id, title, category, location, price, description, image) VALUES ($1, $2, $3, $4, $5, $6, $7)',
+        [
+          userId,
+          'Polovni automobil - odlična ponuda',
+          'Polovni automobili',
+          'Beograd',
+          5990,
+          'Očuvan automobil, spreman za vožnju.',
+          demoImage
+        ]
+      );
+
+      await pool.query(
+        'INSERT INTO listings (user_id, title, category, location, price, description, image) VALUES ($1, $2, $3, $4, $5, $6, $7)',
+        [
+          userId,
+          'Stan u Novom Sadu',
+          'Nekretnine',
+          'Novi Sad',
+          125000,
+          'Moderan stan na dobroj lokaciji.',
+          demoImage
+        ]
+      );
+
+      await pool.query(
+        'INSERT INTO listings (user_id, title, category, location, price, description, image) VALUES ($1, $2, $3, $4, $5, $6, $7)',
+        [
+          userId,
+          'Mobilni telefon',
+          'Mobilni telefoni',
+          'Niš',
+          350,
+          'Telefon u odličnom stanju.',
+          demoImage
+        ]
+      );
+
+      await pool.query(
+        'INSERT INTO listings (user_id, title, category, location, price, description, image) VALUES ($1, $2, $3, $4, $5, $6, $7)',
+        [
+          userId,
+          'Alat za radionicu',
+          'Građevina',
+          'Kragujevac',
+          280,
+          'Komplet alata za radionicu.',
+          demoImage
+        ]
+      );
+
+      console.log('Demo oglasi su dodati.');
+    }
+  } catch (error) {
+    console.error('Greška pri dodavanju demo podataka:', error.message);
+  }
+}
+
+/* -------------------------------------------------------
+   HEALTH
+------------------------------------------------------- */
 
 app.get('/api/health', async (req, res) => {
   try {
+    if (!process.env.DATABASE_URL) {
+      return res.json({
+        ok: true,
+        database: false,
+        message: 'Server radi, ali DATABASE_URL nije podešen.'
+      });
+    }
+
     await pool.query('SELECT 1');
 
     res.json({
       ok: true,
-      app: 'PonudiMi MVP v1',
-      database: 'postgresql',
+      database: true
     });
   } catch (error) {
-    console.error(error);
-
-    res.status(503).json({
+    res.status(500).json({
       ok: false,
-      app: 'PonudiMi MVP v1',
-      database: 'unavailable',
+      database: false,
+      error: error.message
     });
   }
 });
 
-/* =========================================================
+/* -------------------------------------------------------
    CATEGORIES
-========================================================= */
+------------------------------------------------------- */
 
 app.get('/api/categories', (req, res) => {
   res.json([
@@ -288,569 +299,506 @@ app.get('/api/categories', (req, res) => {
     'Građevina',
     'Poljoprivreda',
     'Moda',
-    'Ostalo',
+    'Ostalo'
   ]);
 });
 
-/* =========================================================
-   LISTINGS - SEARCH
-========================================================= */
+/* -------------------------------------------------------
+   LISTINGS
+------------------------------------------------------- */
 
 app.get('/api/listings', async (req, res) => {
   try {
-    const q = (req.query.q || '').trim();
-    const category = (req.query.category || '').trim();
-    const location = (req.query.location || '').trim();
+    if (!process.env.DATABASE_URL) {
+      return res.json([]);
+    }
 
-    let sql = `
-      SELECT
-        id,
-        title,
-        category,
-        location,
-        price,
-        description,
-        image,
-        created_at
-      FROM listings
-      WHERE 1=1
-    `;
+    const q = String(req.query.q || '').trim();
+    const category = String(req.query.category || '').trim();
+    const location = String(req.query.location || '').trim();
 
-    const args = [];
+    let sql =
+      'SELECT id, title, category, location, price, description, image, created_at ' +
+      'FROM listings WHERE 1=1';
+
+    const params = [];
 
     if (q) {
-      args.push(`%${q}%`);
-
-      sql += `
-        AND (
-          title ILIKE $${args.length}
-          OR description ILIKE $${args.length}
-        )
-      `;
+      params.push('%' + q + '%');
+      sql += ' AND (title ILIKE $' + params.length + ' OR description ILIKE $' + params.length + ')';
     }
 
     if (category) {
-      args.push(category);
-      sql += ` AND category=$${args.length}`;
+      params.push(category);
+      sql += ' AND category = $' + params.length;
     }
 
     if (location) {
-      args.push(`%${location}%`);
-      sql += ` AND location ILIKE $${args.length}`;
+      params.push('%' + location + '%');
+      sql += ' AND location ILIKE $' + params.length;
     }
 
-    sql += ' ORDER BY id DESC LIMIT 50';
+    sql += ' ORDER BY created_at DESC LIMIT 100';
 
-    const result = await pool.query(sql, args);
+    const result = await pool.query(sql, params);
 
     res.json(result.rows);
   } catch (error) {
-    console.error(error);
+    console.error('Greška pri pretrazi oglasa:', error);
 
     res.status(500).json({
-      error: 'Greška pri učitavanju oglasa.',
+      error: 'Greška pri učitavanju oglasa.'
     });
   }
 });
 
-/* =========================================================
+/* -------------------------------------------------------
    REGISTER
-========================================================= */
+------------------------------------------------------- */
 
 app.post('/api/auth/register', async (req, res) => {
-  const {
-    type,
-    name,
-    email,
-    password,
-    companyName,
-    pib,
-  } = req.body;
-
-  if (
-    !['individual', 'company'].includes(type) ||
-    !name ||
-    !email ||
-    !password
-  ) {
-    return res.status(400).json({
-      error: 'Popunite obavezna polja.',
-    });
-  }
-
-  if (type === 'company' && !companyName) {
-    return res.status(400).json({
-      error: 'Naziv firme je obavezan.',
-    });
-  }
-
-  if (password.length < 6) {
-    return res.status(400).json({
-      error: 'Lozinka mora imati najmanje 6 karaktera.',
-    });
-  }
-
   try {
-    const normalizedEmail = email
-      .trim()
-      .toLowerCase();
+    if (!process.env.DATABASE_URL) {
+      return res.status(503).json({
+        error: 'Baza podataka trenutno nije povezana.'
+      });
+    }
+
+    const {
+      name,
+      email,
+      password,
+      type,
+      companyName,
+      pib
+    } = req.body;
+
+    if (!name || !email || !password) {
+      return res.status(400).json({
+        error: 'Ime, email i lozinka su obavezni.'
+      });
+    }
+
+    const normalizedEmail = String(email).trim().toLowerCase();
+
+    if (password.length < 6) {
+      return res.status(400).json({
+        error: 'Lozinka mora imati najmanje 6 karaktera.'
+      });
+    }
+
+    const accountType = type === 'company'
+      ? 'company'
+      : 'individual';
+
+    if (accountType === 'company' && !companyName) {
+      return res.status(400).json({
+        error: 'Naziv firme je obavezan.'
+      });
+    }
+
+    const existing = await pool.query(
+      'SELECT id FROM users WHERE email = $1',
+      [normalizedEmail]
+    );
+
+    if (existing.rows.length > 0) {
+      return res.status(409).json({
+        error: 'Korisnik sa ovim emailom već postoji.'
+      });
+    }
+
+    const passwordHash = await bcrypt.hash(password, 10);
 
     const result = await pool.query(
-      `INSERT INTO users (
-        type,
-        name,
-        email,
-        password_hash,
-        company_name,
-        pib
-      )
-      VALUES ($1,$2,$3,$4,$5,$6)
-      RETURNING id`,
+      'INSERT INTO users (name, email, password_hash, type, company_name, pib) ' +
+      'VALUES ($1, $2, $3, $4, $5, $6) ' +
+      'RETURNING id, name, email, type, company_name, pib',
       [
-        type,
-        name.trim(),
+        name,
         normalizedEmail,
-        bcrypt.hashSync(password, 10),
-        companyName
-          ? companyName.trim()
-          : null,
-        pib ? pib.trim() : null,
+        passwordHash,
+        accountType,
+        accountType === 'company' ? companyName : null,
+        accountType === 'company' ? (pib || null) : null
       ]
     );
 
-    const user = {
-      id: result.rows[0].id,
-      type,
-      name: name.trim(),
-      email: normalizedEmail,
-      companyName: companyName
-        ? companyName.trim()
-        : null,
-    };
-
-    const token = jwt.sign(
-      user,
-      JWT_SECRET,
-      {
-        expiresIn: '7d',
-      }
-    );
+    const user = result.rows[0];
+    const token = createToken(user);
 
     res.status(201).json({
+      message: 'Registracija je uspešna.',
       token,
-      user,
+      user
     });
   } catch (error) {
-    if (error.code === '23505') {
-      return res.status(409).json({
-        error: 'Email je već registrovan.',
-      });
-    }
-
-    console.error(error);
+    console.error('Greška pri registraciji:', error);
 
     res.status(500).json({
-      error: 'Greška pri registraciji.',
+      error: 'Greška pri registraciji.'
     });
   }
 });
 
-/* =========================================================
+/* -------------------------------------------------------
    LOGIN
-========================================================= */
+------------------------------------------------------- */
 
 app.post('/api/auth/login', async (req, res) => {
   try {
-    const email = (req.body.email || '')
-      .trim()
-      .toLowerCase();
-
-    const password = req.body.password || '';
-
-    const result = await pool.query(
-      `SELECT *
-       FROM users
-       WHERE email=$1
-       LIMIT 1`,
-      [email]
-    );
-
-    const row = result.rows[0];
-
-    if (
-      !row ||
-      !bcrypt.compareSync(
-        password,
-        row.password_hash
-      )
-    ) {
-      return res.status(401).json({
-        error: 'Pogrešan email ili lozinka.',
+    if (!process.env.DATABASE_URL) {
+      return res.status(503).json({
+        error: 'Baza podataka trenutno nije povezana.'
       });
     }
 
-    const user = {
-      id: row.id,
-      type: row.type,
-      name: row.name,
-      email: row.email,
-      companyName: row.company_name,
-    };
+    const { email, password } = req.body;
 
-    const token = jwt.sign(
-      user,
-      JWT_SECRET,
-      {
-        expiresIn: '7d',
-      }
+    if (!email || !password) {
+      return res.status(400).json({
+        error: 'Email i lozinka su obavezni.'
+      });
+    }
+
+    const normalizedEmail = String(email).trim().toLowerCase();
+
+    const result = await pool.query(
+      'SELECT * FROM users WHERE email = $1',
+      [normalizedEmail]
     );
 
+    if (result.rows.length === 0) {
+      return res.status(401).json({
+        error: 'Pogrešan email ili lozinka.'
+      });
+    }
+
+    const user = result.rows[0];
+
+    const validPassword = await bcrypt.compare(
+      password,
+      user.password_hash
+    );
+
+    if (!validPassword) {
+      return res.status(401).json({
+        error: 'Pogrešan email ili lozinka.'
+      });
+    }
+
+    const token = createToken(user);
+
     res.json({
+      message: 'Uspešna prijava.',
       token,
-      user,
+      user: {
+        id: user.id,
+        name: user.name,
+        email: user.email,
+        type: user.type,
+        company_name: user.company_name,
+        pib: user.pib
+      }
     });
   } catch (error) {
-    console.error(error);
+    console.error('Greška pri prijavi:', error);
 
     res.status(500).json({
-      error: 'Greška pri prijavi.',
+      error: 'Greška pri prijavi.'
     });
   }
 });
 
-/* =========================================================
+/* -------------------------------------------------------
    CURRENT USER
-========================================================= */
+------------------------------------------------------- */
 
-app.get('/api/me', auth, (req, res) => {
-  res.json(req.user);
+app.get('/api/me', authRequired, async (req, res) => {
+  try {
+    if (!process.env.DATABASE_URL) {
+      return res.status(503).json({
+        error: 'Baza podataka trenutno nije povezana.'
+      });
+    }
+
+    const result = await pool.query(
+      'SELECT id, name, email, type, company_name, pib, package_name, package_expires_at, created_at ' +
+      'FROM users WHERE id = $1',
+      [req.user.id]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({
+        error: 'Korisnik nije pronađen.'
+      });
+    }
+
+    res.json(result.rows[0]);
+  } catch (error) {
+    console.error('Greška pri učitavanju korisnika:', error);
+
+    res.status(500).json({
+      error: 'Greška pri učitavanju korisnika.'
+    });
+  }
 });
 
-/* =========================================================
+/* -------------------------------------------------------
    CREATE LISTING
-========================================================= */
+------------------------------------------------------- */
 
-app.post('/api/listings', auth, async (req, res) => {
+app.post('/api/listings', authRequired, async (req, res) => {
   try {
+    if (!process.env.DATABASE_URL) {
+      return res.status(503).json({
+        error: 'Baza podataka trenutno nije povezana.'
+      });
+    }
+
     const {
       title,
       category,
       location,
       price,
-      description,
+      description
     } = req.body;
 
-    if (
-      !title ||
-      !category ||
-      !location
-    ) {
+    if (!title || !category || !location) {
       return res.status(400).json({
-        error:
-          'Naslov, kategorija i lokacija su obavezni.',
-      });
-    }
-
-    const numericPrice =
-      price !== undefined &&
-      price !== null &&
-      price !== ''
-        ? Number(price)
-        : null;
-
-    if (
-      numericPrice !== null &&
-      Number.isNaN(numericPrice)
-    ) {
-      return res.status(400).json({
-        error: 'Cena nije ispravna.',
+        error: 'Naslov, kategorija i lokacija su obavezni.'
       });
     }
 
     const result = await pool.query(
-      `INSERT INTO listings (
-        user_id,
+      'INSERT INTO listings (user_id, title, category, location, price, description, image) ' +
+      'VALUES ($1, $2, $3, $4, $5, $6, $7) ' +
+      'RETURNING *',
+      [
+        req.user.id,
         title,
         category,
         location,
-        price,
-        description,
-        image
-      )
-      VALUES ($1,$2,$3,$4,$5,$6,$7)
-      RETURNING id`,
-      [
-        req.user.id,
-        title.trim(),
-        category,
-        location.trim(),
-        numericPrice,
+        price ? Number(price) : null,
         description || '',
-        '/assets/hero-reference.png',
+        '/assets/hero-reference.png'
       ]
     );
 
     res.status(201).json({
-      id: result.rows[0].id,
+      message: 'Oglas je uspešno objavljen.',
+      listing: result.rows[0]
     });
   } catch (error) {
-    console.error(error);
+    console.error('Greška pri objavljivanju oglasa:', error);
 
     res.status(500).json({
-      error:
-        'Greška pri objavljivanju oglasa.',
+      error: 'Greška pri objavljivanju oglasa.'
     });
   }
 });
 
-/* =========================================================
+/* -------------------------------------------------------
    CREATE REQUEST
-========================================================= */
+------------------------------------------------------- */
 
-app.post('/api/requests', auth, async (req, res) => {
+app.post('/api/requests', authRequired, async (req, res) => {
   try {
+    if (!process.env.DATABASE_URL) {
+      return res.status(503).json({
+        error: 'Baza podataka trenutno nije povezana.'
+      });
+    }
+
     const {
       title,
       category,
       location,
       budget,
-      description,
+      description
     } = req.body;
 
     if (!title) {
       return res.status(400).json({
-        error:
-          'Naslov zahteva je obavezan.',
-      });
-    }
-
-    const numericBudget =
-      budget !== undefined &&
-      budget !== null &&
-      budget !== ''
-        ? Number(budget)
-        : null;
-
-    if (
-      numericBudget !== null &&
-      Number.isNaN(numericBudget)
-    ) {
-      return res.status(400).json({
-        error: 'Budžet nije ispravan.',
+        error: 'Naslov zahteva je obavezan.'
       });
     }
 
     const result = await pool.query(
-      `INSERT INTO requests (
-        user_id,
-        title,
-        category,
-        location,
-        budget,
-        description
-      )
-      VALUES ($1,$2,$3,$4,$5,$6)
-      RETURNING id`,
+      'INSERT INTO requests (user_id, title, category, location, budget, description) ' +
+      'VALUES ($1, $2, $3, $4, $5, $6) ' +
+      'RETURNING *',
       [
         req.user.id,
-        title.trim(),
+        title,
         category || null,
-        location
-          ? location.trim()
-          : null,
-        numericBudget,
-        description || '',
+        location || null,
+        budget ? Number(budget) : null,
+        description || ''
       ]
     );
 
     res.status(201).json({
-      id: result.rows[0].id,
+      message: 'Zahtev je uspešno sačuvan.',
+      request: result.rows[0]
     });
   } catch (error) {
-    console.error(error);
+    console.error('Greška pri čuvanju zahteva:', error);
 
     res.status(500).json({
-      error:
-        'Greška pri slanju zahteva.',
+      error: 'Greška pri čuvanju zahteva.'
     });
   }
 });
 
-/* =========================================================
-   SUPPORT TICKETS
-========================================================= */
+/* -------------------------------------------------------
+   SUPPORT TICKET
+------------------------------------------------------- */
 
-app.post(
-  '/api/support/tickets',
-  async (req, res) => {
-    try {
-      const {
-        name,
-        email,
-        subject,
-        message,
-      } = req.body;
-
-      if (
-        !name ||
-        !email ||
-        !subject ||
-        !message
-      ) {
-        return res.status(400).json({
-          error: 'Popunite sva polja.',
-        });
-      }
-
-      const result = await pool.query(
-        `INSERT INTO support_tickets (
-          name,
-          email,
-          subject,
-          message
-        )
-        VALUES ($1,$2,$3,$4)
-        RETURNING id`,
-        [
-          name.trim(),
-          email.trim().toLowerCase(),
-          subject.trim(),
-          message.trim(),
-        ]
-      );
-
-      res.status(201).json({
-        id: result.rows[0].id,
-        message:
-          'Upit je uspešno evidentiran.',
-      });
-    } catch (error) {
-      console.error(error);
-
-      res.status(500).json({
-        error:
-          'Greška pri slanju upita.',
+app.post('/api/support/tickets', async (req, res) => {
+  try {
+    if (!process.env.DATABASE_URL) {
+      return res.status(503).json({
+        error: 'Baza podataka trenutno nije povezana.'
       });
     }
-  }
-);
 
-/* =========================================================
-   SUPPORT CHAT
-========================================================= */
+    const {
+      name,
+      email,
+      subject,
+      message
+    } = req.body;
 
-const faq = [
-  {
-    keys: [
-      'registr',
-      'fizičko',
-      'fizicko',
-    ],
-    answer:
-      'Za fizičko lice izaberite Registracija → Fizičko lice i popunite osnovne podatke. U MVP-u se nalog odmah aktivira nakon uspešne registracije.',
-  },
-  {
-    keys: [
-      'firma',
-      'pravno',
-      'paket',
-    ],
-    answer:
-      'Za firmu izaberite Registracija → Pravno lice. U punoj verziji ovde će biti prikazani paketi i uslovi zakupa.',
-  },
-  {
-    keys: [
-      'prijav',
-      'login',
-      'ulog',
-    ],
-    answer:
-      'Za prijavu koristite email i lozinku. Ako ste zaboravili lozinku, u MVP-u kontaktirajte podršku kroz „Pošalji upit“.',
-  },
-  {
-    keys: [
-      'oglas',
-      'objav',
-    ],
-    answer:
-      'Oglas možete objaviti preko dugmeta „Objavi oglas“. Potrebna je prijava. Unesite naslov, kategoriju, lokaciju, cenu i opis.',
-  },
-  {
-    keys: [
-      'zahtev',
-      'ponud',
-    ],
-    answer:
-      '„Postavi zahtev“ služi kupcu da opiše šta traži. Registrovani ponuđači kasnije mogu da odgovore ponudom.',
-  },
-  {
-    keys: [
-      'lozink',
-      'šifru',
-      'sifru',
-    ],
-    answer:
-      'Ako ste zaboravili lozinku, u MVP-u kontaktirajte podršku kroz „Pošalji upit“. Produkcijska verzija će imati automatski reset lozinke.',
-  },
-];
+    if (!email || !subject || !message) {
+      return res.status(400).json({
+        error: 'Email, naslov i poruka su obavezni.'
+      });
+    }
 
-app.post(
-  '/api/support/chat',
-  (req, res) => {
-    const message = (
-      req.body.message || ''
-    ).toLowerCase();
-
-    const found = faq.find(
-      item =>
-        item.keys.some(
-          key =>
-            message.includes(key)
-        )
+    await pool.query(
+      'INSERT INTO support_tickets (user_id, name, email, subject, message) ' +
+      'VALUES ($1, $2, $3, $4, $5)',
+      [
+        req.user ? req.user.id : null,
+        name || '',
+        email,
+        subject,
+        message
+      ]
     );
 
     res.json({
-      answer: found
-        ? found.answer
-        : 'Mogu da pomognem oko registracije, prijave, oglasa, zahteva i paketa za firme. Ako pitanje nije pokriveno, koristite „Pošalji upit“.',
+      message: 'Upit je uspešno poslat. Hvala što ste nam se obratili.'
+    });
+  } catch (error) {
+    console.error('Greška pri slanju upita:', error);
+
+    res.status(500).json({
+      error: 'Greška pri slanju upita.'
     });
   }
-);
-
-/* =========================================================
-   FRONTEND
-========================================================= */
-
-app.get('/*splat', (req, res) => {
-  res.sendFile(
-    path.join(
-      __dirname,
-      'index.html'
-    )
-  );
 });
 
-/* =========================================================
-   START
-========================================================= */
+/* -------------------------------------------------------
+   SUPPORT CHAT
+------------------------------------------------------- */
 
-initDb()
-  .then(() => {
-    app.listen(
-      PORT,
-      () => {
-        console.log(
-          `PonudiMi MVP v1 running on port ${PORT}`
-        );
-      }
-    );
-  })
-  .catch(error => {
-    console.error(
-      'Database initialization failed:',
-      error
-    );
+app.post('/api/support/chat', async (req, res) => {
+  const message = String(req.body.message || '').toLowerCase().trim();
 
-    process.exit(1);
+  let answer =
+    'Mogu da pomognem oko registracije, prijave, oglasa, zahteva i paketa za firme.';
+
+  if (
+    message.includes('registr') &&
+    (message.includes('fizi') || message.includes('lice'))
+  ) {
+    answer =
+      'Za registraciju fizičkog lica izaberite Registracija, zatim Fizičko lice i unesite tražene podatke.';
+  } else if (
+    message.includes('registr') &&
+    (message.includes('firm') || message.includes('prav') || message.includes('kompan'))
+  ) {
+    answer =
+      'Za registraciju firme izaberite Registracija, zatim Pravno lice. Potrebno je uneti podatke o firmi, uključujući naziv firme.';
+  } else if (
+    message.includes('prijav') ||
+    message.includes('login')
+  ) {
+    answer =
+      'Kliknite na Prijava u gornjem meniju i unesite email i lozinku koje ste koristili prilikom registracije.';
+  } else if (
+    message.includes('oglas') &&
+    (message.includes('objav') || message.includes('postav'))
+  ) {
+    answer =
+      'Za objavljivanje oglasa potrebno je da budete prijavljeni. Nakon prijave izaberite Objavi oglas.';
+  } else if (
+    message.includes('zahtev') ||
+    message.includes('traž') ||
+    message.includes('traz')
+  ) {
+    answer =
+      'Zahtev možete postaviti nakon prijave. Izaberite Postavi zahtev i unesite šta tražite, kategoriju, lokaciju i budžet.';
+  } else if (
+    message.includes('paket') ||
+    message.includes('cen') ||
+    message.includes('10 €') ||
+    message.includes('10 eur')
+  ) {
+    answer =
+      'Paketi za pravna lica uključuju mesečni, tromesečni, šestomesečni i Premium godišnji paket. Detalji paketa prikazuju se prilikom registracije firme.';
+  } else if (
+    message.includes('lozink') ||
+    message.includes('password')
+  ) {
+    answer =
+      'Ako ste zaboravili lozinku, trenutno je potrebno da kontaktirate podršku putem opcije Pošalji upit.';
+  }
+
+  res.json({
+    answer
   });
+});
+
+/* -------------------------------------------------------
+   ERROR HANDLER
+------------------------------------------------------- */
+
+app.use((err, req, res, next) => {
+  console.error('Server error:', err);
+
+  res.status(500).json({
+    error: 'Greška na serveru.'
+  });
+});
+
+/* -------------------------------------------------------
+   FRONTEND CATCH-ALL
+   Express 5 zahteva imenovani wildcard parametar.
+------------------------------------------------------- */
+
+app.get('/*splat', (req, res) => {
+  res.sendFile(path.join(__dirname, 'index.html'));
+});
+
+/* -------------------------------------------------------
+   START SERVER
+------------------------------------------------------- */
+
+async function startServer() {
+  try {
+    await initDatabase();
+
+    app.listen(PORT, '0.0.0.0', () => {
+      console.log('PonudiMi server radi na portu ' + PORT);
+    });
+  } catch (error) {
+    console.error('Greška pri pokretanju servera:', error);
+    process.exit(1);
+  }
+}
+
+startServer();
 ```
