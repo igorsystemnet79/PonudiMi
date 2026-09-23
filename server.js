@@ -26,11 +26,11 @@ const pool = new Pool({
 });
 
 /* =========================================================
-   DATABASE
+   DATABASE INITIALIZATION
 ========================================================= */
 
 async function initDb() {
-  await pool.query(`
+  const createUsersTable = `
     CREATE TABLE IF NOT EXISTS users (
       id SERIAL PRIMARY KEY,
       type TEXT NOT NULL CHECK(type IN ('individual','company')),
@@ -40,8 +40,10 @@ async function initDb() {
       company_name TEXT,
       pib TEXT,
       created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
-    );
+    )
+  `;
 
+  const createListingsTable = `
     CREATE TABLE IF NOT EXISTS listings (
       id SERIAL PRIMARY KEY,
       user_id INTEGER REFERENCES users(id) ON DELETE SET NULL,
@@ -52,8 +54,10 @@ async function initDb() {
       description TEXT,
       image TEXT,
       created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
-    );
+    )
+  `;
 
+  const createRequestsTable = `
     CREATE TABLE IF NOT EXISTS requests (
       id SERIAL PRIMARY KEY,
       user_id INTEGER REFERENCES users(id) ON DELETE SET NULL,
@@ -63,8 +67,10 @@ async function initDb() {
       budget NUMERIC,
       description TEXT,
       created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
-    );
+    )
+  `;
 
+  const createSupportTicketsTable = `
     CREATE TABLE IF NOT EXISTS support_tickets (
       id SERIAL PRIMARY KEY,
       user_id INTEGER REFERENCES users(id) ON DELETE SET NULL,
@@ -74,8 +80,13 @@ async function initDb() {
       message TEXT NOT NULL,
       status TEXT NOT NULL DEFAULT 'open',
       created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
-    );
-  `);
+    )
+  `;
+
+  await pool.query(createUsersTable);
+  await pool.query(createListingsTable);
+  await pool.query(createRequestsTable);
+  await pool.query(createSupportTicketsTable);
 
   /* -------------------------------------------------------
      DEMO USERS
@@ -102,7 +113,7 @@ async function initDb() {
 
   for (const user of seedUsers) {
     await pool.query(
-      `INSERT INTO users(
+      `INSERT INTO users (
         type,
         name,
         email,
@@ -110,7 +121,7 @@ async function initDb() {
         company_name,
         pib
       )
-      VALUES($1,$2,$3,$4,$5,$6)
+      VALUES ($1,$2,$3,$4,$5,$6)
       ON CONFLICT (email) DO NOTHING`,
       user
     );
@@ -164,11 +175,13 @@ async function initDb() {
       "SELECT id FROM users WHERE email='fizicko@ponudimi.local' LIMIT 1"
     );
 
-    const userId = userResult.rows[0]?.id || null;
+    const userId = userResult.rows[0]
+      ? userResult.rows[0].id
+      : null;
 
     for (const item of demoListings) {
       await pool.query(
-        `INSERT INTO listings(
+        `INSERT INTO listings (
           user_id,
           title,
           category,
@@ -177,7 +190,7 @@ async function initDb() {
           description,
           image
         )
-        VALUES($1,$2,$3,$4,$5,$6,$7)`,
+        VALUES ($1,$2,$3,$4,$5,$6,$7)`,
         [
           userId,
           item[1],
@@ -200,14 +213,13 @@ app.use(express.json({ limit: '1mb' }));
 app.use(express.urlencoded({ extended: true }));
 
 /*
- * Fajlovi projekta su trenutno u root-u GitHub repozitorijuma:
+ * Trenutna struktura repozitorijuma je root:
  *
  * index.html
  * app.js
  * styles.css
  *
- * Zato se statički fajlovi serviraju iz __dirname,
- * a ne iz /public foldera.
+ * Zato se statički fajlovi serviraju direktno iz root foldera.
  */
 app.use(express.static(__dirname));
 
@@ -231,7 +243,7 @@ function auth(req, res, next) {
     );
 
     next();
-  } catch {
+  } catch (error) {
     return res.status(401).json({
       error: 'Sesija je istekla.',
     });
@@ -239,7 +251,7 @@ function auth(req, res, next) {
 }
 
 /* =========================================================
-   HEALTH
+   HEALTH CHECK
 ========================================================= */
 
 app.get('/api/health', async (req, res) => {
@@ -319,24 +331,15 @@ app.get('/api/listings', async (req, res) => {
 
     if (category) {
       args.push(category);
-
-      sql += `
-        AND category=$${args.length}
-      `;
+      sql += ` AND category=$${args.length}`;
     }
 
     if (location) {
       args.push(`%${location}%`);
-
-      sql += `
-        AND location ILIKE $${args.length}
-      `;
+      sql += ` AND location ILIKE $${args.length}`;
     }
 
-    sql += `
-      ORDER BY id DESC
-      LIMIT 50
-    `;
+    sql += ' ORDER BY id DESC LIMIT 50';
 
     const result = await pool.query(sql, args);
 
@@ -393,7 +396,7 @@ app.post('/api/auth/register', async (req, res) => {
       .toLowerCase();
 
     const result = await pool.query(
-      `INSERT INTO users(
+      `INSERT INTO users (
         type,
         name,
         email,
@@ -401,14 +404,16 @@ app.post('/api/auth/register', async (req, res) => {
         company_name,
         pib
       )
-      VALUES($1,$2,$3,$4,$5,$6)
+      VALUES ($1,$2,$3,$4,$5,$6)
       RETURNING id`,
       [
         type,
         name.trim(),
         normalizedEmail,
         bcrypt.hashSync(password, 10),
-        companyName ? companyName.trim() : null,
+        companyName
+          ? companyName.trim()
+          : null,
         pib ? pib.trim() : null,
       ]
     );
@@ -563,7 +568,7 @@ app.post('/api/listings', auth, async (req, res) => {
     }
 
     const result = await pool.query(
-      `INSERT INTO listings(
+      `INSERT INTO listings (
         user_id,
         title,
         category,
@@ -572,7 +577,7 @@ app.post('/api/listings', auth, async (req, res) => {
         description,
         image
       )
-      VALUES($1,$2,$3,$4,$5,$6,$7)
+      VALUES ($1,$2,$3,$4,$5,$6,$7)
       RETURNING id`,
       [
         req.user.id,
@@ -636,7 +641,7 @@ app.post('/api/requests', auth, async (req, res) => {
     }
 
     const result = await pool.query(
-      `INSERT INTO requests(
+      `INSERT INTO requests (
         user_id,
         title,
         category,
@@ -644,7 +649,7 @@ app.post('/api/requests', auth, async (req, res) => {
         budget,
         description
       )
-      VALUES($1,$2,$3,$4,$5,$6)
+      VALUES ($1,$2,$3,$4,$5,$6)
       RETURNING id`,
       [
         req.user.id,
@@ -698,13 +703,13 @@ app.post(
       }
 
       const result = await pool.query(
-        `INSERT INTO support_tickets(
+        `INSERT INTO support_tickets (
           name,
           email,
           subject,
           message
         )
-        VALUES($1,$2,$3,$4)
+        VALUES ($1,$2,$3,$4)
         RETURNING id`,
         [
           name.trim(),
@@ -731,7 +736,7 @@ app.post(
 );
 
 /* =========================================================
-   SUPPORT CHAT / FAQ
+   SUPPORT CHAT
 ========================================================= */
 
 const faq = [
@@ -816,18 +821,6 @@ app.post(
    FRONTEND
 ========================================================= */
 
-/*
- * Pošto su frontend fajlovi u root-u:
- *
- * index.html
- * app.js
- * styles.css
- *
- * vraćamo root index.html za sve rute koje nisu API.
- *
- * Express 5 zahteva imenovani wildcard parametar.
- */
-
 app.get('/*splat', (req, res) => {
   res.sendFile(
     path.join(
@@ -838,7 +831,7 @@ app.get('/*splat', (req, res) => {
 });
 
 /* =========================================================
-   START SERVER
+   START
 ========================================================= */
 
 initDb()
