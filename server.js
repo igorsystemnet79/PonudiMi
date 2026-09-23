@@ -10,17 +10,22 @@ const PORT = process.env.PORT || 3000;
 const JWT_SECRET =
 process.env.JWT_SECRET || "ponudimi-mvp-change-this-secret";
 
-const pool = new Pool({
-connectionString: process.env.DATABASE_URL,
-ssl: process.env.DATABASE_URL
-? { rejectUnauthorized: false }
-: false
-});
-
-app.use(express.json({ limit: "1mb" }));
+app.use(express.json({ limit: "2mb" }));
 app.use(express.urlencoded({ extended: true }));
 
-app.use(express.static(__dirname));
+const pool = process.env.DATABASE_URL
+? new Pool({
+connectionString: process.env.DATABASE_URL,
+ssl: { rejectUnauthorized: false }
+})
+: null;
+
+function requireDatabase() {
+if (!pool) {
+throw new Error("DATABASE_URL nije podešen.");
+}
+return pool;
+}
 
 function createToken(user) {
 return jwt.sign(
@@ -34,38 +39,37 @@ JWT_SECRET,
 );
 }
 
-function authRequired(req, res, next) {
-try {
+function getUserFromRequest(req) {
 const header = req.headers.authorization || "";
 
-```
 if (!header.startsWith("Bearer ")) {
-  return res.status(401).json({
-    error: "Potrebna je prijava."
-  });
+return null;
 }
 
 const token = header.substring(7);
-const decoded = jwt.verify(token, JWT_SECRET);
 
-req.user = decoded;
-next();
-```
-
+try {
+return jwt.verify(token, JWT_SECRET);
 } catch (error) {
+return null;
+}
+}
+
+function authRequired(req, res, next) {
+const user = getUserFromRequest(req);
+
+if (!user) {
 return res.status(401).json({
-error: "Nevažeća ili istekla prijava."
+error: "Potrebna je prijava."
 });
 }
+
+req.user = user;
+next();
 }
 
 async function initDatabase() {
-if (!process.env.DATABASE_URL) {
-console.warn(
-"DATABASE_URL nije podešen. Server će raditi bez baze."
-);
-return;
-}
+const db = requireDatabase();
 
 const createUsersTable =
 "CREATE TABLE IF NOT EXISTS users (" +
@@ -76,203 +80,132 @@ const createUsersTable =
 "type TEXT NOT NULL DEFAULT 'individual', " +
 "company_name TEXT, " +
 "pib TEXT, " +
-"package_name TEXT, " +
-"package_expires_at TIMESTAMP, " +
-"created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP" +
+"created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()" +
 ")";
 
 const createListingsTable =
 "CREATE TABLE IF NOT EXISTS listings (" +
 "id SERIAL PRIMARY KEY, " +
-"user_id INTEGER REFERENCES users(id) ON DELETE SET NULL, " +
+"user_id INTEGER REFERENCES users(id) ON DELETE CASCADE, " +
 "title TEXT NOT NULL, " +
-"category TEXT, " +
-"location TEXT, " +
+"category TEXT NOT NULL, " +
+"location TEXT NOT NULL, " +
 "price NUMERIC, " +
 "description TEXT, " +
 "image TEXT, " +
-"created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP" +
+"created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()" +
 ")";
 
 const createRequestsTable =
 "CREATE TABLE IF NOT EXISTS requests (" +
 "id SERIAL PRIMARY KEY, " +
-"user_id INTEGER REFERENCES users(id) ON DELETE SET NULL, " +
+"user_id INTEGER REFERENCES users(id) ON DELETE CASCADE, " +
 "title TEXT NOT NULL, " +
 "category TEXT, " +
 "location TEXT, " +
 "budget NUMERIC, " +
 "description TEXT, " +
-"created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP" +
+"created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()" +
 ")";
 
-const createSupportTable =
+const createTicketsTable =
 "CREATE TABLE IF NOT EXISTS support_tickets (" +
 "id SERIAL PRIMARY KEY, " +
 "user_id INTEGER REFERENCES users(id) ON DELETE SET NULL, " +
-"name TEXT, " +
+"name TEXT NOT NULL, " +
 "email TEXT NOT NULL, " +
 "subject TEXT NOT NULL, " +
 "message TEXT NOT NULL, " +
-"created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP" +
+"created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()" +
 ")";
 
-await pool.query(createUsersTable);
-await pool.query(createListingsTable);
-await pool.query(createRequestsTable);
-await pool.query(createSupportTable);
+await db.query(createUsersTable);
+await db.query(createListingsTable);
+await db.query(createRequestsTable);
+await db.query(createTicketsTable);
 
-console.log("Database tabela je spremna.");
-
-await seedDemoData();
-}
-
-async function seedDemoData() {
-try {
-const demoPassword = await bcrypt.hash(
-"PonudiMi123!",
-10
+const userResult = await db.query(
+"SELECT id FROM users WHERE email = $1 LIMIT 1",
+["[demo@ponudimi.rs](mailto:demo@ponudimi.rs)"]
 );
+
+let demoUserId;
+
+if (userResult.rows.length === 0) {
+const passwordHash = await bcrypt.hash("PonudiMi123!", 10);
 
 ```
-const existingIndividual = await pool.query(
-  "SELECT id FROM users WHERE email = $1",
-  ["demo@ponudimi.rs"]
+const inserted = await db.query(
+  "INSERT INTO users " +
+    "(name, email, password_hash, type, company_name, pib) " +
+    "VALUES ($1, $2, $3, $4, $5, $6) " +
+    "RETURNING id",
+  [
+    "Demo korisnik",
+    "demo@ponudimi.rs",
+    passwordHash,
+    "individual",
+    null,
+    null
+  ]
 );
 
-if (existingIndividual.rows.length === 0) {
-  await pool.query(
-    "INSERT INTO users " +
-    "(name, email, password_hash, type) " +
-    "VALUES ($1, $2, $3, $4)",
-    [
-      "Demo Korisnik",
-      "demo@ponudimi.rs",
-      demoPassword,
-      "individual"
-    ]
-  );
+demoUserId = inserted.rows[0].id;
+```
+
+} else {
+demoUserId = userResult.rows[0].id;
 }
 
-const existingCompany = await pool.query(
-  "SELECT id FROM users WHERE email = $1",
-  ["firma@ponudimi.rs"]
-);
-
-if (existingCompany.rows.length === 0) {
-  await pool.query(
-    "INSERT INTO users " +
-    "(name, email, password_hash, type, company_name, pib, package_name) " +
-    "VALUES ($1, $2, $3, $4, $5, $6, $7)",
-    [
-      "Demo Firma",
-      "firma@ponudimi.rs",
-      demoPassword,
-      "company",
-      "PonudiMi Demo d.o.o.",
-      "123456789",
-      "Premium"
-    ]
-  );
-}
-
-const listingCount = await pool.query(
-  "SELECT COUNT(*)::int AS count FROM listings"
+const listingCount = await db.query(
+"SELECT COUNT(*)::int AS count FROM listings"
 );
 
 if (listingCount.rows[0].count === 0) {
-  const demoUser = await pool.query(
-    "SELECT id FROM users WHERE email = $1",
-    ["firma@ponudimi.rs"]
-  );
+const demoImage = "/assets/hero-reference.png";
 
-  const userId = demoUser.rows[0]
-    ? demoUser.rows[0].id
-    : null;
-
-  const demoImage =
-    "/assets/hero-reference.png";
-
-  await pool.query(
-    "INSERT INTO listings " +
+```
+await db.query(
+  "INSERT INTO listings " +
     "(user_id, title, category, location, price, description, image) " +
-    "VALUES ($1, $2, $3, $4, $5, $6, $7)",
-    [
-      userId,
-      "Polovni automobil - odlična ponuda",
-      "Polovni automobili",
-      "Beograd",
-      5990,
-      "Očuvan automobil, spreman za vožnju.",
-      demoImage
-    ]
-  );
-
-  await pool.query(
-    "INSERT INTO listings " +
-    "(user_id, title, category, location, price, description, image) " +
-    "VALUES ($1, $2, $3, $4, $5, $6, $7)",
-    [
-      userId,
-      "Stan u Novom Sadu",
-      "Nekretnine",
-      "Novi Sad",
-      125000,
-      "Moderan stan na dobroj lokaciji.",
-      demoImage
-    ]
-  );
-
-  await pool.query(
-    "INSERT INTO listings " +
-    "(user_id, title, category, location, price, description, image) " +
-    "VALUES ($1, $2, $3, $4, $5, $6, $7)",
-    [
-      userId,
-      "Mobilni telefon",
-      "Mobilni telefoni",
-      "Niš",
-      350,
-      "Telefon u odličnom stanju.",
-      demoImage
-    ]
-  );
-
-  await pool.query(
-    "INSERT INTO listings " +
-    "(user_id, title, category, location, price, description, image) " +
-    "VALUES ($1, $2, $3, $4, $5, $6, $7)",
-    [
-      userId,
-      "Alat za radionicu",
-      "Građevina",
-      "Kragujevac",
-      280,
-      "Komplet alata za radionicu.",
-      demoImage
-    ]
-  );
-
-  console.log("Demo oglasi su dodati.");
-}
+    "VALUES " +
+    "($1, $2, $3, $4, $5, $6, $7), " +
+    "($1, $8, $9, $10, $11, $12, $7), " +
+    "($1, $13, $14, $15, $16, $17, $7)",
+  [
+    demoUserId,
+    "Peugeot 308 1.6 HDI",
+    "Polovni automobili",
+    "Beograd",
+    5900,
+    "Očuvan automobil, redovno održavan.",
+    demoImage,
+    "Stan u Novom Sadu",
+    "Nekretnine",
+    "Novi Sad",
+    145000,
+    "Moderan stan na dobroj lokaciji.",
+    "Samsung Galaxy telefon",
+    "Mobilni telefoni",
+    "Niš",
+    450,
+    "Telefon u odličnom stanju."
+  ]
+);
 ```
 
-} catch (error) {
-console.error(
-"Greška pri dodavanju demo podataka:",
-error.message
-);
 }
+
+console.log("PostgreSQL baza je spremna.");
 }
 
 app.get("/api/health", async (req, res) => {
 try {
-if (!process.env.DATABASE_URL) {
-return res.json({
-ok: true,
+if (!pool) {
+return res.status(500).json({
+ok: false,
 database: false,
-message:
-"Server radi, ali DATABASE_URL nije podešen."
+error: "DATABASE_URL nije podešen."
 });
 }
 
@@ -286,11 +219,16 @@ res.json({
 ```
 
 } catch (error) {
+console.error("Health check greška:", error);
+
+```
 res.status(500).json({
-ok: false,
-database: false,
-error: error.message
+  ok: false,
+  database: false,
+  error: "Baza nije dostupna."
 });
+```
+
 }
 });
 
@@ -310,65 +248,54 @@ res.json([
 
 app.get("/api/listings", async (req, res) => {
 try {
-if (!process.env.DATABASE_URL) {
-return res.json([]);
-}
+const db = requireDatabase();
 
 ```
 const q = String(req.query.q || "").trim();
-const category =
-  String(req.query.category || "").trim();
-const location =
-  String(req.query.location || "").trim();
+const category = String(req.query.category || "").trim();
+const location = String(req.query.location || "").trim();
 
-let sql =
-  "SELECT id, title, category, location, price, " +
-  "description, image, created_at " +
-  "FROM listings WHERE 1=1";
-
-const params = [];
+const conditions = [];
+const values = [];
 
 if (q) {
-  params.push("%" + q + "%");
-
-  sql +=
-    " AND (title ILIKE $" +
-    params.length +
-    " OR description ILIKE $" +
-    params.length +
-    ")";
+  values.push("%" + q + "%");
+  conditions.push(
+    "(title ILIKE $" +
+      values.length +
+      " OR description ILIKE $" +
+      values.length +
+      ")"
+  );
 }
 
 if (category) {
-  params.push(category);
-
-  sql +=
-    " AND category = $" +
-    params.length;
+  values.push(category);
+  conditions.push("category = $" + values.length);
 }
 
 if (location) {
-  params.push("%" + location + "%");
-
-  sql +=
-    " AND location ILIKE $" +
-    params.length;
+  values.push("%" + location + "%");
+  conditions.push("location ILIKE $" + values.length);
 }
 
-sql +=
-  " ORDER BY created_at DESC LIMIT 100";
+let sql =
+  "SELECT id, title, category, location, price, description, image, created_at " +
+  "FROM listings";
 
-const result =
-  await pool.query(sql, params);
+if (conditions.length) {
+  sql += " WHERE " + conditions.join(" AND ");
+}
+
+sql += " ORDER BY created_at DESC LIMIT 100";
+
+const result = await db.query(sql, values);
 
 res.json(result.rows);
 ```
 
 } catch (error) {
-console.error(
-"Greška pri pretrazi oglasa:",
-error
-);
+console.error("Greška pri pretrazi oglasa:", error);
 
 ```
 res.status(500).json({
@@ -379,591 +306,437 @@ res.status(500).json({
 }
 });
 
-app.post(
-"/api/auth/register",
-async (req, res) => {
+app.post("/api/auth/register", async (req, res) => {
 try {
-if (!process.env.DATABASE_URL) {
-return res.status(503).json({
-error:
-"Baza podataka trenutno nije povezana."
-});
-}
+const db = requireDatabase();
 
 ```
-  const {
+const name = String(req.body.name || "").trim();
+const email = String(req.body.email || "")
+  .trim()
+  .toLowerCase();
+const password = String(req.body.password || "");
+const type =
+  req.body.type === "company" ? "company" : "individual";
+const companyName = String(req.body.companyName || "").trim();
+const pib = String(req.body.pib || "").trim();
+
+if (!name || !email || !password) {
+  return res.status(400).json({
+    error: "Ime, email i lozinka su obavezni."
+  });
+}
+
+if (password.length < 6) {
+  return res.status(400).json({
+    error: "Lozinka mora imati najmanje 6 karaktera."
+  });
+}
+
+if (type === "company" && !companyName) {
+  return res.status(400).json({
+    error: "Naziv firme je obavezan."
+  });
+}
+
+const existing = await db.query(
+  "SELECT id FROM users WHERE email = $1 LIMIT 1",
+  [email]
+);
+
+if (existing.rows.length) {
+  return res.status(409).json({
+    error: "Korisnik sa tim emailom već postoji."
+  });
+}
+
+const passwordHash = await bcrypt.hash(password, 10);
+
+const result = await db.query(
+  "INSERT INTO users " +
+    "(name, email, password_hash, type, company_name, pib) " +
+    "VALUES ($1, $2, $3, $4, $5, $6) " +
+    "RETURNING id, name, email, type, company_name, pib",
+  [
     name,
     email,
-    password,
+    passwordHash,
     type,
-    companyName,
-    pib
-  } = req.body;
-
-  if (!name || !email || !password) {
-    return res.status(400).json({
-      error:
-        "Ime, email i lozinka su obavezni."
-    });
-  }
-
-  const normalizedEmail =
-    String(email)
-      .trim()
-      .toLowerCase();
-
-  if (password.length < 6) {
-    return res.status(400).json({
-      error:
-        "Lozinka mora imati najmanje 6 karaktera."
-    });
-  }
-
-  const accountType =
-    type === "company"
-      ? "company"
-      : "individual";
-
-  if (
-    accountType === "company" &&
-    !companyName
-  ) {
-    return res.status(400).json({
-      error:
-        "Naziv firme je obavezan."
-    });
-  }
-
-  const existing =
-    await pool.query(
-      "SELECT id FROM users WHERE email = $1",
-      [normalizedEmail]
-    );
-
-  if (existing.rows.length > 0) {
-    return res.status(409).json({
-      error:
-        "Korisnik sa ovim emailom već postoji."
-    });
-  }
-
-  const passwordHash =
-    await bcrypt.hash(
-      password,
-      10
-    );
-
-  const result =
-    await pool.query(
-      "INSERT INTO users " +
-      "(name, email, password_hash, type, company_name, pib) " +
-      "VALUES ($1, $2, $3, $4, $5, $6) " +
-      "RETURNING id, name, email, type, company_name, pib",
-      [
-        name,
-        normalizedEmail,
-        passwordHash,
-        accountType,
-        accountType === "company"
-          ? companyName
-          : null,
-        accountType === "company"
-          ? pib || null
-          : null
-      ]
-    );
-
-  const user = result.rows[0];
-  const token = createToken(user);
-
-  res.status(201).json({
-    message:
-      "Registracija je uspešna.",
-    token,
-    user
-  });
-} catch (error) {
-  console.error(
-    "Greška pri registraciji:",
-    error
-  );
-
-  res.status(500).json({
-    error:
-      "Greška pri registraciji."
-  });
-}
-```
-
-}
+    type === "company" ? companyName : null,
+    type === "company" ? pib || null : null
+  ]
 );
 
-app.post(
-"/api/auth/login",
-async (req, res) => {
-try {
-if (!process.env.DATABASE_URL) {
-return res.status(503).json({
-error:
-"Baza podataka trenutno nije povezana."
+const user = result.rows[0];
+
+res.status(201).json({
+  message: "Registracija je uspešna.",
+  token: createToken(user),
+  user
 });
-}
-
 ```
-  const {
-    email,
-    password
-  } = req.body;
 
-  if (!email || !password) {
-    return res.status(400).json({
-      error:
-        "Email i lozinka su obavezni."
-    });
-  }
-
-  const normalizedEmail =
-    String(email)
-      .trim()
-      .toLowerCase();
-
-  const result =
-    await pool.query(
-      "SELECT * FROM users WHERE email = $1",
-      [normalizedEmail]
-    );
-
-  if (result.rows.length === 0) {
-    return res.status(401).json({
-      error:
-        "Pogrešan email ili lozinka."
-    });
-  }
-
-  const user = result.rows[0];
-
-  const validPassword =
-    await bcrypt.compare(
-      password,
-      user.password_hash
-    );
-
-  if (!validPassword) {
-    return res.status(401).json({
-      error:
-        "Pogrešan email ili lozinka."
-    });
-  }
-
-  const token =
-    createToken(user);
-
-  res.json({
-    message:
-      "Uspešna prijava.",
-    token,
-    user: {
-      id: user.id,
-      name: user.name,
-      email: user.email,
-      type: user.type,
-      company_name:
-        user.company_name,
-      pib: user.pib
-    }
-  });
 } catch (error) {
-  console.error(
-    "Greška pri prijavi:",
-    error
-  );
+console.error("Greška pri registraciji:", error);
 
-  res.status(500).json({
-    error:
-      "Greška pri prijavi."
-  });
-}
+```
+res.status(500).json({
+  error: "Greška pri registraciji."
+});
 ```
 
 }
+});
+
+app.post("/api/auth/login", async (req, res) => {
+try {
+const db = requireDatabase();
+
+```
+const email = String(req.body.email || "")
+  .trim()
+  .toLowerCase();
+
+const password = String(req.body.password || "");
+
+if (!email || !password) {
+  return res.status(400).json({
+    error: "Email i lozinka su obavezni."
+  });
+}
+
+const result = await db.query(
+  "SELECT id, name, email, password_hash, type, company_name, pib " +
+    "FROM users WHERE email = $1 LIMIT 1",
+  [email]
 );
 
-app.get(
-"/api/me",
-authRequired,
-async (req, res) => {
-try {
-if (!process.env.DATABASE_URL) {
-return res.status(503).json({
-error:
-"Baza podataka trenutno nije povezana."
-});
-}
-
-```
-  const result =
-    await pool.query(
-      "SELECT id, name, email, type, " +
-      "company_name, pib, package_name, " +
-      "package_expires_at, created_at " +
-      "FROM users WHERE id = $1",
-      [req.user.id]
-    );
-
-  if (result.rows.length === 0) {
-    return res.status(404).json({
-      error:
-        "Korisnik nije pronađen."
-    });
-  }
-
-  res.json(result.rows[0]);
-} catch (error) {
-  console.error(
-    "Greška pri učitavanju korisnika:",
-    error
-  );
-
-  res.status(500).json({
-    error:
-      "Greška pri učitavanju korisnika."
+if (!result.rows.length) {
+  return res.status(401).json({
+    error: "Pogrešan email ili lozinka."
   });
 }
-```
 
-}
+const user = result.rows[0];
+
+const validPassword = await bcrypt.compare(
+  password,
+  user.password_hash
 );
 
-app.post(
-"/api/listings",
-authRequired,
-async (req, res) => {
-try {
-if (!process.env.DATABASE_URL) {
-return res.status(503).json({
-error:
-"Baza podataka trenutno nije povezana."
-});
+if (!validPassword) {
+  return res.status(401).json({
+    error: "Pogrešan email ili lozinka."
+  });
 }
 
+delete user.password_hash;
+
+res.json({
+  message: "Uspešna prijava.",
+  token: createToken(user),
+  user
+});
 ```
-  const {
+
+} catch (error) {
+console.error("Greška pri prijavi:", error);
+
+```
+res.status(500).json({
+  error: "Greška pri prijavi."
+});
+```
+
+}
+});
+
+app.get("/api/me", authRequired, async (req, res) => {
+try {
+const db = requireDatabase();
+
+```
+const result = await db.query(
+  "SELECT id, name, email, type, company_name, pib, created_at " +
+    "FROM users WHERE id = $1 LIMIT 1",
+  [req.user.id]
+);
+
+if (!result.rows.length) {
+  return res.status(404).json({
+    error: "Korisnik nije pronađen."
+  });
+}
+
+res.json(result.rows[0]);
+```
+
+} catch (error) {
+console.error("Greška pri učitavanju korisnika:", error);
+
+```
+res.status(500).json({
+  error: "Greška pri učitavanju profila."
+});
+```
+
+}
+});
+
+app.post("/api/listings", authRequired, async (req, res) => {
+try {
+const db = requireDatabase();
+
+```
+const title = String(req.body.title || "").trim();
+const category = String(req.body.category || "").trim();
+const location = String(req.body.location || "").trim();
+const description = String(req.body.description || "").trim();
+const image =
+  String(req.body.image || "").trim() ||
+  "/assets/hero-reference.png";
+
+const priceRaw = String(req.body.price || "").trim();
+const price = priceRaw ? Number(priceRaw) : null;
+
+if (!title || !category || !location) {
+  return res.status(400).json({
+    error: "Naslov, kategorija i lokacija su obavezni."
+  });
+}
+
+if (priceRaw && (!Number.isFinite(price) || price < 0)) {
+  return res.status(400).json({
+    error: "Cena nije ispravna."
+  });
+}
+
+const result = await db.query(
+  "INSERT INTO listings " +
+    "(user_id, title, category, location, price, description, image) " +
+    "VALUES ($1, $2, $3, $4, $5, $6, $7) " +
+    "RETURNING id, title, category, location, price, description, image, created_at",
+  [
+    req.user.id,
     title,
     category,
     location,
     price,
-    description
-  } = req.body;
-
-  if (
-    !title ||
-    !category ||
-    !location
-  ) {
-    return res.status(400).json({
-      error:
-        "Naslov, kategorija i lokacija su obavezni."
-    });
-  }
-
-  const result =
-    await pool.query(
-      "INSERT INTO listings " +
-      "(user_id, title, category, location, price, description, image) " +
-      "VALUES ($1, $2, $3, $4, $5, $6, $7) " +
-      "RETURNING *",
-      [
-        req.user.id,
-        title,
-        category,
-        location,
-        price
-          ? Number(price)
-          : null,
-        description || "",
-        "/assets/hero-reference.png"
-      ]
-    );
-
-  res.status(201).json({
-    message:
-      "Oglas je uspešno objavljen.",
-    listing: result.rows[0]
-  });
-} catch (error) {
-  console.error(
-    "Greška pri objavljivanju oglasa:",
-    error
-  );
-
-  res.status(500).json({
-    error:
-      "Greška pri objavljivanju oglasa."
-  });
-}
-```
-
-}
+    description,
+    image
+  ]
 );
 
-app.post(
-"/api/requests",
-authRequired,
-async (req, res) => {
-try {
-if (!process.env.DATABASE_URL) {
-return res.status(503).json({
-error:
-"Baza podataka trenutno nije povezana."
+res.status(201).json({
+  message: "Oglas je objavljen.",
+  listing: result.rows[0]
 });
-}
+```
+
+} catch (error) {
+console.error("Greška pri objavljivanju oglasa:", error);
 
 ```
-  const {
+res.status(500).json({
+  error: "Greška pri objavljivanju oglasa."
+});
+```
+
+}
+});
+
+app.post("/api/requests", authRequired, async (req, res) => {
+try {
+const db = requireDatabase();
+
+```
+const title = String(req.body.title || "").trim();
+const category = String(req.body.category || "").trim();
+const location = String(req.body.location || "").trim();
+const description = String(req.body.description || "").trim();
+
+const budgetRaw = String(req.body.budget || "").trim();
+const budget = budgetRaw ? Number(budgetRaw) : null;
+
+if (!title) {
+  return res.status(400).json({
+    error: "Naslov zahteva je obavezan."
+  });
+}
+
+if (
+  budgetRaw &&
+  (!Number.isFinite(budget) || budget < 0)
+) {
+  return res.status(400).json({
+    error: "Budžet nije ispravan."
+  });
+}
+
+const result = await db.query(
+  "INSERT INTO requests " +
+    "(user_id, title, category, location, budget, description) " +
+    "VALUES ($1, $2, $3, $4, $5, $6) " +
+    "RETURNING id, title, category, location, budget, description, created_at",
+  [
+    req.user.id,
     title,
-    category,
-    location,
+    category || null,
+    location || null,
     budget,
     description
-  } = req.body;
-
-  if (!title) {
-    return res.status(400).json({
-      error:
-        "Naslov zahteva je obavezan."
-    });
-  }
-
-  const result =
-    await pool.query(
-      "INSERT INTO requests " +
-      "(user_id, title, category, location, budget, description) " +
-      "VALUES ($1, $2, $3, $4, $5, $6) " +
-      "RETURNING *",
-      [
-        req.user.id,
-        title,
-        category || null,
-        location || null,
-        budget
-          ? Number(budget)
-          : null,
-        description || ""
-      ]
-    );
-
-  res.status(201).json({
-    message:
-      "Zahtev je uspešno sačuvan.",
-    request: result.rows[0]
-  });
-} catch (error) {
-  console.error(
-    "Greška pri čuvanju zahteva:",
-    error
-  );
-
-  res.status(500).json({
-    error:
-      "Greška pri čuvanju zahteva."
-  });
-}
-```
-
-}
+  ]
 );
 
-app.post(
-"/api/support/tickets",
-async (req, res) => {
-try {
-if (!process.env.DATABASE_URL) {
-return res.status(503).json({
-error:
-"Baza podataka trenutno nije povezana."
+res.status(201).json({
+  message: "Zahtev je sačuvan.",
+  request: result.rows[0]
 });
-}
+```
+
+} catch (error) {
+console.error("Greška pri čuvanju zahteva:", error);
 
 ```
-  const {
+res.status(500).json({
+  error: "Greška pri čuvanju zahteva."
+});
+```
+
+}
+});
+
+app.post("/api/support/tickets", async (req, res) => {
+try {
+const db = requireDatabase();
+
+```
+const name = String(req.body.name || "").trim();
+const email = String(req.body.email || "")
+  .trim()
+  .toLowerCase();
+const subject = String(req.body.subject || "").trim();
+const message = String(req.body.message || "").trim();
+
+if (!name || !email || !subject || !message) {
+  return res.status(400).json({
+    error: "Sva polja su obavezna."
+  });
+}
+
+const user = getUserFromRequest(req);
+
+await db.query(
+  "INSERT INTO support_tickets " +
+    "(user_id, name, email, subject, message) " +
+    "VALUES ($1, $2, $3, $4, $5)",
+  [
+    user ? user.id : null,
     name,
     email,
     subject,
     message
-  } = req.body;
-
-  if (
-    !email ||
-    !subject ||
-    !message
-  ) {
-    return res.status(400).json({
-      error:
-        "Email, naslov i poruka su obavezni."
-    });
-  }
-
-  await pool.query(
-    "INSERT INTO support_tickets " +
-    "(user_id, name, email, subject, message) " +
-    "VALUES ($1, $2, $3, $4, $5)",
-    [
-      null,
-      name || "",
-      email,
-      subject,
-      message
-    ]
-  );
-
-  res.json({
-    message:
-      "Upit je uspešno poslat. Hvala što ste nam se obratili."
-  });
-} catch (error) {
-  console.error(
-    "Greška pri slanju upita:",
-    error
-  );
-
-  res.status(500).json({
-    error:
-      "Greška pri slanju upita."
-  });
-}
-```
-
-}
+  ]
 );
 
-app.post(
-"/api/support/chat",
-async (req, res) => {
-const message =
-String(
-req.body.message || ""
-)
-.toLowerCase()
-.trim();
-
-```
-let answer =
-  "Mogu da pomognem oko registracije, prijave, oglasa, zahteva i paketa za firme.";
-
-if (
-  message.includes("registr") &&
-  (
-    message.includes("fizi") ||
-    message.includes("lice")
-  )
-) {
-  answer =
-    "Za registraciju fizičkog lica izaberite Registracija, zatim Fizičko lice i unesite tražene podatke.";
-} else if (
-  message.includes("registr") &&
-  (
-    message.includes("firm") ||
-    message.includes("prav") ||
-    message.includes("kompan")
-  )
-) {
-  answer =
-    "Za registraciju firme izaberite Registracija, zatim Pravno lice. Potrebno je uneti podatke o firmi, uključujući naziv firme.";
-} else if (
-  message.includes("prijav") ||
-  message.includes("login")
-) {
-  answer =
-    "Kliknite na Prijava u gornjem meniju i unesite email i lozinku koje ste koristili prilikom registracije.";
-} else if (
-  message.includes("oglas") &&
-  (
-    message.includes("objav") ||
-    message.includes("postav")
-  )
-) {
-  answer =
-    "Za objavljivanje oglasa potrebno je da budete prijavljeni. Nakon prijave izaberite Objavi oglas.";
-} else if (
-  message.includes("zahtev") ||
-  message.includes("traž") ||
-  message.includes("traz")
-) {
-  answer =
-    "Zahtev možete postaviti nakon prijave. Izaberite Postavi zahtev i unesite šta tražite, kategoriju, lokaciju i budžet.";
-} else if (
-  message.includes("paket") ||
-  message.includes("cen") ||
-  message.includes("10 €") ||
-  message.includes("10 eur")
-) {
-  answer =
-    "Paketi za pravna lica uključuju mesečni, tromesečni, šestomesečni i Premium godišnji paket. Detalji paketa prikazuju se prilikom registracije firme.";
-} else if (
-  message.includes("lozink") ||
-  message.includes("password")
-) {
-  answer =
-    "Ako ste zaboravili lozinku, trenutno je potrebno da kontaktirate podršku putem opcije Pošalji upit.";
-}
-
-res.json({
-  answer
+res.status(201).json({
+  message: "Upit je uspešno poslat."
 });
 ```
 
-}
-);
-
-app.use(
-(err, req, res, next) => {
-console.error(
-"Server error:",
-err
-);
+} catch (error) {
+console.error("Greška pri slanju upita:", error);
 
 ```
 res.status(500).json({
-  error:
-    "Greška na serveru."
+  error: "Greška pri slanju upita."
 });
 ```
 
 }
-);
+});
 
-app.get(
-"/*splat",
-(req, res) => {
-res.sendFile(
-path.join(
-__dirname,
-"index.html"
-)
-);
+app.post("/api/support/chat", async (req, res) => {
+const message = String(req.body.message || "")
+.trim()
+.toLowerCase();
+
+let answer =
+"Mogu da pomognem oko registracije, prijave, oglasa, zahteva i korišćenja PonudiMi platforme.";
+
+if (
+message.includes("registr") ||
+message.includes("nalog")
+) {
+answer =
+"Za registraciju kliknite na dugme „Registracija“. Možete izabrati fizičko lice ili pravno lice i zatim popuniti tražene podatke.";
+} else if (
+message.includes("prijav") ||
+message.includes("login") ||
+message.includes("lozink")
+) {
+answer =
+"Za prijavu kliknite na „Prijava“ i unesite email adresu i lozinku koju ste koristili prilikom registracije.";
+} else if (
+message.includes("oglas") ||
+message.includes("ponud")
+) {
+answer =
+"Nakon prijave možete koristiti opciju „Objavi oglas“ i uneti naslov, kategoriju, lokaciju, cenu i opis.";
+} else if (
+message.includes("zahtev") ||
+message.includes("tražim")
+) {
+answer =
+"Opcija „Postavi zahtev“ omogućava vam da navedete šta tražite, kategoriju, lokaciju, budžet i dodatni opis.";
+} else if (
+message.includes("paket") ||
+message.includes("firma") ||
+message.includes("pravno")
+) {
+answer =
+"Pravna lica imaju posebne pakete za korišćenje platforme. Detalji paketa dostupni su prilikom registracije pravnog lica.";
+} else if (
+message.includes("proviz") ||
+message.includes("5%")
+) {
+answer =
+"PonudiMi platforma ima proviziju od 5% po realizovanoj transakciji.";
 }
-);
+
+res.json({
+answer
+});
+});
+
+app.use(express.static(__dirname));
+
+app.get("/*splat", (req, res) => {
+res.sendFile(path.join(__dirname, "index.html"));
+});
 
 async function startServer() {
 try {
-await initDatabase();
+if (!pool) {
+console.error(
+"GREŠKA: DATABASE_URL nije podešen u Render Environment Variables."
+);
+process.exit(1);
+}
 
 ```
-app.listen(
-  PORT,
-  "0.0.0.0",
-  () => {
-    console.log(
-      "PonudiMi server radi na portu " +
-      PORT
-    );
-  }
-);
+await initDatabase();
+
+app.listen(PORT, "0.0.0.0", () => {
+  console.log(
+    "PonudiMi server radi na portu " + PORT
+  );
+});
 ```
 
 } catch (error) {
 console.error(
-"Greška pri pokretanju servera:",
+"SERVER NIJE MOGAO DA SE POKRENE:",
 error
 );
 
@@ -975,36 +748,3 @@ process.exit(1);
 }
 
 startServer();
-
-````
-
-### Sada
-
-U GitHub-u:
-
-**`server.js` → Edit → obriši sve → nalepi ceo kod → Commit changes.**
-
-Prva linija mora biti tačno:
-
-```text
-const express = require("express");
-````
-
-Poslednja linija mora biti:
-
-```text
-startServer();
-```
-
-**Ne sme biti ` ```javascript ` na početku i ne sme biti ` ``` ` na kraju.**
-
-Ovaj put je konkretno ispravljena greška koju Render sada prijavljuje:
-
-```text
-'type TEXT NOT NULL DEFAULT 'individual', ' +
-                             ^^^^^^^^^^
-```
-
-i više nema JavaScript/SQL sudara oko `'individual'`.
-
-Kada Render završi novi deploy, pošalji mi log. Ako server prođe ovu fazu, sledeće što proveravamo je **da li se PostgreSQL povezuje i da li se pojavljuje `PonudiMi server radi na portu ...`**.
