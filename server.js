@@ -1,4 +1,4 @@
-
+```js
 const express = require('express');
 const path = require('path');
 const { Pool } = require('pg');
@@ -6,19 +6,28 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 
 const app = express();
+
 const PORT = process.env.PORT || 3000;
-const JWT_SECRET = process.env.JWT_SECRET || 'ponudimi-mvp-change-this-secret';
+const JWT_SECRET =
+  process.env.JWT_SECRET || 'ponudimi-mvp-change-this-secret';
 
 if (!process.env.DATABASE_URL) {
-  console.warn('WARNING: DATABASE_URL is not set. Configure a PostgreSQL database before deploying.');
+  console.warn(
+    'WARNING: DATABASE_URL is not set. Configure a PostgreSQL database before deploying.'
+  );
 }
 
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
-  ssl: process.env.NODE_ENV === 'production'
-    ? { rejectUnauthorized: false }
-    : false,
+  ssl:
+    process.env.NODE_ENV === 'production'
+      ? { rejectUnauthorized: false }
+      : false,
 });
+
+/* =========================================================
+   DATABASE
+========================================================= */
 
 async function initDb() {
   await pool.query(`
@@ -68,6 +77,10 @@ async function initDb() {
     );
   `);
 
+  /* -------------------------------------------------------
+     DEMO USERS
+  ------------------------------------------------------- */
+
   const seedUsers = [
     [
       'individual',
@@ -75,7 +88,7 @@ async function initDb() {
       'fizicko@ponudimi.local',
       bcrypt.hashSync('Demo123!', 10),
       null,
-      null
+      null,
     ],
     [
       'company',
@@ -83,11 +96,11 @@ async function initDb() {
       'firma@ponudimi.local',
       bcrypt.hashSync('Demo123!', 10),
       'Demo Firma d.o.o.',
-      '100000001'
-    ]
+      '100000001',
+    ],
   ];
 
-  for (const u of seedUsers) {
+  for (const user of seedUsers) {
     await pool.query(
       `INSERT INTO users(
         type,
@@ -99,23 +112,27 @@ async function initDb() {
       )
       VALUES($1,$2,$3,$4,$5,$6)
       ON CONFLICT (email) DO NOTHING`,
-      u
+      user
     );
   }
+
+  /* -------------------------------------------------------
+     DEMO LISTINGS
+  ------------------------------------------------------- */
 
   const countResult = await pool.query(
     'SELECT COUNT(*)::int AS c FROM listings'
   );
 
   if (countResult.rows[0].c === 0) {
-    const demo = [
+    const demoListings = [
       [
         'Polovni automobili',
         'BMW 520d xDrive',
         'Beograd',
         24900,
         '2019 • 142.000 km',
-        '/assets/hero-reference.png'
+        '/assets/hero-reference.png',
       ],
       [
         'Nekretnine',
@@ -123,7 +140,7 @@ async function initDb() {
         'Novi Beograd',
         154000,
         '2.0 soban • novogradnja',
-        '/assets/hero-reference.png'
+        '/assets/hero-reference.png',
       ],
       [
         'Mobilni telefoni',
@@ -131,7 +148,7 @@ async function initDb() {
         'Novi Sad',
         799,
         'Kao nov • garancija',
-        '/assets/hero-reference.png'
+        '/assets/hero-reference.png',
       ],
       [
         'Usluge',
@@ -139,8 +156,8 @@ async function initDb() {
         'Niš',
         null,
         'Kompletna adaptacija po dogovoru',
-        '/assets/hero-reference.png'
-      ]
+        '/assets/hero-reference.png',
+      ],
     ];
 
     const userResult = await pool.query(
@@ -149,7 +166,7 @@ async function initDb() {
 
     const userId = userResult.rows[0]?.id || null;
 
-    for (const x of demo) {
+    for (const item of demoListings) {
       await pool.query(
         `INSERT INTO listings(
           user_id,
@@ -163,47 +180,67 @@ async function initDb() {
         VALUES($1,$2,$3,$4,$5,$6,$7)`,
         [
           userId,
-          x[1],
-          x[0],
-          x[2],
-          x[3],
-          x[4],
-          x[5]
+          item[1],
+          item[0],
+          item[2],
+          item[3],
+          item[4],
+          item[5],
         ]
       );
     }
   }
 }
 
+/* =========================================================
+   MIDDLEWARE
+========================================================= */
+
 app.use(express.json({ limit: '1mb' }));
 app.use(express.urlencoded({ extended: true }));
 
-app.use(
-  express.static(path.join(__dirname, 'public'))
-);
+/*
+ * Fajlovi projekta su trenutno u root-u GitHub repozitorijuma:
+ *
+ * index.html
+ * app.js
+ * styles.css
+ *
+ * Zato se statički fajlovi serviraju iz __dirname,
+ * a ne iz /public foldera.
+ */
+app.use(express.static(__dirname));
+
+/* =========================================================
+   AUTHENTICATION
+========================================================= */
 
 function auth(req, res, next) {
-  const h = req.headers.authorization || '';
+  const header = req.headers.authorization || '';
 
-  if (!h.startsWith('Bearer ')) {
+  if (!header.startsWith('Bearer ')) {
     return res.status(401).json({
-      error: 'Potrebna je prijava.'
+      error: 'Potrebna je prijava.',
     });
   }
 
   try {
     req.user = jwt.verify(
-      h.slice(7),
+      header.slice(7),
       JWT_SECRET
     );
 
     next();
   } catch {
     return res.status(401).json({
-      error: 'Sesija je istekla.'
+      error: 'Sesija je istekla.',
     });
   }
 }
+
+/* =========================================================
+   HEALTH
+========================================================= */
 
 app.get('/api/health', async (req, res) => {
   try {
@@ -212,16 +249,22 @@ app.get('/api/health', async (req, res) => {
     res.json({
       ok: true,
       app: 'PonudiMi MVP v1',
-      database: 'postgresql'
+      database: 'postgresql',
     });
-  } catch {
+  } catch (error) {
+    console.error(error);
+
     res.status(503).json({
       ok: false,
       app: 'PonudiMi MVP v1',
-      database: 'unavailable'
+      database: 'unavailable',
     });
   }
 });
+
+/* =========================================================
+   CATEGORIES
+========================================================= */
 
 app.get('/api/categories', (req, res) => {
   res.json([
@@ -233,9 +276,13 @@ app.get('/api/categories', (req, res) => {
     'Građevina',
     'Poljoprivreda',
     'Moda',
-    'Ostalo'
+    'Ostalo',
   ]);
 });
+
+/* =========================================================
+   LISTINGS - SEARCH
+========================================================= */
 
 app.get('/api/listings', async (req, res) => {
   try {
@@ -272,27 +319,40 @@ app.get('/api/listings', async (req, res) => {
 
     if (category) {
       args.push(category);
-      sql += ` AND category=$${args.length}`;
+
+      sql += `
+        AND category=$${args.length}
+      `;
     }
 
     if (location) {
       args.push(`%${location}%`);
-      sql += ` AND location ILIKE $${args.length}`;
+
+      sql += `
+        AND location ILIKE $${args.length}
+      `;
     }
 
-    sql += ' ORDER BY id DESC LIMIT 50';
+    sql += `
+      ORDER BY id DESC
+      LIMIT 50
+    `;
 
     const result = await pool.query(sql, args);
 
     res.json(result.rows);
-  } catch (e) {
-    console.error(e);
+  } catch (error) {
+    console.error(error);
 
     res.status(500).json({
-      error: 'Greška pri učitavanju oglasa.'
+      error: 'Greška pri učitavanju oglasa.',
     });
   }
 });
+
+/* =========================================================
+   REGISTER
+========================================================= */
 
 app.post('/api/auth/register', async (req, res) => {
   const {
@@ -301,7 +361,7 @@ app.post('/api/auth/register', async (req, res) => {
     email,
     password,
     companyName,
-    pib
+    pib,
   } = req.body;
 
   if (
@@ -311,24 +371,26 @@ app.post('/api/auth/register', async (req, res) => {
     !password
   ) {
     return res.status(400).json({
-      error: 'Popunite obavezna polja.'
+      error: 'Popunite obavezna polja.',
     });
   }
 
   if (type === 'company' && !companyName) {
     return res.status(400).json({
-      error: 'Naziv firme je obavezan.'
+      error: 'Naziv firme je obavezan.',
     });
   }
 
   if (password.length < 6) {
     return res.status(400).json({
-      error: 'Lozinka mora imati najmanje 6 karaktera.'
+      error: 'Lozinka mora imati najmanje 6 karaktera.',
     });
   }
 
   try {
-    const normalizedEmail = email.toLowerCase();
+    const normalizedEmail = email
+      .trim()
+      .toLowerCase();
 
     const result = await pool.query(
       `INSERT INTO users(
@@ -343,57 +405,69 @@ app.post('/api/auth/register', async (req, res) => {
       RETURNING id`,
       [
         type,
-        name,
+        name.trim(),
         normalizedEmail,
         bcrypt.hashSync(password, 10),
-        companyName || null,
-        pib || null
+        companyName ? companyName.trim() : null,
+        pib ? pib.trim() : null,
       ]
     );
 
     const user = {
       id: result.rows[0].id,
       type,
-      name,
+      name: name.trim(),
       email: normalizedEmail,
-      companyName: companyName || null
+      companyName: companyName
+        ? companyName.trim()
+        : null,
     };
 
     const token = jwt.sign(
       user,
       JWT_SECRET,
-      { expiresIn: '7d' }
+      {
+        expiresIn: '7d',
+      }
     );
 
     res.status(201).json({
       token,
-      user
+      user,
     });
-  } catch (e) {
-    if (e.code === '23505') {
+  } catch (error) {
+    if (error.code === '23505') {
       return res.status(409).json({
-        error: 'Email je već registrovan.'
+        error: 'Email je već registrovan.',
       });
     }
 
-    console.error(e);
+    console.error(error);
 
     res.status(500).json({
-      error: 'Greška pri registraciji.'
+      error: 'Greška pri registraciji.',
     });
   }
 });
 
+/* =========================================================
+   LOGIN
+========================================================= */
+
 app.post('/api/auth/login', async (req, res) => {
   try {
-    const {
-      email,
-      password
-    } = req.body;
+    const email = (req.body.email || '')
+      .trim()
+      .toLowerCase();
+
+    const password = req.body.password || '';
 
     const result = await pool.query(
-      'SELECT * FROM users WHERE email=$1 LIMIT 1',
-      [(email || '').toLowerCase()]
+      `SELECT *
+       FROM users
+       WHERE email=$1
+       LIMIT 1`,
+      [email]
     );
 
     const row = result.rows[0];
@@ -401,12 +475,12 @@ app.post('/api/auth/login', async (req, res) => {
     if (
       !row ||
       !bcrypt.compareSync(
-        password || '',
+        password,
         row.password_hash
       )
     ) {
       return res.status(401).json({
-        error: 'Pogrešan email ili lozinka.'
+        error: 'Pogrešan email ili lozinka.',
       });
     }
 
@@ -415,29 +489,41 @@ app.post('/api/auth/login', async (req, res) => {
       type: row.type,
       name: row.name,
       email: row.email,
-      companyName: row.company_name
+      companyName: row.company_name,
     };
 
+    const token = jwt.sign(
+      user,
+      JWT_SECRET,
+      {
+        expiresIn: '7d',
+      }
+    );
+
     res.json({
-      token: jwt.sign(
-        user,
-        JWT_SECRET,
-        { expiresIn: '7d' }
-      ),
-      user
+      token,
+      user,
     });
-  } catch (e) {
-    console.error(e);
+  } catch (error) {
+    console.error(error);
 
     res.status(500).json({
-      error: 'Greška pri prijavi.'
+      error: 'Greška pri prijavi.',
     });
   }
 });
 
+/* =========================================================
+   CURRENT USER
+========================================================= */
+
 app.get('/api/me', auth, (req, res) => {
   res.json(req.user);
 });
+
+/* =========================================================
+   CREATE LISTING
+========================================================= */
 
 app.post('/api/listings', auth, async (req, res) => {
   try {
@@ -446,12 +532,33 @@ app.post('/api/listings', auth, async (req, res) => {
       category,
       location,
       price,
-      description
+      description,
     } = req.body;
 
-    if (!title || !category || !location) {
+    if (
+      !title ||
+      !category ||
+      !location
+    ) {
       return res.status(400).json({
-        error: 'Naslov, kategorija i lokacija su obavezni.'
+        error:
+          'Naslov, kategorija i lokacija su obavezni.',
+      });
+    }
+
+    const numericPrice =
+      price !== undefined &&
+      price !== null &&
+      price !== ''
+        ? Number(price)
+        : null;
+
+    if (
+      numericPrice !== null &&
+      Number.isNaN(numericPrice)
+    ) {
+      return res.status(400).json({
+        error: 'Cena nije ispravna.',
       });
     }
 
@@ -469,26 +576,31 @@ app.post('/api/listings', auth, async (req, res) => {
       RETURNING id`,
       [
         req.user.id,
-        title,
+        title.trim(),
         category,
-        location,
-        price ? Number(price) : null,
+        location.trim(),
+        numericPrice,
         description || '',
-        '/assets/hero-reference.png'
+        '/assets/hero-reference.png',
       ]
     );
 
     res.status(201).json({
-      id: result.rows[0].id
+      id: result.rows[0].id,
     });
-  } catch (e) {
-    console.error(e);
+  } catch (error) {
+    console.error(error);
 
     res.status(500).json({
-      error: 'Greška pri objavljivanju oglasa.'
+      error:
+        'Greška pri objavljivanju oglasa.',
     });
   }
 });
+
+/* =========================================================
+   CREATE REQUEST
+========================================================= */
 
 app.post('/api/requests', auth, async (req, res) => {
   try {
@@ -497,12 +609,29 @@ app.post('/api/requests', auth, async (req, res) => {
       category,
       location,
       budget,
-      description
+      description,
     } = req.body;
 
     if (!title) {
       return res.status(400).json({
-        error: 'Naslov zahteva je obavezan.'
+        error:
+          'Naslov zahteva je obavezan.',
+      });
+    }
+
+    const numericBudget =
+      budget !== undefined &&
+      budget !== null &&
+      budget !== ''
+        ? Number(budget)
+        : null;
+
+    if (
+      numericBudget !== null &&
+      Number.isNaN(numericBudget)
+    ) {
+      return res.status(400).json({
+        error: 'Budžet nije ispravan.',
       });
     }
 
@@ -519,150 +648,214 @@ app.post('/api/requests', auth, async (req, res) => {
       RETURNING id`,
       [
         req.user.id,
-        title,
+        title.trim(),
         category || null,
-        location || null,
-        budget ? Number(budget) : null,
-        description || ''
-      ]
-    );
-
-    res.status(201).json({
-      id: result.rows[0].id
-    });
-  } catch (e) {
-    console.error(e);
-
-    res.status(500).json({
-      error: 'Greška pri slanju zahteva.'
-    });
-  }
-});
-
-app.post('/api/support/tickets', async (req, res) => {
-  try {
-    const {
-      name,
-      email,
-      subject,
-      message
-    } = req.body;
-
-    if (!name || !email || !subject || !message) {
-      return res.status(400).json({
-        error: 'Popunite sva polja.'
-      });
-    }
-
-    const result = await pool.query(
-      `INSERT INTO support_tickets(
-        name,
-        email,
-        subject,
-        message
-      )
-      VALUES($1,$2,$3,$4)
-      RETURNING id`,
-      [
-        name,
-        email,
-        subject,
-        message
+        location
+          ? location.trim()
+          : null,
+        numericBudget,
+        description || '',
       ]
     );
 
     res.status(201).json({
       id: result.rows[0].id,
-      message: 'Upit je uspešno evidentiran.'
     });
-  } catch (e) {
-    console.error(e);
+  } catch (error) {
+    console.error(error);
 
     res.status(500).json({
-      error: 'Greška pri slanju upita.'
+      error:
+        'Greška pri slanju zahteva.',
     });
   }
 });
+
+/* =========================================================
+   SUPPORT TICKETS
+========================================================= */
+
+app.post(
+  '/api/support/tickets',
+  async (req, res) => {
+    try {
+      const {
+        name,
+        email,
+        subject,
+        message,
+      } = req.body;
+
+      if (
+        !name ||
+        !email ||
+        !subject ||
+        !message
+      ) {
+        return res.status(400).json({
+          error: 'Popunite sva polja.',
+        });
+      }
+
+      const result = await pool.query(
+        `INSERT INTO support_tickets(
+          name,
+          email,
+          subject,
+          message
+        )
+        VALUES($1,$2,$3,$4)
+        RETURNING id`,
+        [
+          name.trim(),
+          email.trim().toLowerCase(),
+          subject.trim(),
+          message.trim(),
+        ]
+      );
+
+      res.status(201).json({
+        id: result.rows[0].id,
+        message:
+          'Upit je uspešno evidentiran.',
+      });
+    } catch (error) {
+      console.error(error);
+
+      res.status(500).json({
+        error:
+          'Greška pri slanju upita.',
+      });
+    }
+  }
+);
+
+/* =========================================================
+   SUPPORT CHAT / FAQ
+========================================================= */
 
 const faq = [
   {
-    keys: ['registr', 'fizičko', 'fizicko'],
+    keys: [
+      'registr',
+      'fizičko',
+      'fizicko',
+    ],
     answer:
-      'Za fizičko lice izaberite Registracija → Fizičko lice i popunite osnovne podatke. U MVP-u se nalog odmah aktivira nakon uspešne registracije.'
+      'Za fizičko lice izaberite Registracija → Fizičko lice i popunite osnovne podatke. U MVP-u se nalog odmah aktivira nakon uspešne registracije.',
   },
   {
-    keys: ['firma', 'pravno', 'paket'],
+    keys: [
+      'firma',
+      'pravno',
+      'paket',
+    ],
     answer:
-      'Za firmu izaberite Registracija → Pravno lice. U punoj verziji ovde će biti prikazani paketi i uslovi zakupa.'
+      'Za firmu izaberite Registracija → Pravno lice. U punoj verziji ovde će biti prikazani paketi i uslovi zakupa.',
   },
   {
-    keys: ['prijav', 'login', 'ulog'],
+    keys: [
+      'prijav',
+      'login',
+      'ulog',
+    ],
     answer:
-      'Za prijavu koristite email i lozinku. Ako ste zaboravili lozinku, u punoj verziji koristićemo proceduru za resetovanje putem emaila.'
+      'Za prijavu koristite email i lozinku. Ako ste zaboravili lozinku, u MVP-u kontaktirajte podršku kroz „Pošalji upit“.',
   },
   {
-    keys: ['oglas', 'objav'],
+    keys: [
+      'oglas',
+      'objav',
+    ],
     answer:
-      'Oglas možete objaviti preko dugmeta „Objavi oglas“. Potrebna je prijava. Unesite naslov, kategoriju, lokaciju, cenu i opis.'
+      'Oglas možete objaviti preko dugmeta „Objavi oglas“. Potrebna je prijava. Unesite naslov, kategoriju, lokaciju, cenu i opis.',
   },
   {
-    keys: ['zahtev', 'ponud'],
+    keys: [
+      'zahtev',
+      'ponud',
+    ],
     answer:
-      '„Postavi zahtev“ služi kupcu da opiše šta traži. Registrovani ponuđači kasnije mogu da odgovore ponudom.'
+      '„Postavi zahtev“ služi kupcu da opiše šta traži. Registrovani ponuđači kasnije mogu da odgovore ponudom.',
   },
   {
-    keys: ['lozink', 'šifru', 'sifru'],
+    keys: [
+      'lozink',
+      'šifru',
+      'sifru',
+    ],
     answer:
-      'Ako ste zaboravili lozinku, u MVP-u kontaktirajte podršku kroz „Pošalji upit“. Produkcijska verzija će imati automatski reset lozinke.'
-  }
+      'Ako ste zaboravili lozinku, u MVP-u kontaktirajte podršku kroz „Pošalji upit“. Produkcijska verzija će imati automatski reset lozinke.',
+  },
 ];
 
-app.post('/api/support/chat', (req, res) => {
-  const message = (
-    req.body.message || ''
-  ).toLowerCase();
+app.post(
+  '/api/support/chat',
+  (req, res) => {
+    const message = (
+      req.body.message || ''
+    ).toLowerCase();
 
-  const found = faq.find(
-    x => x.keys.some(
-      k => message.includes(k)
-    )
-  );
+    const found = faq.find(
+      item =>
+        item.keys.some(
+          key =>
+            message.includes(key)
+        )
+    );
 
-  res.json({
-    answer: found
-      ? found.answer
-      : 'Mogu da pomognem oko registracije, prijave, oglasa, zahteva i paketa za firme. Ako pitanje nije pokriveno, koristite „Pošalji upit“.'
-  });
-});
+    res.json({
+      answer: found
+        ? found.answer
+        : 'Mogu da pomognem oko registracije, prijave, oglasa, zahteva i paketa za firme. Ako pitanje nije pokriveno, koristite „Pošalji upit“.',
+    });
+  }
+);
+
+/* =========================================================
+   FRONTEND
+========================================================= */
 
 /*
- * Express 5 catch-all ruta.
- * Stara verzija app.get('*', ...) pravi
- * PathError: Missing parameter name.
+ * Pošto su frontend fajlovi u root-u:
+ *
+ * index.html
+ * app.js
+ * styles.css
+ *
+ * vraćamo root index.html za sve rute koje nisu API.
+ *
+ * Express 5 zahteva imenovani wildcard parametar.
  */
+
 app.get('/*splat', (req, res) => {
   res.sendFile(
     path.join(
       __dirname,
-      'public',
       'index.html'
     )
   );
 });
 
+/* =========================================================
+   START SERVER
+========================================================= */
+
 initDb()
   .then(() => {
     app.listen(
       PORT,
-      () => console.log(
-        `PonudiMi MVP v1 running on port ${PORT}`
-      )
+      () => {
+        console.log(
+          `PonudiMi MVP v1 running on port ${PORT}`
+        );
+      }
     );
   })
-  .catch(err => {
+  .catch(error => {
     console.error(
       'Database initialization failed:',
-      err
+      error
     );
 
     process.exit(1);
