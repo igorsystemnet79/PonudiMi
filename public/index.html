@@ -8,30 +8,31 @@
     content="PonudiMi — kupoprodajna platforma za oglase, zahteve i ponude."
   >
   <title>PonudiMi — Pronađite najbolje ponude lako i brzo</title>
-
   <link rel="stylesheet" href="/styles.css">
 </head>
 
 <body>
   <header class="topbar">
     <a class="brand" href="/" aria-label="PonudiMi početna stranica">
-      <img
-        src="/ponudimi-logo.jpg"
-        alt="PonudiMi logo"
-      >
+      <img src="/ponudimi-logo.jpg" alt="PonudiMi logo">
     </a>
 
     <nav class="main-nav" aria-label="Glavna navigacija">
       <button class="navlink" id="supportBtn" type="button">
-        🎧 <span>Podrška</span>
+        <span class="nav-icon">🎧</span>
+        <span>Podrška</span>
+        <small>Tu smo za vas</small>
       </button>
 
       <button class="navlink" id="loginBtn" type="button">
-        ♙ <span>Prijava</span>
+        <span class="nav-icon">♙</span>
+        <span>Prijava</span>
       </button>
 
       <button class="primary" id="registerBtn" type="button">
-        ♙+ <span>Registracija</span>
+        <span>♙+</span>
+        <span>Registracija</span>
+        <span class="down-arrow">⌄</span>
       </button>
 
       <button class="navlink hidden" id="userBtn" type="button">
@@ -45,82 +46,86 @@
   </header>
 
   <main>
-    <section class="hero" aria-label="Pronađite najbolje ponude lako i brzo">
-      <div class="hero-overlay"></div>
+    <section class="hero" aria-label="PonudiMi hero baner">
+      <div class="hero-shade"></div>
 
-      <div class="hero-content">
-        <p class="hero-label">PonudiMi platforma</p>
+      <div class="hero-copy">
+        <img
+          class="hero-logo"
+          src="/ponudimi-logo.jpg"
+          alt="PonudiMi"
+        >
 
-        <h1>Pronađite najbolje ponude lako i brzo.</h1>
+        <h1>
+          Pronađite najbolje<br>
+          ponude lako i brzo.
+        </h1>
 
         <p>
           Sve što vam treba na jednom mestu — od automobila i nekretnina
-          do usluga, tehnike i mnogo toga.
+          do usluga i još mnogo toga!
         </p>
+      </div>
+    </section>
 
-        <div class="hero-buttons">
-          <button class="hero-primary" id="heroRegisterBtn" type="button">
-            Registruj se besplatno
-          </button>
+    <section class="benefits" aria-label="Prednosti PonudiMi platforme">
+      <div class="benefit">
+        <span class="benefit-icon blue-icon">♥</span>
+        <div>
+          <b>Sigurna kupovina</b>
+          <small>Kupujte bez brige uz zaštitu i sigurnost!</small>
+        </div>
+      </div>
 
-          <button class="hero-secondary" id="heroSearchBtn" type="button">
-            Pogledaj oglase
-          </button>
+      <div class="benefit">
+        <span class="benefit-icon yellow-icon">★</span>
+        <div>
+          <b>Proverene recenzije</b>
+          <small>Iskustva naših korisnika</small>
+        </div>
+      </div>
+
+      <div class="benefit">
+        <span class="benefit-icon green-icon">●</span>
+        <div>
+          <b>Brza dostava</b>
+          <small>Proizvodi stižu brzo na vašu adresu</small>
         </div>
       </div>
     </section>
 
-    <section class="benefits" aria-label="Prednosti platforme">
-      <div class="benefit">
-        <b>🛡️ Sigurna kupovina</b>
-        <small>Kupujte bez brige uz zaštitu i sigurnost</small>
-      </div>
-
-      <div class="benefit">
-        <b>⭐ Proverene recenzije</b>
-        <small>Iskustva naših korisnika</small>
-      </div>
-
-      <div class="benefit">
-        <b>🚚 Brza dostava</b>
-        <small>Proizvodi stižu brzo na vašu adresu</small>
-      </div>
-    </section>
-
-    <section class="category-section">
-      <div class="section-heading">
-        <h2>Istražite kategorije</h2>
-        <p>Pronađite ono što vam je potrebno.</p>
-      </div>
-
-      <section
-        class="categories"
-        id="categories"
-        aria-label="Kategorije oglasa"
-      ></section>
-    </section>
+    <section class="categories" id="categories" aria-label="Kategorije oglasa"></section>
 
     <section class="search" aria-label="Pretraga oglasa">
-      <input
-        id="q"
-        type="search"
-        placeholder="Šta tražite danas?"
-        autocomplete="off"
-      >
+      <div class="search-field">
+        <span>⌕</span>
+        <input
+          id="q"
+          type="search"
+          placeholder="Šta tražite danas?"
+          autocomplete="off"
+        >
+      </div>
 
-      <select id="category" aria-label="Kategorija">
-        <option value="">Sve kategorije</option>
-      </select>
+      <div class="search-field">
+        <span>▦</span>
+        <select id="category" aria-label="Kategorija">
+          <option value="">Sve kategorije</option>
+        </select>
+      </div>
 
-      <input
-        id="location"
-        type="text"
-        placeholder="Lokacija"
-        autocomplete="address-level2"
-      >
+      <div class="search-field">
+        <span>⌖</span>
+        <input
+          id="location"
+          type="text"
+          placeholder="Lokacija"
+          autocomplete="address-level2"
+        >
+      </div>
 
       <button class="searchbtn" id="searchBtn" type="button">
-        🔍 <span>Pretraga</span>
+        ⌕ <span>Pretraga</span>
       </button>
     </section>
 
@@ -149,42 +154,41 @@
     </section>
 
     <section class="content">
-      <article class="panel">
-        <div class="panel-title-row">
+      <article class="panel requests-panel">
+        <div class="panel-heading">
           <h2>Najnoviji zahtevi kupaca</h2>
+          <button class="more-link" type="button">Pogledaj sve →</button>
         </div>
 
         <div class="request-item">
-          <span>🚗</span>
-
+          <span class="request-icon">🚗</span>
           <div>
-            <b>Tražim Peugeot 308 do 6.000 €</b>
-            <small>Beograd • pre nekoliko minuta</small>
+            <b>Tražim Peugeot 308 do 6.000€</b>
+            <small>Beograd &nbsp; • &nbsp; pre 5 min</small>
           </div>
         </div>
 
         <div class="request-item">
-          <span>🏠</span>
-
+          <span class="request-icon">🏠</span>
           <div>
-            <b>Tražim stan do 150.000 €</b>
-            <small>Novi Sad • pre nekoliko minuta</small>
+            <b>Tražim stan do 150.000€</b>
+            <small>Novi Sad &nbsp; • &nbsp; pre 18 min</small>
           </div>
         </div>
 
         <div class="request-item">
-          <span>🔧</span>
-
+          <span class="request-icon">🔧</span>
           <div>
             <b>Tražim majstora za adaptaciju kupatila</b>
-            <small>Niš • pre nekoliko minuta</small>
+            <small>Niš &nbsp; • &nbsp; pre 32 min</small>
           </div>
         </div>
       </article>
 
-      <article class="panel">
-        <div class="panel-title-row">
+      <article class="panel offers-panel">
+        <div class="panel-heading">
           <h2>Istaknute ponude</h2>
+          <button class="more-link" type="button">Pogledaj sve →</button>
         </div>
 
         <div id="featured" class="featured-list" aria-live="polite">
@@ -192,9 +196,10 @@
         </div>
       </article>
 
-      <article class="panel">
-        <div class="panel-title-row">
+      <article class="panel steps-panel">
+        <div class="panel-heading">
           <h2>Kako funkcioniše?</h2>
+          <span class="steps-note">Pogledaj kako je lako!</span>
         </div>
 
         <div class="steps">
@@ -220,17 +225,20 @@
     </section>
 
     <section class="cta">
+      <span class="cta-icon">♥</span>
+
       <div>
         <b>Pridruži se hiljadama zadovoljnih korisnika!</b>
         <span>
-          Registruj se besplatno i otključaj sve mogućnosti
-          PonudiMi platforme.
+          Registruj se besplatno i otključaj sve mogućnosti PonudiMi platforme.
         </span>
       </div>
 
       <button id="ctaRegister" type="button">
-        Registruj se sada
+        ♙+ Registruj se sada
       </button>
+
+      <span class="cta-people">👨‍🔧 👩‍💼 👨‍💻</span>
     </section>
   </main>
 
