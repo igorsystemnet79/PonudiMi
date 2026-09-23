@@ -351,3 +351,71 @@ $('#registerBtn').onclick = register;
 $('#ctaRegister').onclick = register;
 $('#listingBtn').onclick = listing;
 $('#requestBtn').onclick = request;
+
+function updateAuthUI() {
+  const loginBtn = document.querySelector("#loginBtn");
+  const registerBtn = document.querySelector("#registerBtn");
+  const userBtn = document.querySelector("#userBtn");
+  const logoutBtn = document.querySelector("#logoutBtn");
+
+  if (!loginBtn || !registerBtn || !userBtn || !logoutBtn) {
+    return;
+  }
+
+  if (token) {
+    loginBtn.classList.add("hidden");
+    registerBtn.classList.add("hidden");
+    userBtn.classList.remove("hidden");
+    logoutBtn.classList.remove("hidden");
+  } else {
+    loginBtn.classList.remove("hidden");
+    registerBtn.classList.remove("hidden");
+    userBtn.classList.add("hidden");
+    logoutBtn.classList.add("hidden");
+  }
+}
+
+function logout() {
+  localStorage.removeItem("pm_token");
+  token = null;
+  updateAuthUI();
+  alert("Uspešno ste odjavljeni.");
+  window.location.reload();
+}
+
+const logoutButton = document.querySelector("#logoutBtn");
+if (logoutButton) {
+  logoutButton.onclick = logout;
+}
+
+const userButton = document.querySelector("#userBtn");
+if (userButton) {
+  userButton.onclick = function() {
+    alert("Profil korisnika ćemo dodati u sledećoj verziji.");
+  };
+}
+
+const heroRegisterButton = document.querySelector("#heroRegisterBtn");
+if (heroRegisterButton) {
+  heroRegisterButton.onclick = register;
+}
+
+const heroSearchButton = document.querySelector("#heroSearchBtn");
+if (heroSearchButton) {
+  heroSearchButton.onclick = function() {
+    const searchInput = document.querySelector("#q");
+
+    if (!searchInput) {
+      return;
+    }
+
+    searchInput.scrollIntoView({
+      behavior: "smooth",
+      block: "center"
+    });
+
+    searchInput.focus();
+  };
+}
+
+updateAuthUI();
