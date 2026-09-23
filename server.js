@@ -24,6 +24,7 @@ function requireDatabase() {
 if (!pool) {
 throw new Error("DATABASE_URL nije podešen.");
 }
+
 return pool;
 }
 
@@ -35,7 +36,9 @@ email: user.email,
 type: user.type
 },
 JWT_SECRET,
-{ expiresIn: "7d" }
+{
+expiresIn: "7d"
+}
 );
 }
 
@@ -137,9 +140,9 @@ const passwordHash = await bcrypt.hash("PonudiMi123!", 10);
 ```
 const inserted = await db.query(
   "INSERT INTO users " +
-    "(name, email, password_hash, type, company_name, pib) " +
-    "VALUES ($1, $2, $3, $4, $5, $6) " +
-    "RETURNING id",
+  "(name, email, password_hash, type, company_name, pib) " +
+  "VALUES ($1, $2, $3, $4, $5, $6) " +
+  "RETURNING id",
   [
     "Demo korisnik",
     "demo@ponudimi.rs",
@@ -167,11 +170,11 @@ const demoImage = "/assets/hero-reference.png";
 ```
 await db.query(
   "INSERT INTO listings " +
-    "(user_id, title, category, location, price, description, image) " +
-    "VALUES " +
-    "($1, $2, $3, $4, $5, $6, $7), " +
-    "($1, $8, $9, $10, $11, $12, $7), " +
-    "($1, $13, $14, $15, $16, $17, $7)",
+  "(user_id, title, category, location, price, description, image) " +
+  "VALUES " +
+  "($1, $2, $3, $4, $5, $6, $7), " +
+  "($1, $8, $9, $10, $11, $12, $7), " +
+  "($1, $13, $14, $15, $16, $17, $7)",
   [
     demoUserId,
     "Peugeot 308 1.6 HDI",
@@ -260,12 +263,13 @@ const values = [];
 
 if (q) {
   values.push("%" + q + "%");
+
   conditions.push(
     "(title ILIKE $" +
-      values.length +
-      " OR description ILIKE $" +
-      values.length +
-      ")"
+    values.length +
+    " OR description ILIKE $" +
+    values.length +
+    ")"
   );
 }
 
@@ -312,14 +316,25 @@ const db = requireDatabase();
 
 ```
 const name = String(req.body.name || "").trim();
+
 const email = String(req.body.email || "")
   .trim()
   .toLowerCase();
+
 const password = String(req.body.password || "");
+
 const type =
-  req.body.type === "company" ? "company" : "individual";
-const companyName = String(req.body.companyName || "").trim();
-const pib = String(req.body.pib || "").trim();
+  req.body.type === "company"
+    ? "company"
+    : "individual";
+
+const companyName = String(
+  req.body.companyName || ""
+).trim();
+
+const pib = String(
+  req.body.pib || ""
+).trim();
 
 if (!name || !email || !password) {
   return res.status(400).json({
@@ -354,9 +369,9 @@ const passwordHash = await bcrypt.hash(password, 10);
 
 const result = await db.query(
   "INSERT INTO users " +
-    "(name, email, password_hash, type, company_name, pib) " +
-    "VALUES ($1, $2, $3, $4, $5, $6) " +
-    "RETURNING id, name, email, type, company_name, pib",
+  "(name, email, password_hash, type, company_name, pib) " +
+  "VALUES ($1, $2, $3, $4, $5, $6) " +
+  "RETURNING id, name, email, type, company_name, pib",
   [
     name,
     email,
@@ -407,7 +422,7 @@ if (!email || !password) {
 
 const result = await db.query(
   "SELECT id, name, email, password_hash, type, company_name, pib " +
-    "FROM users WHERE email = $1 LIMIT 1",
+  "FROM users WHERE email = $1 LIMIT 1",
   [email]
 );
 
@@ -458,7 +473,7 @@ const db = requireDatabase();
 ```
 const result = await db.query(
   "SELECT id, name, email, type, company_name, pib, created_at " +
-    "FROM users WHERE id = $1 LIMIT 1",
+  "FROM users WHERE id = $1 LIMIT 1",
   [req.user.id]
 );
 
@@ -472,7 +487,10 @@ res.json(result.rows[0]);
 ```
 
 } catch (error) {
-console.error("Greška pri učitavanju korisnika:", error);
+console.error(
+"Greška pri učitavanju korisnika:",
+error
+);
 
 ```
 res.status(500).json({
@@ -488,16 +506,33 @@ try {
 const db = requireDatabase();
 
 ```
-const title = String(req.body.title || "").trim();
-const category = String(req.body.category || "").trim();
-const location = String(req.body.location || "").trim();
-const description = String(req.body.description || "").trim();
+const title = String(
+  req.body.title || ""
+).trim();
+
+const category = String(
+  req.body.category || ""
+).trim();
+
+const location = String(
+  req.body.location || ""
+).trim();
+
+const description = String(
+  req.body.description || ""
+).trim();
+
 const image =
   String(req.body.image || "").trim() ||
   "/assets/hero-reference.png";
 
-const priceRaw = String(req.body.price || "").trim();
-const price = priceRaw ? Number(priceRaw) : null;
+const priceRaw = String(
+  req.body.price || ""
+).trim();
+
+const price = priceRaw
+  ? Number(priceRaw)
+  : null;
 
 if (!title || !category || !location) {
   return res.status(400).json({
@@ -505,7 +540,10 @@ if (!title || !category || !location) {
   });
 }
 
-if (priceRaw && (!Number.isFinite(price) || price < 0)) {
+if (
+  priceRaw &&
+  (!Number.isFinite(price) || price < 0)
+) {
   return res.status(400).json({
     error: "Cena nije ispravna."
   });
@@ -513,9 +551,9 @@ if (priceRaw && (!Number.isFinite(price) || price < 0)) {
 
 const result = await db.query(
   "INSERT INTO listings " +
-    "(user_id, title, category, location, price, description, image) " +
-    "VALUES ($1, $2, $3, $4, $5, $6, $7) " +
-    "RETURNING id, title, category, location, price, description, image, created_at",
+  "(user_id, title, category, location, price, description, image) " +
+  "VALUES ($1, $2, $3, $4, $5, $6, $7) " +
+  "RETURNING id, title, category, location, price, description, image, created_at",
   [
     req.user.id,
     title,
@@ -534,7 +572,10 @@ res.status(201).json({
 ```
 
 } catch (error) {
-console.error("Greška pri objavljivanju oglasa:", error);
+console.error(
+"Greška pri objavljivanju oglasa:",
+error
+);
 
 ```
 res.status(500).json({
@@ -550,13 +591,29 @@ try {
 const db = requireDatabase();
 
 ```
-const title = String(req.body.title || "").trim();
-const category = String(req.body.category || "").trim();
-const location = String(req.body.location || "").trim();
-const description = String(req.body.description || "").trim();
+const title = String(
+  req.body.title || ""
+).trim();
 
-const budgetRaw = String(req.body.budget || "").trim();
-const budget = budgetRaw ? Number(budgetRaw) : null;
+const category = String(
+  req.body.category || ""
+).trim();
+
+const location = String(
+  req.body.location || ""
+).trim();
+
+const description = String(
+  req.body.description || ""
+).trim();
+
+const budgetRaw = String(
+  req.body.budget || ""
+).trim();
+
+const budget = budgetRaw
+  ? Number(budgetRaw)
+  : null;
 
 if (!title) {
   return res.status(400).json({
@@ -575,9 +632,9 @@ if (
 
 const result = await db.query(
   "INSERT INTO requests " +
-    "(user_id, title, category, location, budget, description) " +
-    "VALUES ($1, $2, $3, $4, $5, $6) " +
-    "RETURNING id, title, category, location, budget, description, created_at",
+  "(user_id, title, category, location, budget, description) " +
+  "VALUES ($1, $2, $3, $4, $5, $6) " +
+  "RETURNING id, title, category, location, budget, description, created_at",
   [
     req.user.id,
     title,
@@ -595,7 +652,10 @@ res.status(201).json({
 ```
 
 } catch (error) {
-console.error("Greška pri čuvanju zahteva:", error);
+console.error(
+"Greška pri čuvanju zahteva:",
+error
+);
 
 ```
 res.status(500).json({
@@ -611,14 +671,30 @@ try {
 const db = requireDatabase();
 
 ```
-const name = String(req.body.name || "").trim();
-const email = String(req.body.email || "")
+const name = String(
+  req.body.name || ""
+).trim();
+
+const email = String(
+  req.body.email || ""
+)
   .trim()
   .toLowerCase();
-const subject = String(req.body.subject || "").trim();
-const message = String(req.body.message || "").trim();
 
-if (!name || !email || !subject || !message) {
+const subject = String(
+  req.body.subject || ""
+).trim();
+
+const message = String(
+  req.body.message || ""
+).trim();
+
+if (
+  !name ||
+  !email ||
+  !subject ||
+  !message
+) {
   return res.status(400).json({
     error: "Sva polja su obavezna."
   });
@@ -628,8 +704,8 @@ const user = getUserFromRequest(req);
 
 await db.query(
   "INSERT INTO support_tickets " +
-    "(user_id, name, email, subject, message) " +
-    "VALUES ($1, $2, $3, $4, $5)",
+  "(user_id, name, email, subject, message) " +
+  "VALUES ($1, $2, $3, $4, $5)",
   [
     user ? user.id : null,
     name,
@@ -645,7 +721,10 @@ res.status(201).json({
 ```
 
 } catch (error) {
-console.error("Greška pri slanju upita:", error);
+console.error(
+"Greška pri slanju upita:",
+error
+);
 
 ```
 res.status(500).json({
@@ -657,7 +736,9 @@ res.status(500).json({
 });
 
 app.post("/api/support/chat", async (req, res) => {
-const message = String(req.body.message || "")
+const message = String(
+req.body.message || ""
+)
 .trim()
 .toLowerCase();
 
@@ -712,7 +793,9 @@ answer
 app.use(express.static(__dirname));
 
 app.get("/*splat", (req, res) => {
-res.sendFile(path.join(__dirname, "index.html"));
+res.sendFile(
+path.join(__dirname, "index.html")
+);
 });
 
 async function startServer() {
@@ -721,17 +804,23 @@ if (!pool) {
 console.error(
 "GREŠKA: DATABASE_URL nije podešen u Render Environment Variables."
 );
-process.exit(1);
-}
 
 ```
+  process.exit(1);
+}
+
 await initDatabase();
 
-app.listen(PORT, "0.0.0.0", () => {
-  console.log(
-    "PonudiMi server radi na portu " + PORT
-  );
-});
+app.listen(
+  PORT,
+  "0.0.0.0",
+  () => {
+    console.log(
+      "PonudiMi server radi na portu " +
+      PORT
+    );
+  }
+);
 ```
 
 } catch (error) {
