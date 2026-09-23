@@ -129,7 +129,7 @@ textarea:focus-visible {
   overflow: hidden;
   color: var(--white);
   background-color: #031d3e;
-  background-image: url("/reference-homepage.jpeg");
+  background-image: url("/reference-homepage.jpg");
   background-repeat: no-repeat;
   background-size: 100% auto;
   background-position: center top;
