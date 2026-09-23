@@ -3,7 +3,10 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="PonudiMi — kupoprodajna platforma za oglase, zahteve i ponude.">
+  <meta
+    name="description"
+    content="PonudiMi — kupoprodajna platforma za oglase, zahteve i ponude."
+  >
   <title>PonudiMi — Pronađite najbolje ponude lako i brzo</title>
   <link rel="stylesheet" href="/styles.css">
 </head>
@@ -11,7 +14,11 @@
 <body>
   <header class="topbar">
     <a class="brand" href="/" aria-label="PonudiMi početna stranica">
-      <img src="/ponudimi-logo.jpeg" alt="PonudiMi">
+      <img
+        src="/ponudimi-logo.jpeg"
+        alt="PonudiMi"
+        onerror="this.style.display='none'"
+      >
     </a>
 
     <nav class="main-nav" aria-label="Glavna navigacija">
@@ -43,7 +50,9 @@
 
       <div class="hero-content">
         <p class="hero-label">PonudiMi platforma</p>
+
         <h1>Pronađite najbolje ponude lako i brzo.</h1>
+
         <p>
           Sve što vam treba na jednom mestu — od automobila i nekretnina
           do usluga, tehnike i mnogo toga.
@@ -84,7 +93,11 @@
         <p>Pronađite ono što vam je potrebno.</p>
       </div>
 
-      <section class="categories" id="categories" aria-label="Kategorije oglasa"></section>
+      <section
+        class="categories"
+        id="categories"
+        aria-label="Kategorije oglasa"
+      ></section>
     </section>
 
     <section class="search" aria-label="Pretraga oglasa">
@@ -114,19 +127,23 @@
     <section class="actions" aria-label="Brze akcije">
       <button class="blue" id="requestBtn" type="button">
         <span class="action-icon">⊕</span>
+
         <span class="action-text">
           <b>Postavi zahtev</b>
           <small>Recite nam šta tražite</small>
         </span>
+
         <span class="action-arrow">›</span>
       </button>
 
       <button class="orange" id="listingBtn" type="button">
         <span class="action-icon">📣</span>
+
         <span class="action-text">
           <b>Objavi oglas</b>
           <small>Ponudite ono što imate</small>
         </span>
+
         <span class="action-arrow">›</span>
       </button>
     </section>
@@ -139,6 +156,7 @@
 
         <div class="request-item">
           <span>🚗</span>
+
           <div>
             <b>Tražim Peugeot 308 do 6.000 €</b>
             <small>Beograd • pre nekoliko minuta</small>
@@ -147,6 +165,7 @@
 
         <div class="request-item">
           <span>🏠</span>
+
           <div>
             <b>Tražim stan do 150.000 €</b>
             <small>Novi Sad • pre nekoliko minuta</small>
@@ -155,6 +174,7 @@
 
         <div class="request-item">
           <span>🔧</span>
+
           <div>
             <b>Tražim majstora za adaptaciju kupatila</b>
             <small>Niš • pre nekoliko minuta</small>
@@ -202,7 +222,10 @@
     <section class="cta">
       <div>
         <b>Pridruži se hiljadama zadovoljnih korisnika!</b>
-        <span>Registruj se besplatno i otključaj sve mogućnosti PonudiMi platforme.</span>
+        <span>
+          Registruj se besplatno i otključaj sve mogućnosti
+          PonudiMi platforme.
+        </span>
       </div>
 
       <button id="ctaRegister" type="button">
@@ -211,58 +234,27 @@
     </section>
   </main>
 
-  <div id="modal" class="modal hidden" role="dialog" aria-modal="true">
+  <div
+    id="modal"
+    class="modal hidden"
+    role="dialog"
+    aria-modal="true"
+    aria-label="PonudiMi prozor"
+  >
     <div class="dialog">
-      <button class="close" id="close" type="button" aria-label="Zatvori prozor">
+      <button
+        class="close"
+        id="close"
+        type="button"
+        aria-label="Zatvori prozor"
+      >
         ×
       </button>
+
       <div id="dialogBody"></div>
     </div>
   </div>
 
   <script src="/app.js"></script>
-
-  <script>
-    function updateAuthUI() {
-      const savedToken = localStorage.getItem("pm_token");
-
-      const loginBtn = document.querySelector("#loginBtn");
-      const registerBtn = document.querySelector("#registerBtn");
-      const userBtn = document.querySelector("#userBtn");
-      const logoutBtn = document.querySelector("#logoutBtn");
-
-      if (savedToken) {
-        loginBtn.classList.add("hidden");
-        registerBtn.classList.add("hidden");
-        userBtn.classList.remove("hidden");
-        logoutBtn.classList.remove("hidden");
-      } else {
-        loginBtn.classList.remove("hidden");
-        registerBtn.classList.remove("hidden");
-        userBtn.classList.add("hidden");
-        logoutBtn.classList.add("hidden");
-      }
-    }
-
-    document.querySelector("#logoutBtn").addEventListener("click", function() {
-      localStorage.removeItem("pm_token");
-      alert("Uspešno ste odjavljeni.");
-      window.location.reload();
-    });
-
-    document.querySelector("#heroRegisterBtn").addEventListener("click", function() {
-      document.querySelector("#registerBtn").click();
-    });
-
-    document.querySelector("#heroSearchBtn").addEventListener("click", function() {
-      document.querySelector("#q").focus();
-      document.querySelector("#q").scrollIntoView({
-        behavior: "smooth",
-        block: "center"
-      });
-    });
-
-    updateAuthUI();
-  </script>
 </body>
 </html>
