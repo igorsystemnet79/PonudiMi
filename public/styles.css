@@ -920,3 +920,18 @@ textarea:focus-visible {
     flex-direction: column;
   }
 }
+
+.offer-image-placeholder {
+  width: 88px;
+  height: 60px;
+  flex: 0 0 auto;
+  display: grid;
+  place-items: center;
+  border-radius: 8px;
+  background: #edf4fa;
+  font-size: 26px;
+}
+
+.error-message {
+  color: #b42318;
+}
