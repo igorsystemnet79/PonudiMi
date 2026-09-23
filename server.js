@@ -10,6 +10,8 @@ const PORT = process.env.PORT || 3000;
 const JWT_SECRET =
   process.env.JWT_SECRET || "ponudimi-mvp-change-this-secret";
 
+const publicPath = path.join(__dirname, "public");
+
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
   ssl: process.env.DATABASE_URL
@@ -19,7 +21,16 @@ const pool = new Pool({
 
 app.use(express.json({ limit: "2mb" }));
 app.use(express.urlencoded({ extended: true }));
-app.use(express.static(__dirname));
+
+/*
+  Sve što se nalazi u public folderu postaje dostupno u browseru:
+  public/index.html                -> /
+  public/styles.css                -> /styles.css
+  public/app.js                    -> /app.js
+  public/ponudimi-logo.jpeg        -> /ponudimi-logo.jpeg
+  public/reference-homepage.jpeg   -> /reference-homepage.jpeg
+*/
+app.use(express.static(publicPath));
 
 function signToken(user) {
   return jwt.sign(
@@ -57,54 +68,54 @@ function auth(req, res, next) {
 async function initDatabase() {
   await pool.query(
     "CREATE TABLE IF NOT EXISTS users (" +
-    "id SERIAL PRIMARY KEY, " +
-    "name TEXT NOT NULL, " +
-    "email TEXT UNIQUE NOT NULL, " +
-    "password_hash TEXT NOT NULL, " +
-    "type TEXT NOT NULL DEFAULT 'individual', " +
-    "company_name TEXT, " +
-    "pib TEXT, " +
-    "package_name TEXT, " +
-    "package_expires_at TIMESTAMP, " +
-    "created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP" +
+      "id SERIAL PRIMARY KEY, " +
+      "name TEXT NOT NULL, " +
+      "email TEXT UNIQUE NOT NULL, " +
+      "password_hash TEXT NOT NULL, " +
+      "type TEXT NOT NULL DEFAULT 'individual', " +
+      "company_name TEXT, " +
+      "pib TEXT, " +
+      "package_name TEXT, " +
+      "package_expires_at TIMESTAMP, " +
+      "created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP" +
     ")"
   );
 
   await pool.query(
     "CREATE TABLE IF NOT EXISTS listings (" +
-    "id SERIAL PRIMARY KEY, " +
-    "user_id INTEGER REFERENCES users(id) ON DELETE CASCADE, " +
-    "title TEXT NOT NULL, " +
-    "category TEXT NOT NULL, " +
-    "location TEXT, " +
-    "price NUMERIC, " +
-    "description TEXT, " +
-    "image TEXT, " +
-    "created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP" +
+      "id SERIAL PRIMARY KEY, " +
+      "user_id INTEGER REFERENCES users(id) ON DELETE CASCADE, " +
+      "title TEXT NOT NULL, " +
+      "category TEXT NOT NULL, " +
+      "location TEXT, " +
+      "price NUMERIC, " +
+      "description TEXT, " +
+      "image TEXT, " +
+      "created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP" +
     ")"
   );
 
   await pool.query(
     "CREATE TABLE IF NOT EXISTS requests (" +
-    "id SERIAL PRIMARY KEY, " +
-    "user_id INTEGER REFERENCES users(id) ON DELETE CASCADE, " +
-    "title TEXT NOT NULL, " +
-    "category TEXT, " +
-    "location TEXT, " +
-    "budget NUMERIC, " +
-    "description TEXT, " +
-    "created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP" +
+      "id SERIAL PRIMARY KEY, " +
+      "user_id INTEGER REFERENCES users(id) ON DELETE CASCADE, " +
+      "title TEXT NOT NULL, " +
+      "category TEXT, " +
+      "location TEXT, " +
+      "budget NUMERIC, " +
+      "description TEXT, " +
+      "created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP" +
     ")"
   );
 
   await pool.query(
     "CREATE TABLE IF NOT EXISTS support_tickets (" +
-    "id SERIAL PRIMARY KEY, " +
-    "name TEXT NOT NULL, " +
-    "email TEXT NOT NULL, " +
-    "subject TEXT NOT NULL, " +
-    "message TEXT NOT NULL, " +
-    "created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP" +
+      "id SERIAL PRIMARY KEY, " +
+      "name TEXT NOT NULL, " +
+      "email TEXT NOT NULL, " +
+      "subject TEXT NOT NULL, " +
+      "message TEXT NOT NULL, " +
+      "created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP" +
     ")"
   );
 
@@ -112,9 +123,9 @@ async function initDatabase() {
 
   await pool.query(
     "INSERT INTO users " +
-    "(name, email, password_hash, type) " +
-    "VALUES ($1, $2, $3, 'individual') " +
-    "ON CONFLICT (email) DO NOTHING",
+      "(name, email, password_hash, type) " +
+      "VALUES ($1, $2, $3, 'individual') " +
+      "ON CONFLICT (email) DO NOTHING",
     [
       "Demo Korisnik",
       "demo@ponudimi.rs",
@@ -136,8 +147,7 @@ async function initDatabase() {
     );
 
     if (countResult.rows[0].count === 0) {
-      await pool.query(
-        "INSERT INTO listings (user_id, title, category, location, price, description, image) VALUES ($1, $2, $3, $4, $5, $6, $7)",
+      const demoListings = [
         [
           userId,
           "Volkswagen Golf 7 1.6 TDI",
@@ -146,11 +156,7 @@ async function initDatabase() {
           8990,
           "Odlično očuvan automobil.",
           ""
-        ]
-      );
-
-      await pool.query(
-        "INSERT INTO listings (user_id, title, category, location, price, description, image) VALUES ($1, $2, $3, $4, $5, $6, $7)",
+        ],
         [
           userId,
           "Stan 62 m2",
@@ -159,11 +165,7 @@ async function initDatabase() {
           125000,
           "Stan u mirnom delu grada.",
           ""
-        ]
-      );
-
-      await pool.query(
-        "INSERT INTO listings (user_id, title, category, location, price, description, image) VALUES ($1, $2, $3, $4, $5, $6, $7)",
+        ],
         [
           userId,
           "iPhone 15 Pro",
@@ -173,7 +175,16 @@ async function initDatabase() {
           "Telefon u odličnom stanju.",
           ""
         ]
-      );
+      ];
+
+      for (const listing of demoListings) {
+        await pool.query(
+          "INSERT INTO listings " +
+            "(user_id, title, category, location, price, description, image) " +
+            "VALUES ($1, $2, $3, $4, $5, $6, $7)",
+          listing
+        );
+      }
     }
   }
 
@@ -270,12 +281,12 @@ app.get("/api/listings", async function(req, res) {
 
 app.post("/api/auth/register", async function(req, res) {
   try {
-    const name = req.body.name;
-    const email = req.body.email;
-    const password = req.body.password;
+    const name = String(req.body.name || "").trim();
+    const email = String(req.body.email || "").trim().toLowerCase();
+    const password = String(req.body.password || "");
     const type = req.body.type || "individual";
-    const companyName = req.body.companyName;
-    const pib = req.body.pib;
+    const companyName = String(req.body.companyName || "").trim();
+    const pib = String(req.body.pib || "").trim();
 
     if (!name || !email || !password) {
       return res.status(400).json({
@@ -301,11 +312,9 @@ app.post("/api/auth/register", async function(req, res) {
       });
     }
 
-    const normalizedEmail = String(email).trim().toLowerCase();
-
     const existing = await pool.query(
       "SELECT id FROM users WHERE email = $1",
-      [normalizedEmail]
+      [email]
     );
 
     if (existing.rows.length > 0) {
@@ -323,7 +332,7 @@ app.post("/api/auth/register", async function(req, res) {
         "RETURNING id, name, email, type, company_name, pib",
       [
         name,
-        normalizedEmail,
+        email,
         passwordHash,
         type,
         companyName || null,
@@ -349,8 +358,8 @@ app.post("/api/auth/register", async function(req, res) {
 
 app.post("/api/auth/login", async function(req, res) {
   try {
-    const email = req.body.email;
-    const password = req.body.password;
+    const email = String(req.body.email || "").trim().toLowerCase();
+    const password = String(req.body.password || "");
 
     if (!email || !password) {
       return res.status(400).json({
@@ -358,13 +367,10 @@ app.post("/api/auth/login", async function(req, res) {
       });
     }
 
-    const normalizedEmail = String(email).trim().toLowerCase();
-
     const result = await pool.query(
-      "SELECT id, name, email, password_hash, type, " +
-        "company_name, pib " +
+      "SELECT id, name, email, password_hash, type, company_name, pib " +
         "FROM users WHERE email = $1",
-      [normalizedEmail]
+      [email]
     );
 
     if (result.rows.length === 0) {
@@ -375,10 +381,7 @@ app.post("/api/auth/login", async function(req, res) {
 
     const user = result.rows[0];
 
-    const valid = await bcrypt.compare(
-      password,
-      user.password_hash
-    );
+    const valid = await bcrypt.compare(password, user.password_hash);
 
     if (!valid) {
       return res.status(401).json({
@@ -407,8 +410,8 @@ app.get("/api/me", auth, async function(req, res) {
   try {
     const result = await pool.query(
       "SELECT id, name, email, type, company_name, pib, " +
-      "package_name, package_expires_at, created_at " +
-      "FROM users WHERE id = $1",
+        "package_name, package_expires_at, created_at " +
+        "FROM users WHERE id = $1",
       [req.user.id]
     );
 
@@ -430,12 +433,12 @@ app.get("/api/me", auth, async function(req, res) {
 
 app.post("/api/listings", auth, async function(req, res) {
   try {
-    const title = req.body.title;
-    const category = req.body.category;
-    const location = req.body.location;
+    const title = String(req.body.title || "").trim();
+    const category = String(req.body.category || "").trim();
+    const location = String(req.body.location || "").trim();
     const price = req.body.price;
-    const description = req.body.description;
-    const image = req.body.image;
+    const description = String(req.body.description || "").trim();
+    const image = String(req.body.image || "").trim();
 
     if (!title || !category || !location) {
       return res.status(400).json({
@@ -444,11 +447,15 @@ app.post("/api/listings", auth, async function(req, res) {
     }
 
     const parsedPrice =
-      price === undefined ||
-      price === null ||
-      price === ""
+      price === undefined || price === null || price === ""
         ? null
         : Number(price);
+
+    if (parsedPrice !== null && !Number.isFinite(parsedPrice)) {
+      return res.status(400).json({
+        error: "Cena mora biti ispravan broj."
+      });
+    }
 
     const result = await pool.query(
       "INSERT INTO listings " +
@@ -460,9 +467,9 @@ app.post("/api/listings", auth, async function(req, res) {
         title,
         category,
         location,
-        Number.isFinite(parsedPrice) ? parsedPrice : null,
-        description || "",
-        image || ""
+        parsedPrice,
+        description,
+        image
       ]
     );
 
@@ -478,11 +485,11 @@ app.post("/api/listings", auth, async function(req, res) {
 
 app.post("/api/requests", auth, async function(req, res) {
   try {
-    const title = req.body.title;
-    const category = req.body.category;
-    const location = req.body.location;
+    const title = String(req.body.title || "").trim();
+    const category = String(req.body.category || "").trim();
+    const location = String(req.body.location || "").trim();
     const budget = req.body.budget;
-    const description = req.body.description;
+    const description = String(req.body.description || "").trim();
 
     if (!title) {
       return res.status(400).json({
@@ -491,11 +498,15 @@ app.post("/api/requests", auth, async function(req, res) {
     }
 
     const parsedBudget =
-      budget === undefined ||
-      budget === null ||
-      budget === ""
+      budget === undefined || budget === null || budget === ""
         ? null
         : Number(budget);
+
+    if (parsedBudget !== null && !Number.isFinite(parsedBudget)) {
+      return res.status(400).json({
+        error: "Budžet mora biti ispravan broj."
+      });
+    }
 
     const result = await pool.query(
       "INSERT INTO requests " +
@@ -507,8 +518,8 @@ app.post("/api/requests", auth, async function(req, res) {
         title,
         category || null,
         location || null,
-        Number.isFinite(parsedBudget) ? parsedBudget : null,
-        description || ""
+        parsedBudget,
+        description
       ]
     );
 
@@ -524,10 +535,10 @@ app.post("/api/requests", auth, async function(req, res) {
 
 app.post("/api/support/tickets", async function(req, res) {
   try {
-    const name = req.body.name;
-    const email = req.body.email;
-    const subject = req.body.subject;
-    const message = req.body.message;
+    const name = String(req.body.name || "").trim();
+    const email = String(req.body.email || "").trim().toLowerCase();
+    const subject = String(req.body.subject || "").trim();
+    const message = String(req.body.message || "").trim();
 
     if (!name || !email || !subject || !message) {
       return res.status(400).json({
@@ -539,12 +550,7 @@ app.post("/api/support/tickets", async function(req, res) {
       "INSERT INTO support_tickets " +
         "(name, email, subject, message) " +
         "VALUES ($1, $2, $3, $4)",
-      [
-        name,
-        email,
-        subject,
-        message
-      ]
+      [name, email, subject, message]
     );
 
     res.json({
@@ -559,26 +565,27 @@ app.post("/api/support/tickets", async function(req, res) {
   }
 });
 
-app.post("/api/support/chat", async function(req, res) {
-  const message = String(
-    req.body.message || ""
-  ).trim().toLowerCase();
+app.post("/api/support/chat", function(req, res) {
+  const message = String(req.body.message || "")
+    .trim()
+    .toLowerCase();
 
   let answer =
     "Mogu da pomognem oko registracije, prijave, oglasa, zahteva i paketa za firme.";
 
   if (
     message.includes("registr") &&
-    (message.includes("fizi") ||
-      message.includes("lice"))
+    (message.includes("fizi") || message.includes("lice"))
   ) {
     answer =
       "Za registraciju fizičkog lica izaberite Registracija, zatim Fizičko lice i popunite ime, email i lozinku.";
   } else if (
     message.includes("registr") &&
-    (message.includes("firma") ||
+    (
+      message.includes("firma") ||
       message.includes("pravno") ||
-      message.includes("preduze"))
+      message.includes("preduze")
+    )
   ) {
     answer =
       "Za registraciju firme izaberite Registracija, zatim Pravno lice. Unose se podaci firme, uključujući naziv firme i PIB.";
@@ -631,8 +638,12 @@ app.post("/api/support/chat", async function(req, res) {
   });
 });
 
+/*
+  Ova ruta mora biti posle API ruta i express.static.
+  Sve nepoznate browser putanje vraćaju public/index.html.
+*/
 app.get("/*splat", function(req, res) {
-  res.sendFile(path.join(__dirname, "index.html"));
+  res.sendFile(path.join(publicPath, "index.html"));
 });
 
 async function startServer() {
@@ -640,16 +651,10 @@ async function startServer() {
     await initDatabase();
 
     app.listen(PORT, "0.0.0.0", function() {
-      console.log(
-        "PonudiMi server radi na portu " + PORT
-      );
+      console.log("PonudiMi server radi na portu " + PORT);
     });
   } catch (error) {
-    console.error(
-      "SERVER NIJE MOGAO DA SE POKRENE:",
-      error
-    );
-
+    console.error("SERVER NIJE MOGAO DA SE POKRENE:", error);
     process.exit(1);
   }
 }
