@@ -530,56 +530,6 @@ html {
   line-height: 1;
 }
 
-/* Formulari u modalu */
-.form-group {
-  margin-bottom: 1rem;
-}
-
-.form-group label {
-  display: block;
-  font-weight: 600;
-  margin-bottom: 0.4rem;
-}
-
-.form-group input,
-.form-group select,
-.form-group textarea {
-  width: 100%;
-  padding: 0.6rem;
-  border: 1px solid #ccc;
-  border-radius: 8px;
-  font: inherit;
-}
-
-.form-group textarea {
-  resize: vertical;
-  min-height: 80px;
-}
-
-.form-actions {
-  display: flex;
-  gap: 0.5rem;
-  justify-content: flex-end;
-  margin-top: 1rem;
-}
-
-.form-actions button {
-  padding: 0.6rem 1rem;
-  border-radius: 8px;
-  border: 0;
-  font: inherit;
-  cursor: pointer;
-}
-
-.form-actions .cancel {
-  background: #f0f0f0;
-}
-
-.form-actions .submit {
-  background: #111;
-  color: #fff;
-}
-
 /* Tabovi u registraciji i podršci */
 .tabs {
   display: flex;
