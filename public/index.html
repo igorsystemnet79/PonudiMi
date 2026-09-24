@@ -13,7 +13,7 @@
         }
 
         body {
-            background-color: #f0f8ff; /* Svetlo plava, skoro bela */
+            background-color: #f0f8ff;
             min-height: 100vh;
         }
 
@@ -35,36 +35,9 @@
             gap: 5px;
         }
 
-        .logo-circle {
-            width: 35px;
-            height: 35px;
-            background: linear-gradient(135deg, #4CAF50, #8BC34A);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .logo-shield {
-            width: 20px;
-            height: 25px;
-            background: white;
-            border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .logo-check {
-            color: #FF6B35;
-            font-size: 16px;
-            font-weight: bold;
-        }
-
         .logo-text {
             display: flex;
             flex-direction: column;
-            margin-left: 8px;
         }
 
         .logo-ponudi {
@@ -126,7 +99,6 @@
             width: 100%;
             height: 450px;
             overflow: hidden;
-            background: linear-gradient(to right, rgba(20, 30, 48, 0.85) 0%, rgba(36, 59, 85, 0.6) 50%, transparent 100%);
         }
 
         .hero-image {
@@ -161,9 +133,10 @@
             margin-bottom: 20px;
         }
 
-        .hero-logo {
+        .hero-logo-img {
             width: 60px;
             height: 60px;
+            object-fit: contain;
         }
 
         .hero-title {
@@ -262,7 +235,13 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 40px;
+            overflow: hidden;
+        }
+
+        .category-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
         }
 
         .category-name {
@@ -308,16 +287,6 @@
             transform: translateY(-50%);
             color: #999;
             font-size: 20px;
-        }
-
-        .search-placeholder {
-            position: absolute;
-            left: 45px;
-            top: 50%;
-            transform: translateY(-50%);
-            color: #999;
-            font-size: 16px;
-            pointer-events: none;
         }
 
         .location-input {
@@ -457,12 +426,16 @@
         .offer-image {
             width: 100%;
             height: 80px;
-            background: linear-gradient(135deg, #667eea, #764ba2);
             display: flex;
             align-items: center;
             justify-content: center;
-            color: white;
-            font-size: 30px;
+            overflow: hidden;
+        }
+
+        .offer-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
         }
 
         .offer-info {
@@ -624,11 +597,6 @@
     <!-- HEADER -->
     <header>
         <div class="logo">
-            <div class="logo-circle">
-                <div class="logo-shield">
-                    <span class="logo-check">✓</span>
-                </div>
-            </div>
             <div class="logo-text">
                 <span class="logo-ponudi">Ponudi</span>
                 <span class="logo-mi">Mi</span>
@@ -642,16 +610,11 @@
 
     <!-- HERO SECTION -->
     <section class="hero">
+        <img src="https://images.unsplash.com/photo-1522071820081-009f0129c71c?w=1200&h=600&fit=crop" alt="Hero" class="hero-image">
         <div class="hero-overlay"></div>
         <div class="hero-content">
             <div class="hero-logo-container">
-                <div class="hero-logo">
-                    <div class="logo-circle" style="width: 60px; height: 60px;">
-                        <div class="logo-shield" style="width: 35px; height: 45px;">
-                            <span class="logo-check" style="font-size: 24px;">✓</span>
-                        </div>
-                    </div>
-                </div>
+                <img src="https://via.placeholder.com/60x60.png?text=Logo" alt="Logo" class="hero-logo-img">
                 <div class="hero-title">
                     <span class="hero-ponudi">Ponudi</span>
                     <span class="hero-mi">Mi</span>
@@ -670,35 +633,51 @@
     <section class="categories">
         <div class="categories-container">
             <div class="category-card">
-                <div class="category-image">🚗</div>
+                <div class="category-image">
+                    <img src="https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?w=200&h=200&fit=crop" alt="Automobili">
+                </div>
                 <div class="category-name">Automobili</div>
             </div>
             <div class="category-card">
-                <div class="category-image">🏠</div>
+                <div class="category-image">
+                    <img src="https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=200&h=200&fit=crop" alt="Nekretnine">
+                </div>
                 <div class="category-name">Nekretnine</div>
             </div>
             <div class="category-card">
-                <div class="category-image">💻</div>
+                <div class="category-image">
+                    <img src="https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=200&h=200&fit=crop" alt="Računari">
+                </div>
                 <div class="category-name">Računari</div>
             </div>
             <div class="category-card">
-                <div class="category-image">📱</div>
+                <div class="category-image">
+                    <img src="https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=200&h=200&fit=crop" alt="Mobilni">
+                </div>
                 <div class="category-name">Mobilni</div>
             </div>
             <div class="category-card">
-                <div class="category-image">🏗️</div>
+                <div class="category-image">
+                    <img src="https://images.unsplash.com/photo-1541888946425-d81bb19240f5?w=200&h=200&fit=crop" alt="Građevina">
+                </div>
                 <div class="category-name">Građevina</div>
             </div>
             <div class="category-card">
-                <div class="category-image">🔧</div>
+                <div class="category-image">
+                    <img src="https://images.unsplash.com/photo-1581092921461-eab62e97a782?w=200&h=200&fit=crop" alt="Tehnika">
+                </div>
                 <div class="category-name">Tehnika</div>
             </div>
             <div class="category-card">
-                <div class="category-image">👕</div>
+                <div class="category-image">
+                    <img src="https://images.unsplash.com/photo-1483985988355-763728e1935b?w=200&h=200&fit=crop" alt="Moda">
+                </div>
                 <div class="category-name">Moda</div>
             </div>
             <div class="category-card">
-                <div class="category-image">📦</div>
+                <div class="category-image">
+                    <img src="https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?w=200&h=200&fit=crop" alt="Ostalo">
+                </div>
                 <div class="category-name">Ostalo</div>
             </div>
         </div>
@@ -765,28 +744,36 @@
             </div>
             <div class="offers-grid">
                 <div class="offer-item">
-                    <div class="offer-image">📱</div>
+                    <div class="offer-image">
+                        <img src="https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=150&h=100&fit=crop" alt="iPhone">
+                    </div>
                     <div class="offer-info">
                         <div class="offer-title">iPhone 14</div>
                         <div class="offer-price">850€</div>
                     </div>
                 </div>
                 <div class="offer-item">
-                    <div class="offer-image">🚗</div>
+                    <div class="offer-image">
+                        <img src="https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?w=150&h=100&fit=crop" alt="Auto">
+                    </div>
                     <div class="offer-info">
                         <div class="offer-title">Golf 8</div>
                         <div class="offer-price">22.000€</div>
                     </div>
                 </div>
                 <div class="offer-item">
-                    <div class="offer-image">💻</div>
+                    <div class="offer-image">
+                        <img src="https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=150&h=100&fit=crop" alt="MacBook">
+                    </div>
                     <div class="offer-info">
                         <div class="offer-title">MacBook Pro</div>
                         <div class="offer-price">1.450€</div>
                     </div>
                 </div>
                 <div class="offer-item">
-                    <div class="offer-image">🏠</div>
+                    <div class="offer-image">
+                        <img src="https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=150&h=100&fit=crop" alt="Stan">
+                    </div>
                     <div class="offer-info">
                         <div class="offer-title">Stan 55m²</div>
                         <div class="offer-price">120.000€</div>
