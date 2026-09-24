@@ -99,8 +99,8 @@ html {
   inset: 0;
   background: linear-gradient(
     to bottom,
-    rgba(0, 0, 0, 0.35),
-    rgba(0, 0, 0, 0.1)
+    rgba(0, 0, 0, 0.25),
+    rgba(0, 0, 0, 0.08)
   );
   pointer-events: none;
 }
@@ -578,6 +578,160 @@ html {
 .form-actions .submit {
   background: #111;
   color: #fff;
+}
+
+/* Tabovi u registraciji i podršci */
+.tabs {
+  display: flex;
+  gap: 0.5rem;
+  margin: 1rem 0;
+  border-bottom: 1px solid #eee;
+  padding-bottom: 0.5rem;
+}
+
+.tabs button {
+  appearance: none;
+  border: 0;
+  background: #f5f5f5;
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  font: inherit;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.tabs button:hover {
+  background: #e8e8e8;
+}
+
+.tabs button.active {
+  background: #111;
+  color: #fff;
+}
+
+/* Chat u podršci */
+.chat {
+  max-height: 280px;
+  overflow-y: auto;
+  border: 1px solid #eee;
+  border-radius: 10px;
+  padding: 0.75rem;
+  margin: 0.75rem 0;
+  background: #fafafa;
+}
+
+.chat .msg {
+  padding: 0.5rem 0.75rem;
+  border-radius: 10px;
+  margin-bottom: 0.5rem;
+  max-width: 85%;
+  word-wrap: break-word;
+}
+
+.chat .msg.bot {
+  background: #e3f2fd;
+  color: #0d47a1;
+  margin-right: auto;
+}
+
+.chat .msg.me {
+  background: #111;
+  color: #fff;
+  margin-left: auto;
+}
+
+.chatrow {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.chatrow input {
+  flex: 1;
+  padding: 0.6rem;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font: inherit;
+}
+
+.chatrow .submit {
+  background: #111;
+  color: #fff;
+  border: 0;
+  padding: 0.6rem 1rem;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+/* Notice u chat-u */
+.notice {
+  background: #fff8e1;
+  border: 1px solid #ffe082;
+  border-radius: 10px;
+  padding: 0.75rem;
+  font-size: 0.9rem;
+  color: #5d4037;
+  margin-bottom: 0.75rem;
+}
+
+/* FAQ */
+.faq {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.faq-question {
+  appearance: none;
+  border: 1px solid #ddd;
+  background: #f9f9f9;
+  padding: 0.75rem 1rem;
+  border-radius: 10px;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.faq-question:hover {
+  background: #f0f0f0;
+}
+
+/* Formulari u modalu - inputi */
+#registerForm input,
+#registerForm select,
+#loginForm input,
+#listingForm input,
+#listingForm select,
+#listingForm textarea,
+#requestForm input,
+#requestForm select,
+#requestForm textarea,
+#ticketForm input,
+#ticketForm textarea {
+  width: 100%;
+  padding: 0.6rem;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  font: inherit;
+  margin-bottom: 0.75rem;
+}
+
+#registerForm .submit,
+#loginForm .submit,
+#listingForm .submit,
+#requestForm .submit,
+#ticketForm .submit {
+  width: 100%;
+  background: #111;
+  color: #fff;
+  border: 0;
+  padding: 0.75rem;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  margin-top: 0.5rem;
 }
 
 /* Responsive */
