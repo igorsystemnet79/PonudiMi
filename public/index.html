@@ -3,39 +3,37 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta
-    name="description"
-    content="PonudiMi — kupoprodajna platforma za oglase, zahteve i ponude."
-  >
+  <meta name="description" content="PonudiMi — kupoprodajna platforma za oglase, zahteve i ponude.">
   <title>PonudiMi — Pronađite najbolje ponude lako i brzo</title>
   <style>
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
 
     html {
       font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-      background: #fff;
-      color: #222;
+      background: #ffffff;
+      color: #1a1a1a;
       line-height: 1.5;
     }
 
+    body {
+      min-height: 100vh;
+    }
+
+    /* HEADER */
     .topbar {
       position: sticky;
       top: 0;
-      z-index: 10;
-      background: #fff;
-      border-bottom: 1px solid #eee;
+      z-index: 100;
+      background: #ffffff;
+      border-bottom: 1px solid #e5e5e5;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 0.6rem 1rem;
+      padding: 0.75rem 1.25rem;
     }
 
     .brand img {
-      height: 36px;
+      height: 40px;
       width: auto;
       display: block;
     }
@@ -54,34 +52,44 @@
       cursor: pointer;
       display: inline-flex;
       align-items: center;
-      gap: 0.35rem;
-      padding: 0.5rem 0.75rem;
+      gap: 0.5rem;
+      padding: 0.5rem 0.875rem;
       border-radius: 999px;
       color: #333;
       white-space: nowrap;
+      text-decoration: none;
+    }
+
+    .navlink:hover, .searchbtn:hover {
+      background: #f5f5f5;
     }
 
     .navlink small {
       display: block;
       font-size: 0.7rem;
       color: #666;
-      margin-top: -0.15rem;
+      margin-top: -0.2rem;
     }
 
     .primary {
-      background: #111;
-      color: #fff;
+      background: #111111;
+      color: #ffffff;
+    }
+
+    .primary:hover {
+      background: #000000;
     }
 
     .down-arrow {
-      opacity: 0.7;
+      opacity: 0.6;
     }
 
+    /* HERO */
     .hero {
       position: relative;
-      height: 55vh;
-      min-height: 360px;
-      max-height: 520px;
+      height: 60vh;
+      min-height: 400px;
+      max-height: 560px;
       background: url("/reference-homepage.jpg") center / cover no-repeat;
       display: flex;
       align-items: flex-end;
@@ -91,52 +99,55 @@
     .hero-shade {
       position: absolute;
       inset: 0;
-      background: linear-gradient(to bottom, rgba(0,0,0,0.25), rgba(0,0,0,0.08));
+      background: linear-gradient(to bottom, rgba(0,0,0,0.3), rgba(0,0,0,0.1));
       pointer-events: none;
     }
 
     .hero-copy {
       position: relative;
       z-index: 1;
-      color: #fff;
-      padding: 2rem;
+      color: #ffffff;
+      padding: 2.5rem;
       max-width: 720px;
     }
 
     .hero-copy h1 {
-      font-size: clamp(2rem, 5vw, 3rem);
+      font-size: clamp(2.2rem, 5.5vw, 3.2rem);
       font-weight: 800;
       line-height: 1.1;
-      margin-bottom: 0.75rem;
+      margin-bottom: 1rem;
+      text-shadow: 0 2px 8px rgba(0,0,0,0.3);
     }
 
     .hero-copy p {
-      font-size: clamp(1rem, 2.2vw, 1.15rem);
-      opacity: 0.95;
+      font-size: clamp(1.05rem, 2.4vw, 1.2rem);
+      opacity: 0.98;
+      text-shadow: 0 1px 4px rgba(0,0,0,0.3);
     }
 
+    /* BENEFITS */
     .benefits {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-      gap: 1.25rem;
-      padding: 1.5rem 1rem;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1.5rem;
+      padding: 2rem 1.25rem;
       background: #fafafa;
-      border-bottom: 1px solid #eee;
+      border-bottom: 1px solid #e5e5e5;
     }
 
     .benefit {
       display: flex;
       align-items: center;
-      gap: 0.75rem;
+      gap: 1rem;
     }
 
     .benefit-icon {
-      width: 44px;
-      height: 44px;
+      width: 48px;
+      height: 48px;
       border-radius: 50%;
       display: grid;
       place-items: center;
-      font-size: 1.25rem;
+      font-size: 1.4rem;
       flex-shrink: 0;
     }
 
@@ -146,20 +157,21 @@
 
     .benefit b {
       display: block;
-      font-size: 1rem;
-      margin-bottom: 0.15rem;
+      font-size: 1.05rem;
+      margin-bottom: 0.2rem;
     }
 
     .benefit small {
-      font-size: 0.85rem;
+      font-size: 0.875rem;
       color: #555;
     }
 
+    /* CATEGORIES */
     .categories {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-      gap: 0.75rem;
-      padding: 1rem;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 0.875rem;
+      padding: 1.25rem;
     }
 
     .cat {
@@ -167,42 +179,55 @@
       flex-direction: column;
       align-items: center;
       gap: 0.5rem;
-      padding: 1rem 0.5rem;
-      border-radius: 12px;
+      padding: 1.25rem 0.75rem;
+      border-radius: 14px;
       background: #f5f5f5;
       color: #222;
       text-align: center;
       border: 0;
       cursor: pointer;
       width: 100%;
+      transition: transform 0.15s ease, box-shadow 0.15s ease;
     }
 
     .cat:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 6px 20px rgba(0,0,0,0.08);
+      transform: translateY(-3px);
+      box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+      background: #eeeeee;
     }
 
+    .cat b {
+      font-size: 1.1rem;
+    }
+
+    .cat small {
+      font-size: 0.825rem;
+      color: #666;
+    }
+
+    /* SEARCH */
     .search {
       display: grid;
       grid-template-columns: 1.5fr 1fr 1fr auto;
-      gap: 0.5rem;
-      padding: 1rem;
-      background: #fff;
-      border-bottom: 1px solid #eee;
+      gap: 0.625rem;
+      padding: 1.25rem;
+      background: #ffffff;
+      border-bottom: 1px solid #e5e5e5;
     }
 
     .search-field {
       display: flex;
       align-items: center;
       gap: 0.5rem;
-      padding: 0.6rem 0.75rem;
-      border: 1px solid #ddd;
+      padding: 0.625rem 0.875rem;
+      border: 1px solid #dddddd;
       border-radius: 10px;
-      background: #fff;
+      background: #ffffff;
     }
 
     .search-field span {
       opacity: 0.5;
+      font-size: 1.1rem;
     }
 
     .search-field input, .search-field select {
@@ -211,12 +236,13 @@
       background: transparent;
       font: inherit;
       width: 100%;
+      font-size: 0.95rem;
     }
 
     .searchbtn {
-      background: #111;
-      color: #fff;
-      padding: 0.6rem 1.25rem;
+      background: #111111;
+      color: #ffffff;
+      padding: 0.625rem 1.375rem;
       border-radius: 10px;
       border: 0;
       font-weight: 600;
@@ -224,32 +250,51 @@
       align-items: center;
       gap: 0.5rem;
       cursor: pointer;
+      font-size: 0.95rem;
     }
 
+    .searchbtn:hover {
+      background: #000000;
+    }
+
+    /* ACTIONS */
     .actions {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-      gap: 0.75rem;
-      padding: 1rem;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 0.875rem;
+      padding: 1.25rem;
     }
 
     .actions button {
       appearance: none;
       border: 0;
       border-radius: 14px;
-      padding: 1rem;
+      padding: 1.125rem;
       display: flex;
       align-items: center;
-      gap: 0.75rem;
+      gap: 0.875rem;
       cursor: pointer;
       text-align: left;
+      transition: transform 0.15s ease, box-shadow 0.15s ease;
     }
 
-    .blue { background: #e3f2fd; color: #0d47a1; }
-    .orange { background: #fff3e0; color: #e65100; }
+    .actions button:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 10px 28px rgba(0,0,0,0.12);
+    }
+
+    .blue {
+      background: #e3f2fd;
+      color: #0d47a1;
+    }
+
+    .orange {
+      background: #fff3e0;
+      color: #e65100;
+    }
 
     .action-icon {
-      font-size: 1.75rem;
+      font-size: 1.875rem;
     }
 
     .action-text {
@@ -258,43 +303,44 @@
     }
 
     .action-text b {
-      font-size: 1.05rem;
+      font-size: 1.075rem;
     }
 
     .action-text small {
       font-size: 0.85rem;
-      opacity: 0.8;
+      opacity: 0.85;
     }
 
     .action-arrow {
       margin-left: auto;
-      font-size: 1.5rem;
+      font-size: 1.625rem;
       opacity: 0.6;
     }
 
+    /* CONTENT */
     .content {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-      gap: 1rem;
-      padding: 1rem;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 1.125rem;
+      padding: 1.25rem;
     }
 
     .panel {
-      background: #fff;
-      border: 1px solid #eee;
+      background: #ffffff;
+      border: 1px solid #eeeeee;
       border-radius: 14px;
-      padding: 1rem;
+      padding: 1.125rem;
     }
 
     .panel-heading {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      margin-bottom: 0.75rem;
+      margin-bottom: 0.875rem;
     }
 
     .panel-heading h2 {
-      font-size: 1.1rem;
+      font-size: 1.125rem;
       font-weight: 700;
     }
 
@@ -309,13 +355,19 @@
       color: #1976d2;
       font: inherit;
       cursor: pointer;
+      font-size: 0.9rem;
     }
 
+    .more-link:hover {
+      color: #1565c0;
+    }
+
+    /* REQUESTS */
     .request-item {
       display: flex;
       align-items: center;
-      gap: 0.75rem;
-      padding: 0.6rem 0;
+      gap: 0.875rem;
+      padding: 0.75rem 0;
       border-bottom: 1px solid #f0f0f0;
     }
 
@@ -324,12 +376,12 @@
     }
 
     .request-icon {
-      font-size: 1.5rem;
+      font-size: 1.625rem;
     }
 
     .request-item b {
       display: block;
-      font-size: 0.95rem;
+      font-size: 0.975rem;
     }
 
     .request-item small {
@@ -337,86 +389,100 @@
       color: #666;
     }
 
+    /* OFFERS */
     .featured-list {
       display: grid;
-      gap: 0.75rem;
+      gap: 0.875rem;
     }
 
-    .featured-item {
+    .offer {
       display: grid;
-      grid-template-columns: 80px 1fr;
-      gap: 0.75rem;
+      grid-template-columns: 84px 1fr;
+      gap: 0.875rem;
       padding: 0.5rem;
-      border: 1px solid #eee;
+      border: 1px solid #eeeeee;
       border-radius: 10px;
     }
 
-    .featured-item img {
-      width: 80px;
-      height: 80px;
+    .offer-image-placeholder {
+      width: 84px;
+      height: 84px;
+      background: #f5f5f5;
+      border-radius: 8px;
+      display: grid;
+      place-items: center;
+      font-size: 1.75rem;
+    }
+
+    .offer img {
+      width: 84px;
+      height: 84px;
       object-fit: cover;
       border-radius: 8px;
     }
 
-    .featured-item b {
-      font-size: 0.95rem;
+    .offer b {
+      font-size: 0.975rem;
       display: block;
+      margin-bottom: 0.25rem;
     }
 
-    .featured-item small {
+    .offer small {
       font-size: 0.8rem;
       color: #666;
     }
 
+    /* STEPS */
     .steps {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
-      gap: 0.5rem;
+      gap: 0.625rem;
       text-align: center;
     }
 
     .step {
-      padding: 0.75rem 0.5rem;
+      padding: 0.875rem 0.5rem;
       background: #f9f9f9;
       border-radius: 10px;
     }
 
     .step b {
       display: block;
-      font-size: 1.5rem;
+      font-size: 1.625rem;
       color: #1976d2;
-      margin-bottom: 0.25rem;
+      margin-bottom: 0.375rem;
     }
 
     .step strong {
       display: block;
-      font-size: 0.9rem;
+      font-size: 0.925rem;
       margin-bottom: 0.25rem;
     }
 
     .step small {
-      font-size: 0.75rem;
+      font-size: 0.775rem;
       color: #666;
     }
 
+    /* CTA */
     .cta {
       display: flex;
       align-items: center;
-      gap: 1rem;
-      padding: 1.5rem 1rem;
+      gap: 1.125rem;
+      padding: 1.75rem 1.25rem;
       background: #f5f5f5;
-      border-top: 1px solid #eee;
+      border-top: 1px solid #e5e5e5;
       flex-wrap: wrap;
     }
 
     .cta-icon {
-      font-size: 2.5rem;
+      font-size: 2.625rem;
       color: #d32f2f;
     }
 
     .cta b {
       display: block;
-      font-size: 1.1rem;
+      font-size: 1.125rem;
       margin-bottom: 0.25rem;
     }
 
@@ -427,90 +493,116 @@
 
     .cta button {
       margin-left: auto;
-      background: #111;
-      color: #fff;
+      background: #111111;
+      color: #ffffff;
       border: 0;
-      padding: 0.6rem 1.25rem;
+      padding: 0.625rem 1.375rem;
       border-radius: 999px;
       font-weight: 600;
       cursor: pointer;
+      font-size: 0.95rem;
+    }
+
+    .cta button:hover {
+      background: #000000;
     }
 
     .cta-people {
-      font-size: 1.5rem;
-      margin-left: 0.5rem;
+      font-size: 1.625rem;
+      margin-left: 0.625rem;
     }
 
+    /* MODAL */
     .modal {
       position: fixed;
       inset: 0;
-      background: rgba(0,0,0,0.5);
+      background: rgba(0,0,0,0.55);
       display: grid;
       place-items: center;
-      z-index: 100;
+      z-index: 1000;
       padding: 1rem;
     }
 
     .dialog {
-      background: #fff;
-      border-radius: 14px;
-      max-width: 480px;
+      background: #ffffff;
+      border-radius: 16px;
+      max-width: 500px;
       width: 100%;
-      max-height: 85vh;
+      max-height: 88vh;
       overflow: auto;
       position: relative;
-      padding: 1.5rem;
+      padding: 1.75rem;
     }
 
     .dialog .close {
       position: absolute;
-      top: 0.75rem;
-      right: 0.75rem;
+      top: 0.875rem;
+      right: 0.875rem;
       background: none;
       border: 0;
-      font-size: 1.75rem;
+      font-size: 1.875rem;
       cursor: pointer;
       color: #666;
+      line-height: 1;
     }
 
+    .dialog .close:hover {
+      color: #000;
+    }
+
+    .dialog h2 {
+      font-size: 1.375rem;
+      margin-bottom: 1rem;
+    }
+
+    /* TABS */
     .tabs {
       display: flex;
       gap: 0.5rem;
-      margin: 1rem 0;
-      border-bottom: 1px solid #eee;
-      padding-bottom: 0.5rem;
+      margin: 1.125rem 0;
+      border-bottom: 1px solid #e5e5e5;
+      padding-bottom: 0.625rem;
     }
 
     .tabs button {
       appearance: none;
       border: 0;
       background: #f5f5f5;
-      padding: 0.5rem 1rem;
+      padding: 0.5rem 1.125rem;
       border-radius: 8px;
       font: inherit;
       cursor: pointer;
+      font-size: 0.925rem;
+      transition: background 0.15s ease;
+    }
+
+    .tabs button:hover {
+      background: #e8e8e8;
     }
 
     .tabs button.active {
-      background: #111;
-      color: #fff;
+      background: #111111;
+      color: #ffffff;
     }
 
+    /* CHAT */
     .chat {
-      max-height: 280px;
+      max-height: 300px;
       overflow-y: auto;
-      border: 1px solid #eee;
+      border: 1px solid #e5e5e5;
       border-radius: 10px;
-      padding: 0.75rem;
-      margin: 0.75rem 0;
+      padding: 0.875rem;
+      margin: 0.875rem 0;
       background: #fafafa;
     }
 
     .chat .msg {
-      padding: 0.5rem 0.75rem;
+      padding: 0.625rem 0.875rem;
       border-radius: 10px;
-      margin-bottom: 0.5rem;
+      margin-bottom: 0.625rem;
       max-width: 85%;
+      word-wrap: break-word;
+      font-size: 0.925rem;
     }
 
     .chat .msg.bot {
@@ -520,8 +612,8 @@
     }
 
     .chat .msg.me {
-      background: #111;
-      color: #fff;
+      background: #111111;
+      color: #ffffff;
       margin-left: auto;
     }
 
@@ -533,32 +625,40 @@
 
     .chatrow input {
       flex: 1;
-      padding: 0.6rem;
-      border: 1px solid #ddd;
+      padding: 0.625rem 0.875rem;
+      border: 1px solid #dddddd;
       border-radius: 8px;
       font: inherit;
+      font-size: 0.925rem;
     }
 
     .chatrow .submit {
-      background: #111;
-      color: #fff;
+      background: #111111;
+      color: #ffffff;
       border: 0;
-      padding: 0.6rem 1rem;
+      padding: 0.625rem 1.125rem;
       border-radius: 8px;
       font-weight: 600;
       cursor: pointer;
+      font-size: 0.925rem;
     }
 
+    .chatrow .submit:hover {
+      background: #000000;
+    }
+
+    /* NOTICE */
     .notice {
       background: #fff8e1;
       border: 1px solid #ffe082;
       border-radius: 10px;
-      padding: 0.75rem;
+      padding: 0.875rem;
       font-size: 0.9rem;
       color: #5d4037;
-      margin-bottom: 0.75rem;
+      margin-bottom: 0.875rem;
     }
 
+    /* FAQ */
     .faq {
       display: flex;
       flex-direction: column;
@@ -567,44 +667,70 @@
 
     .faq-question {
       appearance: none;
-      border: 1px solid #ddd;
+      border: 1px solid #dddddd;
       background: #f9f9f9;
-      padding: 0.75rem 1rem;
+      padding: 0.875rem 1.125rem;
       border-radius: 10px;
       font: inherit;
       text-align: left;
       cursor: pointer;
+      font-size: 0.925rem;
+      transition: background 0.15s ease;
     }
 
+    .faq-question:hover {
+      background: #f0f0f0;
+    }
+
+    /* FORMS */
     #registerForm input, #registerForm select,
-    #loginForm input, #listingForm input, #listingForm select, #listingForm textarea,
+    #loginForm input,
+    #listingForm input, #listingForm select, #listingForm textarea,
     #requestForm input, #requestForm select, #requestForm textarea,
     #ticketForm input, #ticketForm textarea {
       width: 100%;
-      padding: 0.6rem;
-      border: 1px solid #ccc;
+      padding: 0.625rem 0.875rem;
+      border: 1px solid #cccccc;
       border-radius: 8px;
       font: inherit;
-      margin-bottom: 0.75rem;
+      margin-bottom: 0.875rem;
+      font-size: 0.95rem;
+    }
+
+    #registerForm input:focus, #registerForm select:focus,
+    #loginForm input:focus,
+    #listingForm input:focus, #listingForm select:focus, #listingForm textarea:focus,
+    #requestForm input:focus, #requestForm select:focus, #requestForm textarea:focus,
+    #ticketForm input:focus, #ticketForm textarea:focus {
+      outline: 0;
+      border-color: #111111;
+      box-shadow: 0 0 0 3px rgba(0,0,0,0.08);
     }
 
     #registerForm .submit, #loginForm .submit,
     #listingForm .submit, #requestForm .submit, #ticketForm .submit {
       width: 100%;
-      background: #111;
-      color: #fff;
+      background: #111111;
+      color: #ffffff;
       border: 0;
-      padding: 0.75rem;
+      padding: 0.75rem 1.125rem;
       border-radius: 8px;
       font-weight: 600;
       cursor: pointer;
       margin-top: 0.5rem;
+      font-size: 0.975rem;
     }
 
+    #registerForm .submit:hover, #loginForm .submit:hover,
+    #listingForm .submit:hover, #requestForm .submit:hover, #ticketForm .submit:hover {
+      background: #000000;
+    }
+
+    /* RESPONSIVE */
     @media (max-width: 768px) {
       .hero {
         height: 50vh;
-        min-height: 320px;
+        min-height: 340px;
       }
 
       .search {
@@ -627,6 +753,11 @@
 
       .cta-people {
         margin-left: 0;
+        margin-top: 0.5rem;
+      }
+
+      .steps {
+        grid-template-columns: 1fr;
       }
     }
 
@@ -638,7 +769,7 @@
 
 <body>
   <header class="topbar">
-    <a class="brand" href="/" aria-label="PonudiMi početna stranica">
+    <a class="brand" href="/" aria-label="PonudiMi početна страница">
       <img src="/ponudimi-logo.png" alt="PonudiMi logo">
     </a>
 
@@ -718,12 +849,7 @@
     <section class="search" aria-label="Pretraga oglasa">
       <div class="search-field">
         <span>⌕</span>
-        <input
-          id="q"
-          type="search"
-          placeholder="Šta tražite danas?"
-          autocomplete="off"
-        >
+        <input id="q" type="search" placeholder="Šta tražite danas?" autocomplete="off">
       </div>
 
       <div class="search-field">
@@ -735,12 +861,7 @@
 
       <div class="search-field">
         <span>⌖</span>
-        <input
-          id="location"
-          type="text"
-          placeholder="Lokacija"
-          autocomplete="address-level2"
-        >
+        <input id="location" type="text" placeholder="Lokacija" autocomplete="address-level2">
       </div>
 
       <button class="searchbtn" id="searchBtn" type="button">
@@ -751,23 +872,19 @@
     <section class="actions" aria-label="Brze akcije">
       <button class="blue" id="requestBtn" type="button">
         <span class="action-icon">⊕</span>
-
         <span class="action-text">
           <b>Postavi zahtev</b>
           <small>Recite nam šta tražite</small>
         </span>
-
         <span class="action-arrow">›</span>
       </button>
 
       <button class="orange" id="listingBtn" type="button">
         <span class="action-icon">📣</span>
-
         <span class="action-text">
           <b>Objavi oglas</b>
           <small>Ponudite ono što imate</small>
         </span>
-
         <span class="action-arrow">›</span>
       </button>
     </section>
@@ -861,23 +978,9 @@
     </section>
   </main>
 
-  <div
-    id="modal"
-    class="modal hidden"
-    role="dialog"
-    aria-modal="true"
-    aria-label="PonudiMi prozor"
-  >
+  <div id="modal" class="modal hidden" role="dialog" aria-modal="true" aria-label="PonudiMi prozor">
     <div class="dialog">
-      <button
-        class="close"
-        id="close"
-        type="button"
-        aria-label="Zatvori prozor"
-      >
-        ×
-      </button>
-
+      <button class="close" id="close" type="button" aria-label="Zatvori prozor">×</button>
       <div id="dialogBody"></div>
     </div>
   </div>
