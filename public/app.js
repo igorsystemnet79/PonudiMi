@@ -19,29 +19,9 @@ const categories = [
   "Ostalo"
 ];
 
-const categoryIcons = [
-  "🚗",
-  "🏠",
-  "📱",
-  "💻",
-  "🛠️",
-  "👷",
-  "🚜",
-  "👕",
-  "•••"
-];
+const categoryIcons = ["🚗", "🏠", "📱", "💻", "🛠️", "👷", "🚜", "👕", "•••"];
 
-const categoryCounts = [
-  12580,
-  23120,
-  15890,
-  9452,
-  18760,
-  8542,
-  7310,
-  4125,
-  0
-];
+const categoryCounts = [12580, 23120, 15890, 9452, 18760, 8542, 7310, 4125, 0];
 
 function escapeHtml(value) {
   return String(value || "").replace(/[&<>"']/g, function(character) {
@@ -52,7 +32,6 @@ function escapeHtml(value) {
       '"': "&quot;",
       "'": "&#039;"
     };
-
     return entities[character];
   });
 }
@@ -122,10 +101,7 @@ async function api(url, options) {
     localStorage.removeItem("pm_token");
     token = null;
     updateAuthUI();
-
-    throw new Error(
-      data.error || "Prijava je istekla. Molimo prijavite se ponovo."
-    );
+    throw new Error(data.error || "Prijava je istekla. Molimo prijavite se ponovo.");
   }
 
   if (!response.ok) {
@@ -146,15 +122,9 @@ function renderCategories() {
   categoriesElement.innerHTML = categories
     .map(function(category, index) {
       return `
-        <button
-          class="cat"
-          type="button"
-          data-category="${escapeHtml(category)}"
-        >
+        <button class="cat" type="button" data-category="${escapeHtml(category)}">
           <b>${categoryIcons[index]} ${escapeHtml(category)}</b>
-          <small>
-            ${categoryCounts[index].toLocaleString("sr-RS")} oglasa
-          </small>
+          <small>${categoryCounts[index].toLocaleString("sr-RS")} oglasa</small>
         </button>
       `;
     })
@@ -180,24 +150,13 @@ function listingImageMarkup(image, title) {
   const safeTitle = escapeHtml(title || "Oglas");
 
   if (!image) {
-    return `
-      <div
-        class="offer-image-placeholder"
-        aria-label="Slika oglasa nije dostupna"
-      >
-        📦
-      </div>
-    `;
+    return `<div class="offer-image-placeholder" aria-label="Slika oglasa nije dostupna">📦</div>`;
   }
 
   const safeImage = escapeHtml(image);
 
   return `
-    <img
-      src="${safeImage}"
-      alt="${safeTitle}"
-      onerror="this.replaceWith(Object.assign(document.createElement('div'), {className: 'offer-image-placeholder', textContent: '📦'}))"
-    >
+    <img src="${safeImage}" alt="${safeTitle}" onerror="this.replaceWith(Object.assign(document.createElement('div'), {className: 'offer-image-placeholder', textContent: '📦'}))">
   `;
 }
 
@@ -219,12 +178,9 @@ async function doSearch() {
 
   try {
     const data = await api(
-      "/api/listings?q=" +
-        encodeURIComponent(q) +
-        "&category=" +
-        encodeURIComponent(category) +
-        "&location=" +
-        encodeURIComponent(location)
+      "/api/listings?q=" + encodeURIComponent(q) +
+      "&category=" + encodeURIComponent(category) +
+      "&location=" + encodeURIComponent(location)
     );
 
     if (!data.length) {
@@ -244,18 +200,14 @@ async function doSearch() {
             ${listingImageMarkup(item.image, item.title)}
             <div>
               <b>${escapeHtml(item.title)}</b><br>
-              <small>
-                ${escapeHtml(item.location || "Lokacija nije navedena")}
-                • ${price}
-              </small>
+              <small>${escapeHtml(item.location || "Lokacija nije navedena")} • ${price}</small>
             </div>
           </div>
         `;
       })
       .join("");
   } catch (error) {
-    featured.innerHTML =
-      '<span class="error-message">' + escapeHtml(error.message) + "</span>";
+    featured.innerHTML = '<span class="error-message">' + escapeHtml(error.message) + "</span>";
   }
 }
 
@@ -264,45 +216,16 @@ function register() {
     <h2>Registracija</h2>
 
     <div class="tabs">
-      <button class="active" id="individualTab" type="button">
-        Fizičko lice
-      </button>
-
-      <button id="companyTab" type="button">
-        Pravno lice
-      </button>
+      <button class="active" id="individualTab" type="button">Fizičko lice</button>
+      <button id="companyTab" type="button">Pravno lice</button>
     </div>
 
     <form id="registerForm">
-      <input
-        name="name"
-        placeholder="Ime i prezime"
-        autocomplete="name"
-        required
-      >
-
-      <input
-        name="email"
-        type="email"
-        placeholder="Email"
-        autocomplete="email"
-        required
-      >
-
-      <input
-        name="password"
-        type="password"
-        placeholder="Lozinka (najmanje 6 karaktera)"
-        autocomplete="new-password"
-        minlength="6"
-        required
-      >
-
+      <input name="name" placeholder="Ime i prezime" autocomplete="name" required>
+      <input name="email" type="email" placeholder="Email" autocomplete="email" required>
+      <input name="password" type="password" placeholder="Lozinka (najmanje 6 karaktera)" autocomplete="new-password" minlength="6" required>
       <div id="companyFields"></div>
-
-      <button class="submit" type="submit">
-        Kreiraj nalog
-      </button>
+      <button class="submit" type="submit">Kreiraj nalog</button>
     </form>
   `);
 
@@ -324,20 +247,9 @@ function register() {
     accountType = "company";
     companyTab.classList.add("active");
     individualTab.classList.remove("active");
-
     companyFields.innerHTML = `
-      <input
-        name="companyName"
-        placeholder="Naziv firme"
-        autocomplete="organization"
-        required
-      >
-
-      <input
-        name="pib"
-        placeholder="PIB"
-        inputmode="numeric"
-      >
+      <input name="companyName" placeholder="Naziv firme" autocomplete="organization" required>
+      <input name="pib" placeholder="PIB" inputmode="numeric">
     `;
   };
 
@@ -350,17 +262,13 @@ function register() {
     try {
       const data = await api("/api/auth/register", {
         method: "POST",
-        body: JSON.stringify({
-          ...values,
-          type: accountType
-        })
+        body: JSON.stringify({ ...values, type: accountType })
       });
 
       token = data.token;
       localStorage.setItem("pm_token", token);
       updateAuthUI();
       closeModal();
-
       alert("Registracija je uspešna.");
     } catch (error) {
       alert(error.message);
@@ -373,25 +281,9 @@ function login() {
     <h2>Prijava</h2>
 
     <form id="loginForm">
-      <input
-        name="email"
-        type="email"
-        placeholder="Email"
-        autocomplete="email"
-        required
-      >
-
-      <input
-        name="password"
-        type="password"
-        placeholder="Lozinka"
-        autocomplete="current-password"
-        required
-      >
-
-      <button class="submit" type="submit">
-        Prijavi se
-      </button>
+      <input name="email" type="email" placeholder="Email" autocomplete="email" required>
+      <input name="password" type="password" placeholder="Lozinka" autocomplete="current-password" required>
+      <button class="submit" type="submit">Prijavi se</button>
     </form>
   `);
 
@@ -412,7 +304,6 @@ function login() {
       localStorage.setItem("pm_token", token);
       updateAuthUI();
       closeModal();
-
       alert("Uspešna prijava.");
     } catch (error) {
       alert(error.message);
@@ -426,7 +317,6 @@ function requireAuth() {
     login();
     return false;
   }
-
   return true;
 }
 
@@ -439,48 +329,17 @@ function listing() {
     <h2>Objavi oglas</h2>
 
     <form id="listingForm">
-      <input
-        name="title"
-        placeholder="Naslov oglasa"
-        required
-      >
-
+      <input name="title" placeholder="Naslov oglasa" required>
       <select name="category" required>
-        ${categories
-          .map(function(category) {
-            return `<option value="${escapeHtml(category)}">${escapeHtml(category)}</option>`;
-          })
-          .join("")}
+        ${categories.map(function(category) {
+          return `<option value="${escapeHtml(category)}">${escapeHtml(category)}</option>`;
+        }).join("")}
       </select>
-
-      <input
-        name="location"
-        placeholder="Lokacija"
-        required
-      >
-
-      <input
-        name="price"
-        type="number"
-        min="0"
-        step="0.01"
-        placeholder="Cena (€)"
-      >
-
-      <input
-        name="image"
-        type="url"
-        placeholder="Link do slike (opciono)"
-      >
-
-      <textarea
-        name="description"
-        placeholder="Opis oglasa"
-      ></textarea>
-
-      <button class="submit" type="submit">
-        Objavi oglas
-      </button>
+      <input name="location" placeholder="Lokacija" required>
+      <input name="price" type="number" min="0" step="0.01" placeholder="Cena (€)">
+      <input name="image" type="url" placeholder="Link do slike (opciono)">
+      <textarea name="description" placeholder="Opis oglasa"></textarea>
+      <button class="submit" type="submit">Objavi oglas</button>
     </form>
   `);
 
@@ -499,7 +358,6 @@ function listing() {
 
       closeModal();
       await doSearch();
-
       alert("Oglas je uspešno objavljen.");
     } catch (error) {
       alert(error.message);
@@ -516,42 +374,17 @@ function request() {
     <h2>Postavi zahtev</h2>
 
     <form id="requestForm">
-      <input
-        name="title"
-        placeholder="Šta tražite?"
-        required
-      >
-
+      <input name="title" placeholder="Šta tražite?" required>
       <select name="category">
         <option value="">Kategorija</option>
-        ${categories
-          .map(function(category) {
-            return `<option value="${escapeHtml(category)}">${escapeHtml(category)}</option>`;
-          })
-          .join("")}
+        ${categories.map(function(category) {
+          return `<option value="${escapeHtml(category)}">${escapeHtml(category)}</option>`;
+        }).join("")}
       </select>
-
-      <input
-        name="location"
-        placeholder="Lokacija"
-      >
-
-      <input
-        name="budget"
-        type="number"
-        min="0"
-        step="0.01"
-        placeholder="Budžet (€)"
-      >
-
-      <textarea
-        name="description"
-        placeholder="Opišite šta vam je potrebno"
-      ></textarea>
-
-      <button class="submit" type="submit">
-        Pošalji zahtev
-      </button>
+      <input name="location" placeholder="Lokacija">
+      <input name="budget" type="number" min="0" step="0.01" placeholder="Budžet (€)">
+      <textarea name="description" placeholder="Opišite šta vam je potrebno"></textarea>
+      <button class="submit" type="submit">Pošalji zahtev</button>
     </form>
   `);
 
@@ -569,7 +402,6 @@ function request() {
       });
 
       closeModal();
-
       alert("Zahtev je uspešno sačuvan.");
     } catch (error) {
       alert(error.message);
@@ -582,17 +414,9 @@ function support() {
     <h2>Centar za podršku</h2>
 
     <div class="tabs">
-      <button class="active" id="chatTab" type="button">
-        PonudiMi Asistent
-      </button>
-
-      <button id="faqTab" type="button">
-        Najčešća pitanja
-      </button>
-
-      <button id="ticketTab" type="button">
-        Pošalji upit
-      </button>
+      <button class="active" id="chatTab" type="button">PonudiMi Asistent</button>
+      <button id="faqTab" type="button">Najčešća pitanja</button>
+      <button id="ticketTab" type="button">Pošalji upit</button>
     </div>
 
     <div id="supportArea"></div>
@@ -621,25 +445,13 @@ function showChat() {
   setSupportActiveTab("#chatTab");
 
   $("#supportArea").innerHTML = `
-    <div class="notice">
-      Asistent može da pomogne oko registracije, prijave, oglasa,
-      zahteva i paketa za firme.
-    </div>
-
+    <div class="notice">Asistent može da pomogne oko registracije, prijave, oglasa, zahteva i paketa za firme.</div>
     <div class="chat" id="chat">
       <div class="msg bot">Zdravo! Kako mogu da pomognem?</div>
     </div>
-
     <div class="chatrow">
-      <input
-        id="chatInput"
-        placeholder="Napišite pitanje..."
-        autocomplete="off"
-      >
-
-      <button class="submit" id="sendChatBtn" type="button">
-        Pošalji
-      </button>
+      <input id="chatInput" placeholder="Napišite pitanje..." autocomplete="off">
+      <button class="submit" id="sendChatBtn" type="button">Pošalji</button>
     </div>
   `;
 
@@ -667,9 +479,7 @@ async function sendChat() {
     return;
   }
 
-  chat.innerHTML += `
-    <div class="msg me">${escapeHtml(message)}</div>
-  `;
+  chat.innerHTML += `<div class="msg me">${escapeHtml(message)}</div>`;
 
   input.value = "";
   chat.scrollTop = chat.scrollHeight;
@@ -677,20 +487,12 @@ async function sendChat() {
   try {
     const data = await api("/api/support/chat", {
       method: "POST",
-      body: JSON.stringify({
-        message: message
-      })
+      body: JSON.stringify({ message: message })
     });
 
-    chat.innerHTML += `
-      <div class="msg bot">${escapeHtml(data.answer)}</div>
-    `;
+    chat.innerHTML += `<div class="msg bot">${escapeHtml(data.answer)}</div>`;
   } catch (error) {
-    chat.innerHTML += `
-      <div class="msg bot">
-        ${escapeHtml(error.message)}
-      </div>
-    `;
+    chat.innerHTML += `<div class="msg bot">${escapeHtml(error.message)}</div>`;
   }
 
   chat.scrollTop = chat.scrollHeight;
@@ -710,19 +512,13 @@ function showFaq() {
 
   $("#supportArea").innerHTML = `
     <div class="faq">
-      ${questions
-        .map(function(question, index) {
-          return `
-            <button
-              type="button"
-              class="faq-question"
-              data-question-index="${index}"
-            >
-              ${escapeHtml(question)}
-            </button>
-          `;
-        })
-        .join("")}
+      ${questions.map(function(question, index) {
+        return `
+          <button type="button" class="faq-question" data-question-index="${index}">
+            ${escapeHtml(question)}
+          </button>
+        `;
+      }).join("")}
     </div>
   `;
 
@@ -733,11 +529,8 @@ function showFaq() {
       try {
         const data = await api("/api/support/chat", {
           method: "POST",
-          body: JSON.stringify({
-            message: question
-          })
+          body: JSON.stringify({ message: question })
         });
-
         alert(data.answer);
       } catch (error) {
         alert(error.message);
@@ -751,36 +544,11 @@ function showTicket() {
 
   $("#supportArea").innerHTML = `
     <form id="ticketForm">
-      <input
-        name="name"
-        placeholder="Ime i prezime"
-        autocomplete="name"
-        required
-      >
-
-      <input
-        name="email"
-        type="email"
-        placeholder="Email"
-        autocomplete="email"
-        required
-      >
-
-      <input
-        name="subject"
-        placeholder="Naslov upita"
-        required
-      >
-
-      <textarea
-        name="message"
-        placeholder="Opišite problem ili pitanje"
-        required
-      ></textarea>
-
-      <button class="submit" type="submit">
-        Pošalji upit
-      </button>
+      <input name="name" placeholder="Ime i prezime" autocomplete="name" required>
+      <input name="email" type="email" placeholder="Email" autocomplete="email" required>
+      <input name="subject" placeholder="Naslov upita" required>
+      <textarea name="message" placeholder="Opišite problem ili pitanje" required></textarea>
+      <button class="submit" type="submit">Pošalji upit</button>
     </form>
   `;
 
@@ -798,7 +566,6 @@ function showTicket() {
       });
 
       closeModal();
-
       alert(data.message);
     } catch (error) {
       alert(error.message);
