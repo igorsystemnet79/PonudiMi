@@ -86,96 +86,40 @@
             transform: translateY(-2px);
         }
 
-        /* HERO — CELA SLIKA, BEZ SEČENJA */
+        /* HEADER — IZNAD HERO SLIKE */
 
-        .hero {
-            position: relative;
-            overflow: hidden;
-            isolation: isolate;
-            background:
-                radial-gradient(circle at 78% 20%, #40526e 0%, #172238 48%, #0d1524 100%);
+        .site-header {
+            border-bottom: 1px solid rgba(26, 26, 46, 0.08);
+            background: var(--page);
         }
 
-        /*
-          Fotografija zadržava originalnu proporciju.
-          height: auto znači da slika nije istegnuta niti isečena.
-        */
-        .hero-image {
-            position: relative;
-            z-index: 0;
-            display: block;
-            width: 100%;
-            height: auto;
-            object-fit: contain;
-            object-position: center center;
-        }
-
-        /*
-          Blagi tamni sloj sa leve strane, samo radi čitljivosti teksta.
-          Ne utiče na veličinu ili sečenje slike.
-        */
-        .hero-overlay {
-            position: absolute;
-            inset: 0;
-            z-index: 1;
-            pointer-events: none;
-            background:
-                linear-gradient(
-                    90deg,
-                    rgba(12, 21, 37, 0.83) 0%,
-                    rgba(12, 21, 37, 0.58) 34%,
-                    rgba(12, 21, 37, 0.18) 57%,
-                    rgba(12, 21, 37, 0) 78%
-                ),
-                linear-gradient(
-                    180deg,
-                    rgba(0, 0, 0, 0.12) 0%,
-                    transparent 40%,
-                    rgba(0, 0, 0, 0.16) 100%
-                );
-        }
-
-        /*
-          Sadržaj je apsolutno preko slike:
-          logo gore levo, tekst dole levo.
-        */
-        .hero-content {
-            position: absolute;
-            inset: 0;
-            z-index: 2;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            padding: 22px 6% 34px;
-            color: var(--white);
-        }
-
-        .hero-topbar {
+        .header-inner {
+            min-height: 76px;
             display: flex;
             align-items: center;
             justify-content: space-between;
-            gap: 18px;
+            gap: 20px;
         }
 
-        .hero-logo {
+        .header-logo {
             display: inline-flex;
-            flex-shrink: 0;
             align-items: center;
+            flex-shrink: 0;
         }
 
-        .hero-logo img {
+        .header-logo img {
             display: block;
             width: auto;
-            height: 46px;
-            max-width: min(220px, 45vw);
+            height: 44px;
+            max-width: 220px;
             object-fit: contain;
             object-position: left center;
-            filter: drop-shadow(0 2px 12px rgba(0, 0, 0, 0.34));
         }
 
-        .hero-nav {
+        .header-nav {
             display: flex;
             align-items: center;
+            justify-content: flex-end;
             gap: 10px;
         }
 
@@ -206,9 +150,55 @@
             background: var(--blue-dark);
         }
 
-        /*
-          Tekst ostaje na levoj strani, bez prelaska preko slike.
-        */
+        /* HERO — CELA SLIKA BEZ SEČENJA */
+
+        .hero {
+            position: relative;
+            overflow: hidden;
+            isolation: isolate;
+            background:
+                radial-gradient(circle at 78% 20%, #40526e 0%, #172238 48%, #0d1524 100%);
+        }
+
+        .hero-image {
+            position: relative;
+            z-index: 0;
+            display: block;
+            width: 100%;
+            height: auto;
+        }
+
+        .hero-overlay {
+            position: absolute;
+            inset: 0;
+            z-index: 1;
+            pointer-events: none;
+            background:
+                linear-gradient(
+                    90deg,
+                    rgba(12, 21, 37, 0.83) 0%,
+                    rgba(12, 21, 37, 0.58) 34%,
+                    rgba(12, 21, 37, 0.18) 57%,
+                    rgba(12, 21, 37, 0) 78%
+                ),
+                linear-gradient(
+                    180deg,
+                    rgba(0, 0, 0, 0.12) 0%,
+                    transparent 40%,
+                    rgba(0, 0, 0, 0.16) 100%
+                );
+        }
+
+        .hero-content {
+            position: absolute;
+            inset: 0;
+            z-index: 2;
+            display: flex;
+            align-items: flex-end;
+            padding-bottom: 34px;
+            color: var(--white);
+        }
+
         .hero-copy {
             width: min(480px, 43%);
         }
@@ -652,20 +642,20 @@
                 width: min(100% - 28px, 1180px);
             }
 
-            .hero-content {
-                padding: 15px 0 20px;
+            .header-inner {
+                min-height: 64px;
             }
 
-            .hero-logo img {
-                height: 37px;
+            .header-logo img {
+                height: 36px;
                 max-width: 145px;
             }
 
-            .hero-nav {
+            .header-nav {
                 gap: 6px;
             }
 
-            .hero-nav .btn {
+            .header-nav .btn {
                 min-height: 37px;
                 padding: 8px 10px;
                 border-radius: 9px;
@@ -676,10 +666,10 @@
                 display: none;
             }
 
-            /*
-              Tekst ostaje u levoj polovini telefona.
-              Slika ostaje cela jer .hero-image ima height: auto.
-            */
+            .hero-content {
+                padding-bottom: 18px;
+            }
+
             .hero-copy {
                 width: min(47vw, 185px);
             }
@@ -795,6 +785,16 @@
         }
 
         @media (max-width: 380px) {
+            .header-logo img {
+                height: 32px;
+                max-width: 120px;
+            }
+
+            .header-nav .btn {
+                padding: 7px 8px;
+                font-size: 10px;
+            }
+
             .hero-copy {
                 width: min(47vw, 170px);
             }
@@ -811,7 +811,23 @@
 </head>
 
 <body>
+    <!-- ZASEBAN PROSTOR IZNAD HERO SLIKE -->
+    <header class="site-header">
+        <div class="container header-inner">
+            <a href="#pocetna" class="header-logo" aria-label="PonudiMi početna strana">
+                <img src="ponudimi-logo.png" alt="PonudiMi">
+            </a>
+
+            <nav class="header-nav" aria-label="Korisničke opcije">
+                <a href="#podrska" class="btn btn-support">Podrška</a>
+                <a href="#prijava" class="btn btn-login">Prijava</a>
+                <a href="#registracija" class="btn btn-register">Registracija</a>
+            </nav>
+        </div>
+    </header>
+
     <main>
+        <!-- HERO SLIKA: CELA FOTOGRAFIJA -->
         <section class="hero" id="pocetna">
             <img
                 src="reference-homepage.png"
@@ -822,18 +838,6 @@
             <div class="hero-overlay"></div>
 
             <div class="container hero-content">
-                <div class="hero-topbar">
-                    <a href="#pocetna" class="hero-logo" aria-label="PonudiMi početna strana">
-                        <img src="ponudimi-logo.png" alt="PonudiMi">
-                    </a>
-
-                    <nav class="hero-nav" aria-label="Korisničke opcije">
-                        <a href="#podrska" class="btn btn-support">Podrška</a>
-                        <a href="#prijava" class="btn btn-login">Prijava</a>
-                        <a href="#registracija" class="btn btn-register">Registracija</a>
-                    </nav>
-                </div>
-
                 <div class="hero-copy">
                     <p class="hero-eyebrow">Ponude na jednom mestu</p>
 
