@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PonudiMi - Platforma za sve vaše potrebe</title>
+    <title>PonudiMi</title>
     <style>
         * {
             margin: 0;
@@ -22,49 +22,17 @@
             background-color: #f0f8ff;
             padding: 15px 20px;
             display: flex;
-            justify-content: space-between;
+            justify-content: center;
             align-items: center;
-            position: sticky;
-            top: 0;
-            z-index: 100;
-        }
-
-        .logo {
-            display: flex;
-            align-items: center;
-            gap: 5px;
-        }
-
-        .logo-text {
-            display: flex;
-            flex-direction: column;
-        }
-
-        .logo-ponudi {
-            color: #1a1a2e;
-            font-size: 18px;
-            font-weight: 700;
-            line-height: 1;
-        }
-
-        .logo-mi {
-            color: #FF6B35;
-            font-size: 18px;
-            font-weight: 700;
-            line-height: 1;
-        }
-
-        .nav-buttons {
-            display: flex;
-            gap: 10px;
+            gap: 15px;
         }
 
         .btn-support {
-            background-color: transparent;
-            border: 2px solid #FF6B35;
-            color: #FF6B35;
-            padding: 8px 16px;
-            border-radius: 20px;
+            background-color: #90EE90;
+            border: none;
+            color: #1a1a2e;
+            padding: 10px 20px;
+            border-radius: 12px;
             font-size: 14px;
             font-weight: 600;
             cursor: pointer;
@@ -72,16 +40,16 @@
         }
 
         .btn-support:hover {
-            background-color: #FF6B35;
-            color: white;
+            background-color: #7cda7c;
+            transform: scale(1.05);
         }
 
         .btn-login {
             background-color: #FF6B35;
             border: none;
             color: white;
-            padding: 8px 20px;
-            border-radius: 20px;
+            padding: 10px 20px;
+            border-radius: 12px;
             font-size: 14px;
             font-weight: 600;
             cursor: pointer;
@@ -93,11 +61,28 @@
             transform: scale(1.05);
         }
 
-        /* HERO SECTION */
+        .btn-register {
+            background-color: #4169E1;
+            border: none;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-register:hover {
+            background-color: #3658c7;
+            transform: scale(1.05);
+        }
+
+        /* HERO SEKCIJA */
         .hero {
             position: relative;
             width: 100%;
-            height: 450px;
+            height: 33vh;
             overflow: hidden;
         }
 
@@ -122,20 +107,20 @@
         .hero-content {
             position: relative;
             z-index: 10;
-            padding: 40px 20px;
+            padding: 20px;
             color: white;
         }
 
-        .hero-logo-container {
+        .hero-top {
             display: flex;
             align-items: center;
             gap: 15px;
-            margin-bottom: 20px;
+            margin-bottom: 15px;
         }
 
         .hero-logo-img {
-            width: 60px;
-            height: 60px;
+            width: 50px;
+            height: 50px;
             object-fit: contain;
         }
 
@@ -145,58 +130,69 @@
         }
 
         .hero-ponudi {
-            font-size: 42px;
+            font-size: 36px;
             font-weight: 800;
             line-height: 1;
             color: white;
         }
 
         .hero-mi {
-            font-size: 42px;
+            font-size: 36px;
             font-weight: 800;
             line-height: 1;
             color: #FF6B35;
         }
 
         .hero-text {
-            margin-top: 15px;
+            margin-top: 10px;
         }
 
-        .hero-text p {
+        .hero-text-line1 {
             font-size: 20px;
-            margin-bottom: 8px;
-            opacity: 0.95;
+            margin-bottom: 6px;
         }
 
-        .hero-text p:nth-child(2) {
+        .hero-text-line2 {
             font-size: 18px;
-            opacity: 0.9;
+            margin-bottom: 5px;
         }
 
-        .hero-text p:nth-child(3) {
+        .hero-text-line3 {
             font-size: 16px;
-            opacity: 0.85;
+            margin-bottom: 4px;
         }
 
-        .hero-text p:nth-child(4) {
+        .hero-text-line4 {
             font-size: 14px;
-            opacity: 0.8;
+            margin-bottom: 3px;
         }
 
-        /* CATEGORIES */
+        .hero-text-line5 {
+            font-size: 12px;
+            margin-bottom: 2px;
+        }
+
+        .hero-text-line6 {
+            font-size: 10px;
+        }
+
+        .text-orange {
+            color: #FF6B35;
+        }
+
+        /* KATEGORIJE */
         .categories {
-            padding: 30px 20px;
+            padding: 25px 20px;
             background-color: #f0f8ff;
         }
 
         .categories-container {
-            display: flex;
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
             gap: 15px;
             overflow-x: auto;
-            scroll-snap-type: x mandatory;
             -webkit-overflow-scrolling: touch;
             scrollbar-width: none;
-            padding-bottom: 10px;
         }
 
         .categories-container::-webkit-scrollbar {
@@ -204,15 +200,14 @@
         }
 
         .category-card {
-            flex: 0 0 140px;
-            height: 140px;
+            width: 100%;
+            aspect-ratio: 1;
             border-radius: 20px;
             backdrop-filter: blur(10px);
             -webkit-backdrop-filter: blur(10px);
             display: flex;
             flex-direction: column;
             overflow: hidden;
-            scroll-snap-align: start;
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
             transition: transform 0.3s;
         }
@@ -221,14 +216,15 @@
             transform: scale(1.05);
         }
 
-        .category-card:nth-child(1) { background: rgba(65, 105, 225, 0.3); }
-        .category-card:nth-child(2) { background: rgba(255, 165, 0, 0.3); }
-        .category-card:nth-child(3) { background: rgba(50, 205, 50, 0.3); }
-        .category-card:nth-child(4) { background: rgba(255, 105, 180, 0.3); }
-        .category-card:nth-child(5) { background: rgba(135, 206, 235, 0.3); }
-        .category-card:nth-child(6) { background: rgba(255, 215, 0, 0.3); }
-        .category-card:nth-child(7) { background: rgba(219, 112, 147, 0.3); }
-        .category-card:nth-child(8) { background: rgba(144, 238, 144, 0.3); }
+        .category-card:nth-child(1) { background: rgba(65, 105, 225, 0.25); }
+        .category-card:nth-child(2) { background: rgba(255, 165, 0, 0.25); }
+        .category-card:nth-child(3) { background: rgba(50, 205, 50, 0.25); }
+        .category-card:nth-child(4) { background: rgba(255, 105, 180, 0.25); }
+        .category-card:nth-child(5) { background: rgba(135, 206, 235, 0.25); }
+        .category-card:nth-child(6) { background: rgba(255, 215, 0, 0.25); }
+        .category-card:nth-child(7) { background: rgba(219, 112, 147, 0.25); }
+        .category-card:nth-child(8) { background: rgba(144, 238, 144, 0.25); }
+        .category-card:nth-child(9) { background: rgba(221, 160, 221, 0.25); }
 
         .category-image {
             flex: 1;
@@ -246,16 +242,16 @@
 
         .category-name {
             background: rgba(255, 255, 255, 0.9);
-            padding: 10px;
+            padding: 8px 5px;
             text-align: center;
             font-weight: 600;
-            font-size: 14px;
+            font-size: 12px;
             color: #1a1a2e;
         }
 
-        /* SEARCH */
+        /* PRETRAGA */
         .search-section {
-            padding: 20px;
+            padding: 15px 20px;
             background-color: #f0f8ff;
         }
 
@@ -264,43 +260,43 @@
             gap: 10px;
         }
 
-        .search-input-wrapper {
+        .search-wrapper {
             flex: 1;
             position: relative;
+            display: flex;
+            align-items: center;
         }
 
         .search-input {
             width: 100%;
-            padding: 15px 15px 15px 45px;
+            padding: 12px 15px 12px 40px;
             border: none;
-            border-radius: 15px;
+            border-radius: 12px;
             background: white;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
-            font-size: 16px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            font-size: 15px;
             outline: none;
         }
 
         .search-icon {
             position: absolute;
-            left: 15px;
-            top: 50%;
-            transform: translateY(-50%);
+            left: 12px;
             color: #999;
-            font-size: 20px;
+            font-size: 18px;
         }
 
         .location-input {
             flex: 1;
-            padding: 15px;
+            padding: 12px 15px;
             border: none;
-            border-radius: 15px;
+            border-radius: 12px;
             background: white;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
-            font-size: 16px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            font-size: 15px;
             outline: none;
         }
 
-        /* ACTION BUTTONS */
+        /* DUGMAD */
         .action-buttons {
             padding: 20px;
             display: flex;
@@ -310,12 +306,12 @@
         }
 
         .btn-action {
-            padding: 20px 30px;
+            padding: 18px 25px;
             border-radius: 15px;
             border: none;
             cursor: pointer;
             text-align: center;
-            min-width: 200px;
+            min-width: 180px;
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
             transition: all 0.3s;
         }
@@ -336,17 +332,17 @@
         }
 
         .btn-action-title {
-            font-size: 18px;
+            font-size: 17px;
             font-weight: 700;
-            margin-bottom: 5px;
+            margin-bottom: 4px;
         }
 
         .btn-action-subtitle {
-            font-size: 14px;
-            opacity: 0.9;
+            font-size: 13px;
+            opacity: 0.95;
         }
 
-        /* SECTIONS */
+        /* SEKCIJE */
         .sections-container {
             padding: 20px;
             display: grid;
@@ -455,10 +451,10 @@
             font-weight: 700;
         }
 
-        /* FOOTER */
+        /* FOOTER - KORAK 8 */
         footer {
             background-color: #1a1a2e;
-            padding: 25px 20px;
+            padding: 20px;
             display: flex;
             align-items: center;
             justify-content: space-between;
@@ -472,7 +468,7 @@
             flex: 1;
         }
 
-        .footer-logo {
+        .footer-logo-circle {
             width: 50px;
             height: 50px;
             background: linear-gradient(135deg, #4CAF50, #8BC34A);
@@ -504,50 +500,37 @@
         }
 
         .footer-text h3 {
-            font-size: 18px;
+            font-size: 16px;
             font-weight: 700;
-            margin-bottom: 5px;
+            margin-bottom: 4px;
         }
 
         .footer-text p {
-            font-size: 13px;
-            opacity: 0.8;
+            font-size: 12px;
+            opacity: 0.85;
             line-height: 1.4;
         }
 
-        .btn-register {
+        .btn-footer-register {
             background-color: #FF6B35;
             border: none;
             color: white;
-            padding: 15px 30px;
+            padding: 12px 25px;
             border-radius: 12px;
-            font-size: 16px;
+            font-size: 15px;
             font-weight: 700;
             cursor: pointer;
             transition: all 0.3s;
             flex-shrink: 0;
         }
 
-        .btn-register:hover {
+        .btn-footer-register:hover {
             background-color: #e55a2b;
             transform: scale(1.05);
         }
 
         /* RESPONSIVE */
         @media (max-width: 768px) {
-            .hero {
-                height: 380px;
-            }
-
-            .hero-ponudi,
-            .hero-mi {
-                font-size: 32px;
-            }
-
-            .hero-text p {
-                font-size: 16px;
-            }
-
             .sections-container {
                 grid-template-columns: 1fr;
             }
@@ -561,34 +544,8 @@
                 flex-direction: column;
             }
 
-            .btn-register {
+            .btn-footer-register {
                 width: 100%;
-            }
-        }
-
-        @media (max-width: 480px) {
-            .hero {
-                height: 320px;
-            }
-
-            .hero-ponudi,
-            .hero-mi {
-                font-size: 28px;
-            }
-
-            .category-card {
-                flex: 0 0 110px;
-                height: 110px;
-            }
-
-            .action-buttons {
-                flex-direction: column;
-                align-items: center;
-            }
-
-            .btn-action {
-                width: 100%;
-                max-width: 300px;
             }
         }
     </style>
@@ -596,40 +553,35 @@
 <body>
     <!-- HEADER -->
     <header>
-        <div class="logo">
-            <div class="logo-text">
-                <span class="logo-ponudi">Ponudi</span>
-                <span class="logo-mi">Mi</span>
-            </div>
-        </div>
-        <div class="nav-buttons">
-            <button class="btn-support">Podrška</button>
-            <button class="btn-login">Prijava</button>
-        </div>
+        <button class="btn-support">Podrška</button>
+        <button class="btn-login">Prijava</button>
+        <button class="btn-register">Registracija</button>
     </header>
 
-    <!-- HERO SECTION -->
+    <!-- HERO SEKCIJA -->
     <section class="hero">
         <img src="https://images.unsplash.com/photo-1522071820081-009f0129c71c?w=1200&h=600&fit=crop" alt="Hero" class="hero-image">
         <div class="hero-overlay"></div>
         <div class="hero-content">
-            <div class="hero-logo-container">
-                <img src="https://via.placeholder.com/60x60.png?text=Logo" alt="Logo" class="hero-logo-img">
+            <div class="hero-top">
+                <img src="https://via.placeholder.com/50x50.png?text=Logo" alt="Logo" class="hero-logo-img">
                 <div class="hero-title">
                     <span class="hero-ponudi">Ponudi</span>
                     <span class="hero-mi">Mi</span>
                 </div>
             </div>
             <div class="hero-text">
-                <p>Jednostavno. Brzo. Efikasno.</p>
-                <p>Pronađite sve što vam treba na jednom mestu</p>
-                <p>Povezujemo kupce i prodavce</p>
-                <p>Postanite deo zajednice danas</p>
+                <div class="hero-text-line1">Pronađite <span class="text-orange">najbolje</span> ponude <span class="text-orange">brzo</span> i <span class="text-orange">lako</span></div>
+                <div class="hero-text-line2">Sve što <span class="text-orange">vam</span> treba, na <span class="text-orange">jednom</span> mestu</div>
+                <div class="hero-text-line3">Jednostavno, <span class="text-orange">brzo</span> i <span class="text-orange">efikasno</span></div>
+                <div class="hero-text-line4">Povezujemo <span class="text-orange">kupce</span> i <span class="text-orange">prodavce</span></div>
+                <div class="hero-text-line5">Postanite <span class="text-orange">deo</span> naše <span class="text-orange">zajednice</span></div>
+                <div class="hero-text-line6">Registrujte <span class="text-orange">se</span> besplatno <span class="text-orange">danas</span></div>
             </div>
         </div>
     </section>
 
-    <!-- CATEGORIES -->
+    <!-- KATEGORIJE -->
     <section class="categories">
         <div class="categories-container">
             <div class="category-card">
@@ -680,13 +632,19 @@
                 </div>
                 <div class="category-name">Ostalo</div>
             </div>
+            <div class="category-card">
+                <div class="category-image">
+                    <img src="https://images.unsplash.com/photo-1556910103-1c02745a30bf?w=200&h=200&fit=crop" alt="Posao">
+                </div>
+                <div class="category-name">Posao</div>
+            </div>
         </div>
     </section>
 
-    <!-- SEARCH -->
+    <!-- PRETRAGA -->
     <section class="search-section">
         <div class="search-container">
-            <div class="search-input-wrapper">
+            <div class="search-wrapper">
                 <span class="search-icon">🔍</span>
                 <input type="text" class="search-input" placeholder="Šta tražite danas?">
             </div>
@@ -694,7 +652,7 @@
         </div>
     </section>
 
-    <!-- ACTION BUTTONS -->
+    <!-- DUGMAD -->
     <section class="action-buttons">
         <button class="btn-action btn-request">
             <div class="btn-action-title">Postavi zahtev</div>
@@ -706,7 +664,7 @@
         </button>
     </section>
 
-    <!-- SECTIONS -->
+    <!-- SEKCIJE -->
     <section class="sections-container">
         <div class="section-card">
             <div class="section-header">
@@ -786,7 +744,7 @@
     <!-- FOOTER -->
     <footer>
         <div class="footer-left">
-            <div class="footer-logo">
+            <div class="footer-logo-circle">
                 <div class="footer-shield">
                     <span class="footer-check">✓</span>
                 </div>
@@ -796,7 +754,7 @@
                 <p>Registruj se besplatno i otključaj sve mogućnosti platforme PonudiMi</p>
             </div>
         </div>
-        <button class="btn-register">Registruj se</button>
+        <button class="btn-footer-register">Registruj se</button>
     </footer>
 </body>
 </html>
