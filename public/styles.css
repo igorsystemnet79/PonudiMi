@@ -1024,3 +1024,26 @@ button {
     flex-direction: column;
   }
 }
+
+/* Sakriva beli deo screenshot reference slike u hero baneru */
+.hero::after {
+  content: "";
+  position: absolute;
+  z-index: 1;
+  top: 0;
+  left: 0;
+  width: 42%;
+  height: 100%;
+  pointer-events: none;
+  background: linear-gradient(
+    90deg,
+    #06295c 0%,
+    #06295c 72%,
+    rgba(6, 41, 92, 0.92) 88%,
+    rgba(6, 41, 92, 0) 100%
+  );
+}
+
+.hero-copy {
+  z-index: 2;
+}
