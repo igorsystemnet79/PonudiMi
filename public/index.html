@@ -8,7 +8,632 @@
     content="PonudiMi — kupoprodajna platforma za oglase, zahteve i ponude."
   >
   <title>PonudiMi — Pronađite najbolje ponude lako i brzo</title>
-  <link rel="stylesheet" href="/styles.css">
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: #fff;
+      color: #222;
+      line-height: 1.5;
+    }
+
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      background: #fff;
+      border-bottom: 1px solid #eee;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.6rem 1rem;
+    }
+
+    .brand img {
+      height: 36px;
+      width: auto;
+      display: block;
+    }
+
+    .main-nav {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .navlink, .primary, .searchbtn, .cta button {
+      appearance: none;
+      border: 0;
+      background: transparent;
+      font: inherit;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      padding: 0.5rem 0.75rem;
+      border-radius: 999px;
+      color: #333;
+      white-space: nowrap;
+    }
+
+    .navlink small {
+      display: block;
+      font-size: 0.7rem;
+      color: #666;
+      margin-top: -0.15rem;
+    }
+
+    .primary {
+      background: #111;
+      color: #fff;
+    }
+
+    .down-arrow {
+      opacity: 0.7;
+    }
+
+    .hero {
+      position: relative;
+      height: 55vh;
+      min-height: 360px;
+      max-height: 520px;
+      background: url("/reference-homepage.jpg") center / cover no-repeat;
+      display: flex;
+      align-items: flex-end;
+      overflow: hidden;
+    }
+
+    .hero-shade {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(to bottom, rgba(0,0,0,0.25), rgba(0,0,0,0.08));
+      pointer-events: none;
+    }
+
+    .hero-copy {
+      position: relative;
+      z-index: 1;
+      color: #fff;
+      padding: 2rem;
+      max-width: 720px;
+    }
+
+    .hero-copy h1 {
+      font-size: clamp(2rem, 5vw, 3rem);
+      font-weight: 800;
+      line-height: 1.1;
+      margin-bottom: 0.75rem;
+    }
+
+    .hero-copy p {
+      font-size: clamp(1rem, 2.2vw, 1.15rem);
+      opacity: 0.95;
+    }
+
+    .benefits {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 1.25rem;
+      padding: 1.5rem 1rem;
+      background: #fafafa;
+      border-bottom: 1px solid #eee;
+    }
+
+    .benefit {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .benefit-icon {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      font-size: 1.25rem;
+      flex-shrink: 0;
+    }
+
+    .blue-icon { background: #e3f2fd; color: #1976d2; }
+    .yellow-icon { background: #fff8e1; color: #f57f17; }
+    .green-icon { background: #e8f5e9; color: #2e7d32; }
+
+    .benefit b {
+      display: block;
+      font-size: 1rem;
+      margin-bottom: 0.15rem;
+    }
+
+    .benefit small {
+      font-size: 0.85rem;
+      color: #555;
+    }
+
+    .categories {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      gap: 0.75rem;
+      padding: 1rem;
+    }
+
+    .cat {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 1rem 0.5rem;
+      border-radius: 12px;
+      background: #f5f5f5;
+      color: #222;
+      text-align: center;
+      border: 0;
+      cursor: pointer;
+      width: 100%;
+    }
+
+    .cat:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(0,0,0,0.08);
+    }
+
+    .search {
+      display: grid;
+      grid-template-columns: 1.5fr 1fr 1fr auto;
+      gap: 0.5rem;
+      padding: 1rem;
+      background: #fff;
+      border-bottom: 1px solid #eee;
+    }
+
+    .search-field {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.6rem 0.75rem;
+      border: 1px solid #ddd;
+      border-radius: 10px;
+      background: #fff;
+    }
+
+    .search-field span {
+      opacity: 0.5;
+    }
+
+    .search-field input, .search-field select {
+      border: 0;
+      outline: 0;
+      background: transparent;
+      font: inherit;
+      width: 100%;
+    }
+
+    .searchbtn {
+      background: #111;
+      color: #fff;
+      padding: 0.6rem 1.25rem;
+      border-radius: 10px;
+      border: 0;
+      font-weight: 600;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      cursor: pointer;
+    }
+
+    .actions {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 0.75rem;
+      padding: 1rem;
+    }
+
+    .actions button {
+      appearance: none;
+      border: 0;
+      border-radius: 14px;
+      padding: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      cursor: pointer;
+      text-align: left;
+    }
+
+    .blue { background: #e3f2fd; color: #0d47a1; }
+    .orange { background: #fff3e0; color: #e65100; }
+
+    .action-icon {
+      font-size: 1.75rem;
+    }
+
+    .action-text {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .action-text b {
+      font-size: 1.05rem;
+    }
+
+    .action-text small {
+      font-size: 0.85rem;
+      opacity: 0.8;
+    }
+
+    .action-arrow {
+      margin-left: auto;
+      font-size: 1.5rem;
+      opacity: 0.6;
+    }
+
+    .content {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1rem;
+      padding: 1rem;
+    }
+
+    .panel {
+      background: #fff;
+      border: 1px solid #eee;
+      border-radius: 14px;
+      padding: 1rem;
+    }
+
+    .panel-heading {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 0.75rem;
+    }
+
+    .panel-heading h2 {
+      font-size: 1.1rem;
+      font-weight: 700;
+    }
+
+    .steps-note {
+      font-size: 0.85rem;
+      color: #666;
+    }
+
+    .more-link {
+      background: none;
+      border: 0;
+      color: #1976d2;
+      font: inherit;
+      cursor: pointer;
+    }
+
+    .request-item {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 0.6rem 0;
+      border-bottom: 1px solid #f0f0f0;
+    }
+
+    .request-item:last-child {
+      border-bottom: 0;
+    }
+
+    .request-icon {
+      font-size: 1.5rem;
+    }
+
+    .request-item b {
+      display: block;
+      font-size: 0.95rem;
+    }
+
+    .request-item small {
+      font-size: 0.8rem;
+      color: #666;
+    }
+
+    .featured-list {
+      display: grid;
+      gap: 0.75rem;
+    }
+
+    .featured-item {
+      display: grid;
+      grid-template-columns: 80px 1fr;
+      gap: 0.75rem;
+      padding: 0.5rem;
+      border: 1px solid #eee;
+      border-radius: 10px;
+    }
+
+    .featured-item img {
+      width: 80px;
+      height: 80px;
+      object-fit: cover;
+      border-radius: 8px;
+    }
+
+    .featured-item b {
+      font-size: 0.95rem;
+      display: block;
+    }
+
+    .featured-item small {
+      font-size: 0.8rem;
+      color: #666;
+    }
+
+    .steps {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 0.5rem;
+      text-align: center;
+    }
+
+    .step {
+      padding: 0.75rem 0.5rem;
+      background: #f9f9f9;
+      border-radius: 10px;
+    }
+
+    .step b {
+      display: block;
+      font-size: 1.5rem;
+      color: #1976d2;
+      margin-bottom: 0.25rem;
+    }
+
+    .step strong {
+      display: block;
+      font-size: 0.9rem;
+      margin-bottom: 0.25rem;
+    }
+
+    .step small {
+      font-size: 0.75rem;
+      color: #666;
+    }
+
+    .cta {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      padding: 1.5rem 1rem;
+      background: #f5f5f5;
+      border-top: 1px solid #eee;
+      flex-wrap: wrap;
+    }
+
+    .cta-icon {
+      font-size: 2.5rem;
+      color: #d32f2f;
+    }
+
+    .cta b {
+      display: block;
+      font-size: 1.1rem;
+      margin-bottom: 0.25rem;
+    }
+
+    .cta span {
+      font-size: 0.95rem;
+      color: #555;
+    }
+
+    .cta button {
+      margin-left: auto;
+      background: #111;
+      color: #fff;
+      border: 0;
+      padding: 0.6rem 1.25rem;
+      border-radius: 999px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .cta-people {
+      font-size: 1.5rem;
+      margin-left: 0.5rem;
+    }
+
+    .modal {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.5);
+      display: grid;
+      place-items: center;
+      z-index: 100;
+      padding: 1rem;
+    }
+
+    .dialog {
+      background: #fff;
+      border-radius: 14px;
+      max-width: 480px;
+      width: 100%;
+      max-height: 85vh;
+      overflow: auto;
+      position: relative;
+      padding: 1.5rem;
+    }
+
+    .dialog .close {
+      position: absolute;
+      top: 0.75rem;
+      right: 0.75rem;
+      background: none;
+      border: 0;
+      font-size: 1.75rem;
+      cursor: pointer;
+      color: #666;
+    }
+
+    .tabs {
+      display: flex;
+      gap: 0.5rem;
+      margin: 1rem 0;
+      border-bottom: 1px solid #eee;
+      padding-bottom: 0.5rem;
+    }
+
+    .tabs button {
+      appearance: none;
+      border: 0;
+      background: #f5f5f5;
+      padding: 0.5rem 1rem;
+      border-radius: 8px;
+      font: inherit;
+      cursor: pointer;
+    }
+
+    .tabs button.active {
+      background: #111;
+      color: #fff;
+    }
+
+    .chat {
+      max-height: 280px;
+      overflow-y: auto;
+      border: 1px solid #eee;
+      border-radius: 10px;
+      padding: 0.75rem;
+      margin: 0.75rem 0;
+      background: #fafafa;
+    }
+
+    .chat .msg {
+      padding: 0.5rem 0.75rem;
+      border-radius: 10px;
+      margin-bottom: 0.5rem;
+      max-width: 85%;
+    }
+
+    .chat .msg.bot {
+      background: #e3f2fd;
+      color: #0d47a1;
+      margin-right: auto;
+    }
+
+    .chat .msg.me {
+      background: #111;
+      color: #fff;
+      margin-left: auto;
+    }
+
+    .chatrow {
+      display: flex;
+      gap: 0.5rem;
+      align-items: center;
+    }
+
+    .chatrow input {
+      flex: 1;
+      padding: 0.6rem;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      font: inherit;
+    }
+
+    .chatrow .submit {
+      background: #111;
+      color: #fff;
+      border: 0;
+      padding: 0.6rem 1rem;
+      border-radius: 8px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .notice {
+      background: #fff8e1;
+      border: 1px solid #ffe082;
+      border-radius: 10px;
+      padding: 0.75rem;
+      font-size: 0.9rem;
+      color: #5d4037;
+      margin-bottom: 0.75rem;
+    }
+
+    .faq {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .faq-question {
+      appearance: none;
+      border: 1px solid #ddd;
+      background: #f9f9f9;
+      padding: 0.75rem 1rem;
+      border-radius: 10px;
+      font: inherit;
+      text-align: left;
+      cursor: pointer;
+    }
+
+    #registerForm input, #registerForm select,
+    #loginForm input, #listingForm input, #listingForm select, #listingForm textarea,
+    #requestForm input, #requestForm select, #requestForm textarea,
+    #ticketForm input, #ticketForm textarea {
+      width: 100%;
+      padding: 0.6rem;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      font: inherit;
+      margin-bottom: 0.75rem;
+    }
+
+    #registerForm .submit, #loginForm .submit,
+    #listingForm .submit, #requestForm .submit, #ticketForm .submit {
+      width: 100%;
+      background: #111;
+      color: #fff;
+      border: 0;
+      padding: 0.75rem;
+      border-radius: 8px;
+      font-weight: 600;
+      cursor: pointer;
+      margin-top: 0.5rem;
+    }
+
+    @media (max-width: 768px) {
+      .hero {
+        height: 50vh;
+        min-height: 320px;
+      }
+
+      .search {
+        grid-template-columns: 1fr;
+      }
+
+      .content {
+        grid-template-columns: 1fr;
+      }
+
+      .cta {
+        flex-direction: column;
+        text-align: center;
+      }
+
+      .cta button {
+        margin-left: 0;
+        width: 100%;
+      }
+
+      .cta-people {
+        margin-left: 0;
+      }
+    }
+
+    .hidden {
+      display: none !important;
+    }
+  </style>
 </head>
 
 <body>
