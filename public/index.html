@@ -86,7 +86,9 @@
             transform: translateY(-2px);
         }
 
-        /* HEADER — IZNAD HERO SLIKE */
+        /* =================================================
+           HEADER — IZNAD HERO SLIKE
+           ================================================= */
 
         .site-header {
             border-bottom: 1px solid rgba(26, 26, 46, 0.08);
@@ -103,8 +105,8 @@
 
         .header-logo {
             display: inline-flex;
-            align-items: center;
             flex-shrink: 0;
+            align-items: center;
         }
 
         .header-logo img {
@@ -150,7 +152,9 @@
             background: var(--blue-dark);
         }
 
-        /* HERO — CELA SLIKA BEZ SEČENJA */
+        /* =================================================
+           HERO — CELA SLIKA, BEZ SEČENJA
+           ================================================= */
 
         .hero {
             position: relative;
@@ -274,7 +278,9 @@
             background: rgba(255, 255, 255, 0.25);
         }
 
-        /* PRETRAGA */
+        /* =================================================
+           PRETRAGA
+           ================================================= */
 
         .search-band {
             position: relative;
@@ -335,7 +341,9 @@
             background: var(--blue-dark);
         }
 
-        /* BRZE AKCIJE */
+        /* =================================================
+           BRZE AKCIJE
+           ================================================= */
 
         .quick-actions {
             display: grid;
@@ -396,7 +404,9 @@
             font-weight: 800;
         }
 
-        /* KATEGORIJE */
+        /* =================================================
+           KATEGORIJE
+           ================================================= */
 
         .section {
             margin: 64px 0;
@@ -474,7 +484,9 @@
             text-align: center;
         }
 
-        /* ZAHTEVI I PONUDE */
+        /* =================================================
+           ZAHTEVI I PONUDE
+           ================================================= */
 
         .content-grid {
             display: grid;
@@ -571,7 +583,9 @@
             font-weight: 800;
         }
 
-        /* FOOTER */
+        /* =================================================
+           FOOTER
+           ================================================= */
 
         footer {
             padding: 28px 0;
@@ -627,7 +641,9 @@
             background: var(--orange-dark);
         }
 
-        /* TABLET */
+        /* =================================================
+           TABLET
+           ================================================= */
 
         @media (max-width: 980px) {
             .categories-grid {
@@ -635,35 +651,62 @@
             }
         }
 
-        /* MOBILNI */
+        /* =================================================
+           TELEFON I USPRAVNI PRIKAZ
+           ================================================= */
 
         @media (max-width: 700px) {
             .container {
-                width: min(100% - 28px, 1180px);
+                width: min(100% - 24px, 1180px);
             }
 
+            /*
+              Logo je u prvom redu; navigacija u drugom.
+              Tako sva tri dugmeta ostaju vidljiva.
+            */
             .header-inner {
-                min-height: 64px;
+                min-height: 0;
+                flex-direction: column;
+                align-items: stretch;
+                gap: 10px;
+                padding: 13px 0 14px;
+            }
+
+            .header-logo {
+                align-self: flex-start;
             }
 
             .header-logo img {
-                height: 36px;
-                max-width: 145px;
+                height: 45px;
+                max-width: 200px;
             }
 
             .header-nav {
-                gap: 6px;
+                width: 100%;
+                display: flex;
+                align-items: stretch;
+                gap: 7px;
             }
 
+            /*
+              Ista dimenzija za Podrška, Prijava i Registracija.
+              flex: 1 deli ceo red na tri jednaka dela.
+            */
             .header-nav .btn {
-                min-height: 37px;
-                padding: 8px 10px;
-                border-radius: 9px;
+                flex: 1 1 0;
+                min-width: 0;
+                min-height: 42px;
+                padding: 8px 4px;
+                border-radius: 10px;
+                white-space: nowrap;
                 font-size: 11px;
             }
 
+            /*
+              Podrška se ne skriva na telefonu.
+            */
             .btn-support {
-                display: none;
+                display: inline-flex;
             }
 
             .hero-content {
@@ -784,14 +827,30 @@
             }
         }
 
+        /* =================================================
+           VEOMA USKI TELEFONI
+           ================================================= */
+
         @media (max-width: 380px) {
+            .header-inner {
+                gap: 9px;
+                padding-top: 11px;
+                padding-bottom: 12px;
+            }
+
             .header-logo img {
-                height: 32px;
-                max-width: 120px;
+                height: 41px;
+                max-width: 180px;
+            }
+
+            .header-nav {
+                gap: 5px;
             }
 
             .header-nav .btn {
-                padding: 7px 8px;
+                min-height: 40px;
+                padding: 7px 2px;
+                border-radius: 9px;
                 font-size: 10px;
             }
 
@@ -811,7 +870,7 @@
 </head>
 
 <body>
-    <!-- ZASEBAN PROSTOR IZNAD HERO SLIKE -->
+    <!-- HEADER IZNAD HERO SLIKE -->
     <header class="site-header">
         <div class="container header-inner">
             <a href="#pocetna" class="header-logo" aria-label="PonudiMi početna strana">
@@ -827,7 +886,7 @@
     </header>
 
     <main>
-        <!-- HERO SLIKA: CELA FOTOGRAFIJA -->
+        <!-- HERO: CELA SLIKA BEZ SEČENJA -->
         <section class="hero" id="pocetna">
             <img
                 src="reference-homepage.png"
@@ -855,6 +914,7 @@
             </div>
         </section>
 
+        <!-- PRETRAGA -->
         <section class="search-band" aria-label="Pretraga oglasa">
             <div class="container">
                 <form class="search-panel" action="/pretraga" method="get">
@@ -883,6 +943,7 @@
         </section>
 
         <div class="container">
+            <!-- BRZE AKCIJE -->
             <section class="quick-actions" id="objavi-oglas">
                 <a href="#zahtev" class="action-card action-card-request">
                     <div>
@@ -901,6 +962,7 @@
                 </a>
             </section>
 
+            <!-- KATEGORIJE -->
             <section class="section" id="kategorije">
                 <div class="section-heading">
                     <div>
@@ -980,6 +1042,7 @@
                 </div>
             </section>
 
+            <!-- ZAHTEVI I PONUDE -->
             <section class="content-grid" id="ponude">
                 <article class="content-card" id="zahtev">
                     <div class="content-card-header">
@@ -992,18 +1055,22 @@
                             Tražim iPhone 15 Pro, 256 GB
                             <div class="request-date">Beograd · pre 2 sata</div>
                         </li>
+
                         <li class="request-item">
                             Potrebna pomoć pri selidbi
                             <div class="request-date">Novi Sad · pre 3 sata</div>
                         </li>
+
                         <li class="request-item">
                             Kupujem polovan automobil do 5.000 €
                             <div class="request-date">Niš · pre 5 sati</div>
                         </li>
+
                         <li class="request-item">
                             Tražim majstora za renoviranje kupatila
                             <div class="request-date">Kragujevac · pre 6 sati</div>
                         </li>
+
                         <li class="request-item">
                             Potrebna pomoć oko instalacije Windowsa
                             <div class="request-date">Beograd · pre 8 sati</div>
@@ -1079,6 +1146,7 @@
         </div>
     </main>
 
+    <!-- FOOTER -->
     <footer id="registracija">
         <div class="container footer-inner">
             <div class="footer-message">
