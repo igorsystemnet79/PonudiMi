@@ -4,36 +4,58 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="description" content="PonudiMi — kupoprodajna platforma za oglase, zahteve i ponude.">
-  <title>PonudiMi — Pronađite najbolje ponude lako i brzo</title>
+  <title>PonudiMi — Pronađite najbolje ponude</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
 
-    html {
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-      background: #ffffff;
-      color: #1a1a1a;
-      line-height: 1.5;
+    :root {
+      --primary: #111111;
+      --primary-hover: #000000;
+      --accent-blue: #2563eb;
+      --accent-orange: #ea580c;
+      --bg-light: #f9fafb;
+      --bg-white: #ffffff;
+      --border: #e5e7eb;
+      --text-dark: #1f2937;
+      --text-gray: #6b7280;
     }
 
-    body {
-      min-height: 100vh;
+    html {
+      font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: var(--bg-white);
+      color: var(--text-dark);
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
     }
+
+    body { min-height: 100vh; }
 
     /* HEADER */
     .topbar {
       position: sticky;
       top: 0;
       z-index: 100;
-      background: #ffffff;
-      border-bottom: 1px solid #e5e5e5;
+      background: var(--bg-white);
+      border-bottom: 1px solid var(--border);
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 0.75rem 1.25rem;
+      padding: 0.875rem 1.5rem;
+      backdrop-filter: blur(8px);
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      text-decoration: none;
+      color: var(--primary);
+      font-weight: 800;
+      font-size: 1.5rem;
     }
 
     .brand img {
-      height: 40px;
+      height: 42px;
       width: auto;
       display: block;
     }
@@ -41,10 +63,10 @@
     .main-nav {
       display: flex;
       align-items: center;
-      gap: 0.5rem;
+      gap: 0.625rem;
     }
 
-    .navlink, .primary, .searchbtn, .cta button {
+    .navlink, .btn-outline, .btn-primary {
       appearance: none;
       border: 0;
       background: transparent;
@@ -53,184 +75,270 @@
       display: inline-flex;
       align-items: center;
       gap: 0.5rem;
-      padding: 0.5rem 0.875rem;
-      border-radius: 999px;
-      color: #333;
-      white-space: nowrap;
+      padding: 0.625rem 1rem;
+      border-radius: 10px;
+      color: var(--text-dark);
       text-decoration: none;
+      font-size: 0.925rem;
+      font-weight: 500;
+      transition: all 0.15s ease;
     }
 
-    .navlink:hover, .searchbtn:hover {
-      background: #f5f5f5;
+    .navlink:hover {
+      background: var(--bg-light);
+    }
+
+    .btn-outline {
+      border: 1px solid var(--border);
+    }
+
+    .btn-outline:hover {
+      border-color: var(--primary);
+      background: var(--bg-light);
+    }
+
+    .btn-primary {
+      background: var(--primary);
+      color: var(--bg-white);
+    }
+
+    .btn-primary:hover {
+      background: var(--primary-hover);
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
     }
 
     .navlink small {
       display: block;
       font-size: 0.7rem;
-      color: #666;
-      margin-top: -0.2rem;
-    }
-
-    .primary {
-      background: #111111;
-      color: #ffffff;
-    }
-
-    .primary:hover {
-      background: #000000;
-    }
-
-    .down-arrow {
-      opacity: 0.6;
+      color: var(--text-gray);
+      font-weight: 400;
+      margin-top: -0.15rem;
     }
 
     /* HERO */
     .hero {
       position: relative;
-      height: 60vh;
-      min-height: 400px;
-      max-height: 560px;
-      background: url("/reference-homepage.jpg") center / cover no-repeat;
+      height: 65vh;
+      min-height: 450px;
+      max-height: 600px;
+      background: 
+        linear-gradient(135deg, rgba(37,99,235,0.9) 0%, rgba(37,99,235,0.7) 100%),
+        url("/reference-homepage.jpg") center / cover no-repeat;
       display: flex;
-      align-items: flex-end;
+      align-items: center;
+      justify-content: center;
       overflow: hidden;
     }
 
-    .hero-shade {
+    .hero-overlay {
       position: absolute;
       inset: 0;
-      background: linear-gradient(to bottom, rgba(0,0,0,0.3), rgba(0,0,0,0.1));
+      background: radial-gradient(ellipse at center, transparent 0%, rgba(0,0,0,0.2) 100%);
       pointer-events: none;
     }
 
-    .hero-copy {
+    .hero-content {
       position: relative;
       z-index: 1;
-      color: #ffffff;
+      text-align: center;
+      color: var(--bg-white);
       padding: 2.5rem;
-      max-width: 720px;
+      max-width: 800px;
     }
 
-    .hero-copy h1 {
-      font-size: clamp(2.2rem, 5.5vw, 3.2rem);
+    .hero-content h1 {
+      font-size: clamp(2.5rem, 6vw, 4rem);
       font-weight: 800;
       line-height: 1.1;
-      margin-bottom: 1rem;
-      text-shadow: 0 2px 8px rgba(0,0,0,0.3);
+      margin-bottom: 1.25rem;
+      letter-spacing: -0.02em;
     }
 
-    .hero-copy p {
-      font-size: clamp(1.05rem, 2.4vw, 1.2rem);
-      opacity: 0.98;
-      text-shadow: 0 1px 4px rgba(0,0,0,0.3);
+    .hero-content p {
+      font-size: clamp(1.1rem, 2.5vw, 1.25rem);
+      opacity: 0.95;
+      margin-bottom: 2rem;
+      line-height: 1.7;
     }
 
-    /* BENEFITS */
-    .benefits {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-      gap: 1.5rem;
-      padding: 2rem 1.25rem;
-      background: #fafafa;
-      border-bottom: 1px solid #e5e5e5;
-    }
-
-    .benefit {
+    .hero-buttons {
       display: flex;
-      align-items: center;
       gap: 1rem;
+      justify-content: center;
+      flex-wrap: wrap;
     }
 
-    .benefit-icon {
-      width: 48px;
-      height: 48px;
-      border-radius: 50%;
+    .btn-hero-primary {
+      background: var(--bg-white);
+      color: var(--accent-blue);
+      padding: 0.875rem 2rem;
+      border-radius: 12px;
+      font-weight: 700;
+      font-size: 1rem;
+      border: 0;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .btn-hero-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(255,255,255,0.25);
+    }
+
+    .btn-hero-outline {
+      background: rgba(255,255,255,0.15);
+      color: var(--bg-white);
+      padding: 0.875rem 2rem;
+      border-radius: 12px;
+      font-weight: 600;
+      font-size: 1rem;
+      border: 2px solid rgba(255,255,255,0.3);
+      cursor: pointer;
+      backdrop-filter: blur(8px);
+      transition: all 0.2s ease;
+    }
+
+    .btn-hero-outline:hover {
+      background: rgba(255,255,255,0.25);
+      border-color: rgba(255,255,255,0.5);
+    }
+
+    /* STATS */
+    .stats {
       display: grid;
-      place-items: center;
-      font-size: 1.4rem;
-      flex-shrink: 0;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 1.5rem;
+      padding: 2.5rem 1.5rem;
+      background: var(--bg-light);
+      border-bottom: 1px solid var(--border);
     }
 
-    .blue-icon { background: #e3f2fd; color: #1976d2; }
-    .yellow-icon { background: #fff8e1; color: #f57f17; }
-    .green-icon { background: #e8f5e9; color: #2e7d32; }
+    .stat {
+      text-align: center;
+    }
 
-    .benefit b {
+    .stat-icon {
+      font-size: 2.5rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .stat-value {
+      font-size: 1.75rem;
+      font-weight: 800;
+      color: var(--primary);
       display: block;
-      font-size: 1.05rem;
-      margin-bottom: 0.2rem;
     }
 
-    .benefit small {
+    .stat-label {
       font-size: 0.875rem;
-      color: #555;
+      color: var(--text-gray);
     }
 
     /* CATEGORIES */
-    .categories {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-      gap: 0.875rem;
-      padding: 1.25rem;
+    .section {
+      padding: 3rem 1.5rem;
     }
 
-    .cat {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 0.5rem;
-      padding: 1.25rem 0.75rem;
-      border-radius: 14px;
-      background: #f5f5f5;
-      color: #222;
+    .section-header {
       text-align: center;
-      border: 0;
-      cursor: pointer;
-      width: 100%;
-      transition: transform 0.15s ease, box-shadow 0.15s ease;
+      margin-bottom: 2.5rem;
     }
 
-    .cat:hover {
-      transform: translateY(-3px);
-      box-shadow: 0 8px 24px rgba(0,0,0,0.1);
-      background: #eeeeee;
+    .section-title {
+      font-size: 2rem;
+      font-weight: 800;
+      color: var(--primary);
+      margin-bottom: 0.5rem;
     }
 
-    .cat b {
-      font-size: 1.1rem;
+    .section-subtitle {
+      font-size: 1rem;
+      color: var(--text-gray);
     }
 
-    .cat small {
-      font-size: 0.825rem;
-      color: #666;
-    }
-
-    /* SEARCH */
-    .search {
+    .categories-grid {
       display: grid;
-      grid-template-columns: 1.5fr 1fr 1fr auto;
-      gap: 0.625rem;
-      padding: 1.25rem;
-      background: #ffffff;
-      border-bottom: 1px solid #e5e5e5;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 1rem;
+      max-width: 1200px;
+      margin: 0 auto;
     }
 
-    .search-field {
+    .category-card {
+      background: var(--bg-white);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 1.5rem 1rem;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      text-decoration: none;
+      color: inherit;
+    }
+
+    .category-card:hover {
+      border-color: var(--accent-blue);
+      transform: translateY(-4px);
+      box-shadow: 0 12px 32px rgba(37,99,235,0.12);
+    }
+
+    .category-icon {
+      font-size: 2.75rem;
+      margin-bottom: 0.75rem;
+      display: block;
+    }
+
+    .category-name {
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--text-dark);
+      display: block;
+      margin-bottom: 0.25rem;
+    }
+
+    .category-count {
+      font-size: 0.825rem;
+      color: var(--text-gray);
+    }
+
+    /* SEARCH BAR */
+    .search-section {
+      background: linear-gradient(135deg, var(--primary) 0%, #333 100%);
+      padding: 3rem 1.5rem;
+    }
+
+    .search-container {
+      max-width: 900px;
+      margin: 0 auto;
+    }
+
+    .search-box {
+      display: grid;
+      grid-template-columns: 2fr 1fr 1fr auto;
+      gap: 0.75rem;
+      background: var(--bg-white);
+      padding: 0.75rem;
+      border-radius: 16px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+    }
+
+    .search-input-wrapper {
       display: flex;
       align-items: center;
-      gap: 0.5rem;
-      padding: 0.625rem 0.875rem;
-      border: 1px solid #dddddd;
-      border-radius: 10px;
-      background: #ffffff;
+      gap: 0.75rem;
+      padding: 0.75rem 1rem;
+      background: var(--bg-light);
+      border-radius: 12px;
     }
 
-    .search-field span {
+    .search-input-wrapper span {
+      font-size: 1.25rem;
       opacity: 0.5;
-      font-size: 1.1rem;
     }
 
-    .search-field input, .search-field select {
+    .search-input-wrapper input,
+    .search-input-wrapper select {
       border: 0;
       outline: 0;
       background: transparent;
@@ -239,748 +347,583 @@
       font-size: 0.95rem;
     }
 
-    .searchbtn {
-      background: #111111;
-      color: #ffffff;
-      padding: 0.625rem 1.375rem;
-      border-radius: 10px;
+    .btn-search {
+      background: var(--accent-blue);
+      color: var(--bg-white);
+      padding: 0.75rem 1.75rem;
+      border-radius: 12px;
       border: 0;
       font-weight: 600;
-      display: inline-flex;
+      cursor: pointer;
+      display: flex;
       align-items: center;
       gap: 0.5rem;
-      cursor: pointer;
       font-size: 0.95rem;
+      transition: all 0.2s ease;
     }
 
-    .searchbtn:hover {
-      background: #000000;
+    .btn-search:hover {
+      background: #1d4ed8;
+      transform: translateY(-1px);
     }
 
     /* ACTIONS */
-    .actions {
+    .actions-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-      gap: 0.875rem;
-      padding: 1.25rem;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1.25rem;
+      max-width: 900px;
+      margin: 0 auto;
     }
 
-    .actions button {
-      appearance: none;
-      border: 0;
-      border-radius: 14px;
-      padding: 1.125rem;
+    .action-card {
+      background: var(--bg-white);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 1.5rem;
       display: flex;
       align-items: center;
-      gap: 0.875rem;
+      gap: 1.25rem;
       cursor: pointer;
-      text-align: left;
-      transition: transform 0.15s ease, box-shadow 0.15s ease;
+      transition: all 0.2s ease;
     }
 
-    .actions button:hover {
+    .action-card:hover {
+      border-color: var(--accent-blue);
       transform: translateY(-3px);
-      box-shadow: 0 10px 28px rgba(0,0,0,0.12);
+      box-shadow: 0 12px 32px rgba(37,99,235,0.1);
     }
 
-    .blue {
-      background: #e3f2fd;
-      color: #0d47a1;
+    .action-card.blue {
+      background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+      border-color: #bfdbfe;
     }
 
-    .orange {
-      background: #fff3e0;
-      color: #e65100;
+    .action-card.orange {
+      background: linear-gradient(135deg, #fff7ed 0%, #ffedd5 100%);
+      border-color: #fed7aa;
     }
 
     .action-icon {
-      font-size: 1.875rem;
-    }
-
-    .action-text {
-      display: flex;
-      flex-direction: column;
+      font-size: 2.5rem;
+      flex-shrink: 0;
     }
 
     .action-text b {
-      font-size: 1.075rem;
+      display: block;
+      font-size: 1.1rem;
+      color: var(--text-dark);
+      margin-bottom: 0.25rem;
     }
 
     .action-text small {
-      font-size: 0.85rem;
-      opacity: 0.85;
+      font-size: 0.875rem;
+      color: var(--text-gray);
     }
 
     .action-arrow {
       margin-left: auto;
-      font-size: 1.625rem;
-      opacity: 0.6;
+      font-size: 1.5rem;
+      opacity: 0.5;
     }
 
-    /* CONTENT */
-    .content {
+    /* LISTINGS */
+    .listings-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-      gap: 1.125rem;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 1.5rem;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .listing-card {
+      background: var(--bg-white);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      overflow: hidden;
+      transition: all 0.2s ease;
+    }
+
+    .listing-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 16px 40px rgba(0,0,0,0.08);
+    }
+
+    .listing-image {
+      width: 100%;
+      height: 220px;
+      object-fit: cover;
+      background: var(--bg-light);
+    }
+
+    .listing-content {
       padding: 1.25rem;
     }
 
-    .panel {
-      background: #ffffff;
-      border: 1px solid #eeeeee;
-      border-radius: 14px;
-      padding: 1.125rem;
-    }
-
-    .panel-heading {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 0.875rem;
-    }
-
-    .panel-heading h2 {
-      font-size: 1.125rem;
+    .listing-category {
+      font-size: 0.75rem;
       font-weight: 700;
+      color: var(--accent-blue);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 0.5rem;
     }
 
-    .steps-note {
-      font-size: 0.85rem;
-      color: #666;
+    .listing-title {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--text-dark);
+      margin-bottom: 0.5rem;
+      line-height: 1.4;
     }
 
-    .more-link {
-      background: none;
-      border: 0;
-      color: #1976d2;
-      font: inherit;
-      cursor: pointer;
-      font-size: 0.9rem;
-    }
-
-    .more-link:hover {
-      color: #1565c0;
-    }
-
-    /* REQUESTS */
-    .request-item {
+    .listing-meta {
       display: flex;
+      justify-content: space-between;
       align-items: center;
-      gap: 0.875rem;
-      padding: 0.75rem 0;
-      border-bottom: 1px solid #f0f0f0;
+      font-size: 0.875rem;
+      color: var(--text-gray);
     }
 
-    .request-item:last-child {
-      border-bottom: 0;
-    }
-
-    .request-icon {
-      font-size: 1.625rem;
-    }
-
-    .request-item b {
-      display: block;
-      font-size: 0.975rem;
-    }
-
-    .request-item small {
-      font-size: 0.8rem;
-      color: #666;
-    }
-
-    /* OFFERS */
-    .featured-list {
-      display: grid;
-      gap: 0.875rem;
-    }
-
-    .offer {
-      display: grid;
-      grid-template-columns: 84px 1fr;
-      gap: 0.875rem;
-      padding: 0.5rem;
-      border: 1px solid #eeeeee;
-      border-radius: 10px;
-    }
-
-    .offer-image-placeholder {
-      width: 84px;
-      height: 84px;
-      background: #f5f5f5;
-      border-radius: 8px;
-      display: grid;
-      place-items: center;
-      font-size: 1.75rem;
-    }
-
-    .offer img {
-      width: 84px;
-      height: 84px;
-      object-fit: cover;
-      border-radius: 8px;
-    }
-
-    .offer b {
-      font-size: 0.975rem;
-      display: block;
-      margin-bottom: 0.25rem;
-    }
-
-    .offer small {
-      font-size: 0.8rem;
-      color: #666;
-    }
-
-    /* STEPS */
-    .steps {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 0.625rem;
-      text-align: center;
-    }
-
-    .step {
-      padding: 0.875rem 0.5rem;
-      background: #f9f9f9;
-      border-radius: 10px;
-    }
-
-    .step b {
-      display: block;
-      font-size: 1.625rem;
-      color: #1976d2;
-      margin-bottom: 0.375rem;
-    }
-
-    .step strong {
-      display: block;
-      font-size: 0.925rem;
-      margin-bottom: 0.25rem;
-    }
-
-    .step small {
-      font-size: 0.775rem;
-      color: #666;
+    .listing-price {
+      font-size: 1.25rem;
+      font-weight: 800;
+      color: var(--primary);
     }
 
     /* CTA */
-    .cta {
-      display: flex;
-      align-items: center;
-      gap: 1.125rem;
-      padding: 1.75rem 1.25rem;
-      background: #f5f5f5;
-      border-top: 1px solid #e5e5e5;
-      flex-wrap: wrap;
+    .cta-section {
+      background: linear-gradient(135deg, var(--accent-blue) 0%, #1e40af 100%);
+      padding: 4rem 1.5rem;
+      text-align: center;
+      color: var(--bg-white);
+    }
+
+    .cta-content {
+      max-width: 600px;
+      margin: 0 auto;
     }
 
     .cta-icon {
-      font-size: 2.625rem;
-      color: #d32f2f;
+      font-size: 3.5rem;
+      margin-bottom: 1rem;
     }
 
-    .cta b {
-      display: block;
-      font-size: 1.125rem;
-      margin-bottom: 0.25rem;
+    .cta-title {
+      font-size: 2rem;
+      font-weight: 800;
+      margin-bottom: 0.75rem;
     }
 
-    .cta span {
-      font-size: 0.95rem;
-      color: #555;
+    .cta-text {
+      font-size: 1.05rem;
+      opacity: 0.9;
+      margin-bottom: 2rem;
+      line-height: 1.7;
     }
 
-    .cta button {
-      margin-left: auto;
-      background: #111111;
-      color: #ffffff;
+    .btn-cta {
+      background: var(--bg-white);
+      color: var(--accent-blue);
+      padding: 1rem 2.5rem;
+      border-radius: 14px;
       border: 0;
-      padding: 0.625rem 1.375rem;
-      border-radius: 999px;
-      font-weight: 600;
+      font-weight: 700;
+      font-size: 1.05rem;
       cursor: pointer;
-      font-size: 0.95rem;
+      transition: all 0.2s ease;
     }
 
-    .cta button:hover {
-      background: #000000;
-    }
-
-    .cta-people {
-      font-size: 1.625rem;
-      margin-left: 0.625rem;
+    .btn-cta:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(255,255,255,0.3);
     }
 
     /* MODAL */
     .modal {
       position: fixed;
       inset: 0;
-      background: rgba(0,0,0,0.55);
+      background: rgba(0,0,0,0.6);
       display: grid;
       place-items: center;
       z-index: 1000;
       padding: 1rem;
+      backdrop-filter: blur(4px);
     }
 
     .dialog {
-      background: #ffffff;
-      border-radius: 16px;
-      max-width: 500px;
+      background: var(--bg-white);
+      border-radius: 20px;
+      max-width: 520px;
       width: 100%;
-      max-height: 88vh;
+      max-height: 90vh;
       overflow: auto;
       position: relative;
-      padding: 1.75rem;
+      padding: 2rem;
+      box-shadow: 0 24px 64px rgba(0,0,0,0.2);
     }
 
     .dialog .close {
       position: absolute;
-      top: 0.875rem;
-      right: 0.875rem;
-      background: none;
+      top: 1rem;
+      right: 1rem;
+      background: var(--bg-light);
       border: 0;
-      font-size: 1.875rem;
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      font-size: 1.5rem;
       cursor: pointer;
-      color: #666;
-      line-height: 1;
+      color: var(--text-gray);
+      display: grid;
+      place-items: center;
+      transition: all 0.15s ease;
     }
 
     .dialog .close:hover {
-      color: #000;
+      background: var(--border);
+      color: var(--text-dark);
     }
 
     .dialog h2 {
-      font-size: 1.375rem;
-      margin-bottom: 1rem;
+      font-size: 1.5rem;
+      font-weight: 800;
+      margin-bottom: 1.25rem;
+      color: var(--primary);
     }
 
     /* TABS */
     .tabs {
       display: flex;
       gap: 0.5rem;
-      margin: 1.125rem 0;
-      border-bottom: 1px solid #e5e5e5;
-      padding-bottom: 0.625rem;
+      margin: 1.25rem 0;
+      background: var(--bg-light);
+      padding: 0.375rem;
+      border-radius: 10px;
     }
 
     .tabs button {
+      flex: 1;
       appearance: none;
       border: 0;
-      background: #f5f5f5;
-      padding: 0.5rem 1.125rem;
+      background: transparent;
+      padding: 0.625rem 1rem;
       border-radius: 8px;
       font: inherit;
+      font-weight: 600;
+      font-size: 0.9rem;
       cursor: pointer;
-      font-size: 0.925rem;
-      transition: background 0.15s ease;
+      transition: all 0.15s ease;
+      color: var(--text-gray);
     }
 
     .tabs button:hover {
-      background: #e8e8e8;
+      background: var(--bg-white);
     }
 
     .tabs button.active {
-      background: #111111;
-      color: #ffffff;
-    }
-
-    /* CHAT */
-    .chat {
-      max-height: 300px;
-      overflow-y: auto;
-      border: 1px solid #e5e5e5;
-      border-radius: 10px;
-      padding: 0.875rem;
-      margin: 0.875rem 0;
-      background: #fafafa;
-    }
-
-    .chat .msg {
-      padding: 0.625rem 0.875rem;
-      border-radius: 10px;
-      margin-bottom: 0.625rem;
-      max-width: 85%;
-      word-wrap: break-word;
-      font-size: 0.925rem;
-    }
-
-    .chat .msg.bot {
-      background: #e3f2fd;
-      color: #0d47a1;
-      margin-right: auto;
-    }
-
-    .chat .msg.me {
-      background: #111111;
-      color: #ffffff;
-      margin-left: auto;
-    }
-
-    .chatrow {
-      display: flex;
-      gap: 0.5rem;
-      align-items: center;
-    }
-
-    .chatrow input {
-      flex: 1;
-      padding: 0.625rem 0.875rem;
-      border: 1px solid #dddddd;
-      border-radius: 8px;
-      font: inherit;
-      font-size: 0.925rem;
-    }
-
-    .chatrow .submit {
-      background: #111111;
-      color: #ffffff;
-      border: 0;
-      padding: 0.625rem 1.125rem;
-      border-radius: 8px;
-      font-weight: 600;
-      cursor: pointer;
-      font-size: 0.925rem;
-    }
-
-    .chatrow .submit:hover {
-      background: #000000;
-    }
-
-    /* NOTICE */
-    .notice {
-      background: #fff8e1;
-      border: 1px solid #ffe082;
-      border-radius: 10px;
-      padding: 0.875rem;
-      font-size: 0.9rem;
-      color: #5d4037;
-      margin-bottom: 0.875rem;
-    }
-
-    /* FAQ */
-    .faq {
-      display: flex;
-      flex-direction: column;
-      gap: 0.5rem;
-    }
-
-    .faq-question {
-      appearance: none;
-      border: 1px solid #dddddd;
-      background: #f9f9f9;
-      padding: 0.875rem 1.125rem;
-      border-radius: 10px;
-      font: inherit;
-      text-align: left;
-      cursor: pointer;
-      font-size: 0.925rem;
-      transition: background 0.15s ease;
-    }
-
-    .faq-question:hover {
-      background: #f0f0f0;
+      background: var(--bg-white);
+      color: var(--primary);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
     }
 
     /* FORMS */
-    #registerForm input, #registerForm select,
-    #loginForm input,
-    #listingForm input, #listingForm select, #listingForm textarea,
-    #requestForm input, #requestForm select, #requestForm textarea,
-    #ticketForm input, #ticketForm textarea {
+    .form-input {
       width: 100%;
-      padding: 0.625rem 0.875rem;
-      border: 1px solid #cccccc;
-      border-radius: 8px;
+      padding: 0.75rem 1rem;
+      border: 1px solid var(--border);
+      border-radius: 10px;
       font: inherit;
-      margin-bottom: 0.875rem;
       font-size: 0.95rem;
+      margin-bottom: 1rem;
+      transition: all 0.15s ease;
     }
 
-    #registerForm input:focus, #registerForm select:focus,
-    #loginForm input:focus,
-    #listingForm input:focus, #listingForm select:focus, #listingForm textarea:focus,
-    #requestForm input:focus, #requestForm select:focus, #requestForm textarea:focus,
-    #ticketForm input:focus, #ticketForm textarea:focus {
+    .form-input:focus {
       outline: 0;
-      border-color: #111111;
-      box-shadow: 0 0 0 3px rgba(0,0,0,0.08);
+      border-color: var(--accent-blue);
+      box-shadow: 0 0 0 3px rgba(37,99,235,0.1);
     }
 
-    #registerForm .submit, #loginForm .submit,
-    #listingForm .submit, #requestForm .submit, #ticketForm .submit {
+    .form-textarea {
+      min-height: 100px;
+      resize: vertical;
+    }
+
+    .btn-submit {
       width: 100%;
-      background: #111111;
-      color: #ffffff;
+      background: var(--primary);
+      color: var(--bg-white);
+      padding: 0.875rem 1.5rem;
+      border-radius: 10px;
       border: 0;
-      padding: 0.75rem 1.125rem;
-      border-radius: 8px;
+      font-weight: 700;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .btn-submit:hover {
+      background: var(--primary-hover);
+      transform: translateY(-1px);
+    }
+
+    /* CHAT */
+    .chat-box {
+      max-height: 320px;
+      overflow-y: auto;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1rem;
+      margin: 1rem 0;
+      background: var(--bg-light);
+    }
+
+    .chat-message {
+      padding: 0.75rem 1rem;
+      border-radius: 12px;
+      margin-bottom: 0.75rem;
+      max-width: 85%;
+      font-size: 0.925rem;
+      line-height: 1.5;
+    }
+
+    .chat-message.bot {
+      background: #dbeafe;
+      color: #1e40af;
+      margin-right: auto;
+    }
+
+    .chat-message.me {
+      background: var(--primary);
+      color: var(--bg-white);
+      margin-left: auto;
+    }
+
+    .chat-input-row {
+      display: flex;
+      gap: 0.5rem;
+    }
+
+    .chat-input-row input {
+      flex: 1;
+      padding: 0.75rem 1rem;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      font: inherit;
+    }
+
+    .chat-input-row button {
+      background: var(--accent-blue);
+      color: var(--bg-white);
+      padding: 0.75rem 1.25rem;
+      border-radius: 10px;
+      border: 0;
       font-weight: 600;
       cursor: pointer;
-      margin-top: 0.5rem;
-      font-size: 0.975rem;
-    }
-
-    #registerForm .submit:hover, #loginForm .submit:hover,
-    #listingForm .submit:hover, #requestForm .submit:hover, #ticketForm .submit:hover {
-      background: #000000;
     }
 
     /* RESPONSIVE */
     @media (max-width: 768px) {
+      .topbar {
+        padding: 0.75rem 1rem;
+      }
+
+      .main-nav {
+        gap: 0.375rem;
+      }
+
+      .navlink span:not(.nav-icon):not(small) {
+        display: none;
+      }
+
       .hero {
-        height: 50vh;
-        min-height: 340px;
+        height: 55vh;
+        min-height: 400px;
       }
 
-      .search {
+      .hero-content h1 {
+        font-size: 2rem;
+      }
+
+      .search-box {
         grid-template-columns: 1fr;
       }
 
-      .content {
+      .listings-grid {
         grid-template-columns: 1fr;
       }
 
-      .cta {
-        flex-direction: column;
-        text-align: center;
-      }
-
-      .cta button {
-        margin-left: 0;
-        width: 100%;
-      }
-
-      .cta-people {
-        margin-left: 0;
-        margin-top: 0.5rem;
-      }
-
-      .steps {
-        grid-template-columns: 1fr;
+      .stats {
+        grid-template-columns: repeat(2, 1fr);
       }
     }
 
-    .hidden {
-      display: none !important;
-    }
+    .hidden { display: none !important; }
   </style>
 </head>
 
 <body>
   <header class="topbar">
-    <a class="brand" href="/" aria-label="PonudiMi početна страница">
-      <img src="/ponudimi-logo.png" alt="PonudiMi logo">
+    <a class="brand" href="/">
+      <img src="/ponudimi-logo.png" alt="PonudiMi">
     </a>
 
-    <nav class="main-nav" aria-label="Glavna navigacija">
-      <button class="navlink" id="supportBtn" type="button">
+    <nav class="main-nav">
+      <button class="navlink" id="supportBtn">
         <span class="nav-icon">🎧</span>
         <span>Podrška</span>
-        <small>Tu smo za vas</small>
       </button>
 
-      <button class="navlink" id="loginBtn" type="button">
-        <span class="nav-icon">♙</span>
+      <button class="btn-outline" id="loginBtn">
         <span>Prijava</span>
       </button>
 
-      <button class="primary" id="registerBtn" type="button">
-        <span>♙+</span>
+      <button class="btn-primary" id="registerBtn">
         <span>Registracija</span>
-        <span class="down-arrow">⌄</span>
       </button>
 
-      <button class="navlink hidden" id="userBtn" type="button">
+      <button class="navlink hidden" id="userBtn">
         👤 <span>Moj nalog</span>
       </button>
 
-      <button class="navlink hidden" id="logoutBtn" type="button">
-        🚪 <span>Odjavi se</span>
+      <button class="navlink hidden" id="logoutBtn">
+        🚪 <span>Odjavi</span>
       </button>
     </nav>
   </header>
 
   <main>
-    <section class="hero" aria-label="PonudiMi hero baner">
-      <div class="hero-shade"></div>
-
-      <div class="hero-copy">
-        <h1>
-          Pronađite najbolje<br>
-          ponude lako i brzo.
-        </h1>
-
-        <p>
-          Sve što vam treba na jednom mestu — od automobila i nekretnina
-          do usluga i još mnogo toga!
-        </p>
-      </div>
-    </section>
-
-    <section class="benefits" aria-label="Prednosti PonudiMi platforme">
-      <div class="benefit">
-        <span class="benefit-icon blue-icon">♥</span>
-        <div>
-          <b>Sigurna kupovina</b>
-          <small>Kupujte bez brige uz zaštitu i sigurnost!</small>
-        </div>
-      </div>
-
-      <div class="benefit">
-        <span class="benefit-icon yellow-icon">★</span>
-        <div>
-          <b>Proverene recenzije</b>
-          <small>Iskustva naših korisnika</small>
-        </div>
-      </div>
-
-      <div class="benefit">
-        <span class="benefit-icon green-icon">●</span>
-        <div>
-          <b>Brza dostava</b>
-          <small>Proizvodi stižu brzo na vašu adresu</small>
+    <!-- HERO -->
+    <section class="hero">
+      <div class="hero-overlay"></div>
+      <div class="hero-content">
+        <h1>Pronađite najbolje ponude lako i brzo</h1>
+        <p>Sve što vam treba na jednom mestu — od automobila i nekretnina do usluga i još mnogo toga!</p>
+        <div class="hero-buttons">
+          <button class="btn-hero-primary" id="heroSearchBtn">🔍 Pretraži oglase</button>
+          <button class="btn-hero-outline" id="heroRegisterBtn">♙+ Registracija</button>
         </div>
       </div>
     </section>
 
-    <section class="categories" id="categories" aria-label="Kategorije oglasa"></section>
-
-    <section class="search" aria-label="Pretraga oglasa">
-      <div class="search-field">
-        <span>⌕</span>
-        <input id="q" type="search" placeholder="Šta tražite danas?" autocomplete="off">
+    <!-- STATS -->
+    <section class="stats">
+      <div class="stat">
+        <div class="stat-icon">📦</div>
+        <span class="stat-value">98,000+</span>
+        <span class="stat-label">Aktivnih oglasa</span>
       </div>
-
-      <div class="search-field">
-        <span>▦</span>
-        <select id="category" aria-label="Kategorija">
-          <option value="">Sve kategorije</option>
-        </select>
+      <div class="stat">
+        <div class="stat-icon">👥</div>
+        <span class="stat-value">45,000+</span>
+        <span class="stat-label">Zadovoljnih korisnika</span>
       </div>
-
-      <div class="search-field">
-        <span>⌖</span>
-        <input id="location" type="text" placeholder="Lokacija" autocomplete="address-level2">
+      <div class="stat">
+        <div class="stat-icon">✅</div>
+        <span class="stat-value">100%</span>
+        <span class="stat-label">Sigurna kupovina</span>
       </div>
-
-      <button class="searchbtn" id="searchBtn" type="button">
-        ⌕ <span>Pretraga</span>
-      </button>
+      <div class="stat">
+        <div class="stat-icon">🚀</div>
+        <span class="stat-value">24/7</span>
+        <span class="stat-label">Podrška</span>
+      </div>
     </section>
 
-    <section class="actions" aria-label="Brze akcije">
-      <button class="blue" id="requestBtn" type="button">
-        <span class="action-icon">⊕</span>
-        <span class="action-text">
-          <b>Postavi zahtev</b>
-          <small>Recite nam šta tražite</small>
-        </span>
-        <span class="action-arrow">›</span>
-      </button>
-
-      <button class="orange" id="listingBtn" type="button">
-        <span class="action-icon">📣</span>
-        <span class="action-text">
-          <b>Objavi oglas</b>
-          <small>Ponudite ono što imate</small>
-        </span>
-        <span class="action-arrow">›</span>
-      </button>
-    </section>
-
-    <section class="content">
-      <article class="panel requests-panel">
-        <div class="panel-heading">
-          <h2>Najnoviji zahtevi kupaca</h2>
-          <button class="more-link" type="button">Pogledaj sve →</button>
-        </div>
-
-        <div class="request-item">
-          <span class="request-icon">🚗</span>
-          <div>
-            <b>Tražim Peugeot 308 do 6.000€</b>
-            <small>Beograd &nbsp; • &nbsp; pre 5 min</small>
-          </div>
-        </div>
-
-        <div class="request-item">
-          <span class="request-icon">🏠</span>
-          <div>
-            <b>Tražim stan do 150.000€</b>
-            <small>Novi Sad &nbsp; • &nbsp; pre 18 min</small>
-          </div>
-        </div>
-
-        <div class="request-item">
-          <span class="request-icon">🔧</span>
-          <div>
-            <b>Tražim majstora za adaptaciju kupatila</b>
-            <small>Niš &nbsp; • &nbsp; pre 32 min</small>
-          </div>
-        </div>
-      </article>
-
-      <article class="panel offers-panel">
-        <div class="panel-heading">
-          <h2>Istaknute ponude</h2>
-          <button class="more-link" type="button">Pogledaj sve →</button>
-        </div>
-
-        <div id="featured" class="featured-list" aria-live="polite">
-          Učitavanje ponuda…
-        </div>
-      </article>
-
-      <article class="panel steps-panel">
-        <div class="panel-heading">
-          <h2>Kako funkcioniše?</h2>
-          <span class="steps-note">Pogledaj kako je lako!</span>
-        </div>
-
-        <div class="steps">
-          <div class="step">
-            <b>1</b>
-            <strong>Pronađi</strong>
-            <small>Pronađi ono što ti treba</small>
-          </div>
-
-          <div class="step">
-            <b>2</b>
-            <strong>Kontaktiraj</strong>
-            <small>Dogovori detalje sa prodavcem</small>
-          </div>
-
-          <div class="step">
-            <b>3</b>
-            <strong>Dogovori se</strong>
-            <small>Kupi, prodaj ili angažuj uslugu</small>
-          </div>
-        </div>
-      </article>
-    </section>
-
-    <section class="cta">
-      <span class="cta-icon">♥</span>
-
-      <div>
-        <b>Pridruži se hiljadama zadovoljnih korisnika!</b>
-        <span>
-          Registruj se besplatno i otključaj sve mogućnosti PonudiMi platforme.
-        </span>
+    <!-- CATEGORIES -->
+    <section class="section">
+      <div class="section-header">
+        <h2 class="section-title">Kategorije</h2>
+        <p class="section-subtitle">Pronađite ono što tražite</p>
       </div>
+      <div class="categories-grid" id="categories"></div>
+    </section>
 
-      <button id="ctaRegister" type="button">
-        ♙+ Registruj se sada
-      </button>
+    <!-- SEARCH -->
+    <section class="search-section">
+      <div class="search-container">
+        <div class="search-box">
+          <div class="search-input-wrapper">
+            <span>⌕</span>
+            <input id="q" type="search" placeholder="Šta tražite danas?" autocomplete="off">
+          </div>
+          <div class="search-input-wrapper">
+            <span>▦</span>
+            <select id="category" aria-label="Kategorija">
+              <option value="">Sve kategorije</option>
+            </select>
+          </div>
+          <div class="search-input-wrapper">
+            <span>⌖</span>
+            <input id="location" type="text" placeholder="Lokacija" autocomplete="address-level2">
+          </div>
+          <button class="btn-search" id="searchBtn">
+            <span>⌕</span>
+            <span>Pretraga</span>
+          </button>
+        </div>
+      </div>
+    </section>
 
-      <span class="cta-people">👨‍🔧 👩‍💼 👨‍💻</span>
+    <!-- ACTIONS -->
+    <section class="section">
+      <div class="section-header">
+        <h2 class="section-title">Brze akcije</h2>
+        <p class="section-subtitle">Započnite odmah</p>
+      </div>
+      <div class="actions-grid">
+        <button class="action-card blue" id="requestBtn">
+          <span class="action-icon">⊕</span>
+          <span class="action-text">
+            <b>Postavi zahtev</b>
+            <small>Recite nam šta tražite</small>
+          </span>
+          <span class="action-arrow">›</span>
+        </button>
+
+        <button class="action-card orange" id="listingBtn">
+          <span class="action-icon">📣</span>
+          <span class="action-text">
+            <b>Objavi oglas</b>
+            <small>Ponudite ono što imate</small>
+          </span>
+          <span class="action-arrow">›</span>
+        </button>
+      </div>
+    </section>
+
+    <!-- LISTINGS -->
+    <section class="section">
+      <div class="section-header">
+        <h2 class="section-title">Istaknute ponude</h2>
+        <p class="section-subtitle">Pogledajte najnovije oglase</p>
+      </div>
+      <div class="listings-grid" id="featured">
+        <div class="listing-card">
+          <div class="listing-image" style="background:#f0f0f0;display:grid;place-items:center;font-size:3rem;">📦</div>
+          <div class="listing-content">
+            <div class="listing-category">Učitavanje...</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- CTA -->
+    <section class="cta-section">
+      <div class="cta-content">
+        <div class="cta-icon">♥</div>
+        <h2 class="cta-title">Pridruži se hiljadama zadovoljnih korisnika!</h2>
+        <p class="cta-text">Registruj se besplatno i otključaj sve mogućnosti PonudiMi platforme.</p>
+        <button class="btn-cta" id="ctaRegister">♙+ Registruj se sada</button>
+      </div>
     </section>
   </main>
 
-  <div id="modal" class="modal hidden" role="dialog" aria-modal="true" aria-label="PonudiMi prozor">
+  <!-- MODAL -->
+  <div id="modal" class="modal hidden" role="dialog" aria-modal="true">
     <div class="dialog">
-      <button class="close" id="close" type="button" aria-label="Zatvori prozor">×</button>
+      <button class="close" id="close" type="button" aria-label="Zatvori">×</button>
       <div id="dialogBody"></div>
     </div>
   </div>
