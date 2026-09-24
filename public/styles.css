@@ -1047,3 +1047,16 @@ button {
 .hero-copy {
   z-index: 2;
 }
+
+@media (max-width: 700px) {
+  .hero::after {
+    width: 58%;
+    background: linear-gradient(
+      90deg,
+      #06295c 0%,
+      #06295c 68%,
+      rgba(6, 41, 92, 0.94) 86%,
+      rgba(6, 41, 92, 0) 100%
+    );
+  }
+}
