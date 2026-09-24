@@ -1,909 +1,769 @@
-const $ = function(selector) {
-  return document.querySelector(selector);
-};
-
-const modal = $("#modal");
-const dialogBody = $("#dialogBody");
-
-let token = localStorage.getItem("pm_token");
-
-const categories = [
-  "Polovni automobili",
-  "Nekretnine",
-  "Mobilni telefoni",
-  "Tehnika",
-  "Usluge",
-  "Građevina",
-  "Poljoprivreda",
-  "Moda",
-  "Ostalo"
-];
-
-const categoryIcons = [
-  "🚗",
-  "🏠",
-  "📱",
-  "💻",
-  "🛠️",
-  "👷",
-  "🚜",
-  "👕",
-  "•••"
-];
-
-const categoryCounts = [
-  12580,
-  23120,
-  15890,
-  9452,
-  18760,
-  8542,
-  7310,
-  4125,
-  0
-];
-
-function escapeHtml(value) {
-  return String(value || "").replace(/[&<>"']/g, function(character) {
-    const entities = {
-      "&": "&amp;",
-      "<": "&lt;",
-      ">": "&gt;",
-      '"': "&quot;",
-      "'": "&#039;"
-    };
-
-    return entities[character];
-  });
+/* Reset i osnove */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
 }
 
-function closeModal() {
-  modal.classList.add("hidden");
-  dialogBody.innerHTML = "";
+html {
+  font-family:
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    Roboto,
+    sans-serif;
+  background: #fff;
+  color: #222;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
-function openModal(html) {
-  dialogBody.innerHTML = html;
-  modal.classList.remove("hidden");
+/* Header / topbar */
+.topbar {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background: #fff;
+  border-bottom: 1px solid #eee;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.6rem 1rem;
 }
 
-function updateAuthUI() {
-  const loginBtn = $("#loginBtn");
-  const registerBtn = $("#registerBtn");
-  const userBtn = $("#userBtn");
-  const logoutBtn = $("#logoutBtn");
-
-  if (!loginBtn || !registerBtn || !userBtn || !logoutBtn) {
-    return;
-  }
-
-  if (token) {
-    loginBtn.classList.add("hidden");
-    registerBtn.classList.add("hidden");
-    userBtn.classList.remove("hidden");
-    logoutBtn.classList.remove("hidden");
-  } else {
-    loginBtn.classList.remove("hidden");
-    registerBtn.classList.remove("hidden");
-    userBtn.classList.add("hidden");
-    logoutBtn.classList.add("hidden");
-  }
+.brand img {
+  height: 36px;
+  width: auto;
+  display: block;
 }
 
-function logout() {
-  localStorage.removeItem("pm_token");
-  token = null;
-  updateAuthUI();
-  alert("Uspešno ste odjavljeni.");
-  window.location.reload();
+.main-nav {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
 }
 
-async function api(url, options) {
-  const requestOptions = options || {};
-
-  const response = await fetch(url, {
-    ...requestOptions,
-    headers: {
-      "Content-Type": "application/json",
-      ...(token ? { Authorization: "Bearer " + token } : {}),
-      ...(requestOptions.headers || {})
-    }
-  });
-
-  let data;
-
-  try {
-    data = await response.json();
-  } catch (error) {
-    data = {};
-  }
-
-  if (response.status === 401) {
-    localStorage.removeItem("pm_token");
-    token = null;
-    updateAuthUI();
-
-    throw new Error(
-      data.error || "Prijava je istekla. Molimo prijavite se ponovo."
-    );
-  }
-
-  if (!response.ok) {
-    throw new Error(data.error || "Došlo je do greške.");
-  }
-
-  return data;
+/* Dugmad u headeru */
+.navlink,
+.primary,
+.searchbtn,
+.cta button {
+  appearance: none;
+  border: 0;
+  background: transparent;
+  font: inherit;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.5rem 0.75rem;
+  border-radius: 999px;
+  color: #333;
+  text-decoration: none;
+  white-space: nowrap;
 }
 
-function renderCategories() {
-  const categoriesElement = $("#categories");
-  const categorySelect = $("#category");
-
-  if (!categoriesElement || !categorySelect) {
-    return;
-  }
-
-  categoriesElement.innerHTML = categories
-    .map(function(category, index) {
-      return `
-        <button
-          class="cat"
-          type="button"
-          data-category="${escapeHtml(category)}"
-        >
-          <b>${categoryIcons[index]} ${escapeHtml(category)}</b>
-          <small>
-            ${categoryCounts[index].toLocaleString("sr-RS")} oglasa
-          </small>
-        </button>
-      `;
-    })
-    .join("");
-
-  categorySelect.innerHTML =
-    '<option value="">Sve kategorije</option>' +
-    categories
-      .map(function(category) {
-        return `<option value="${escapeHtml(category)}">${escapeHtml(category)}</option>`;
-      })
-      .join("");
-
-  categoriesElement.querySelectorAll(".cat").forEach(function(button) {
-    button.addEventListener("click", function() {
-      categorySelect.value = button.dataset.category;
-      doSearch();
-    });
-  });
+.navlink small {
+  display: block;
+  font-size: 0.7rem;
+  color: #666;
+  margin-top: -0.15rem;
 }
 
-function listingImageMarkup(image, title) {
-  const safeTitle = escapeHtml(title || "Oglas");
-
-  if (!image) {
-    return `
-      <div
-        class="offer-image-placeholder"
-        aria-label="Slika oglasa nije dostupna"
-      >
-        📦
-      </div>
-    `;
-  }
-
-  const safeImage = escapeHtml(image);
-
-  return `
-    <img
-      src="${safeImage}"
-      alt="${safeTitle}"
-      onerror="this.replaceWith(Object.assign(document.createElement('div'), {className: 'offer-image-placeholder', textContent: '📦'}))"
-    >
-  `;
+.primary {
+  background: #111;
+  color: #fff;
 }
 
-async function doSearch() {
-  const searchInput = $("#q");
-  const categorySelect = $("#category");
-  const locationInput = $("#location");
-  const featured = $("#featured");
-
-  if (!searchInput || !categorySelect || !locationInput || !featured) {
-    return;
-  }
-
-  const q = searchInput.value.trim();
-  const category = categorySelect.value.trim();
-  const location = locationInput.value.trim();
-
-  featured.innerHTML = "Učitavanje ponuda…";
-
-  try {
-    const data = await api(
-      "/api/listings?q=" +
-        encodeURIComponent(q) +
-        "&category=" +
-        encodeURIComponent(category) +
-        "&location=" +
-        encodeURIComponent(location)
-    );
-
-    if (!data.length) {
-      featured.innerHTML = "Nema rezultata za izabranu pretragu.";
-      return;
-    }
-
-    featured.innerHTML = data
-      .slice(0, 3)
-      .map(function(item) {
-        const price = item.price
-          ? new Intl.NumberFormat("sr-RS").format(item.price) + " €"
-          : "Po dogovoru";
-
-        return `
-          <div class="offer">
-            ${listingImageMarkup(item.image, item.title)}
-            <div>
-              <b>${escapeHtml(item.title)}</b><br>
-              <small>
-                ${escapeHtml(item.location || "Lokacija nije navedena")}
-                • ${price}
-              </small>
-            </div>
-          </div>
-        `;
-      })
-      .join("");
-  } catch (error) {
-    featured.innerHTML =
-      '<span class="error-message">' + escapeHtml(error.message) + "</span>";
-  }
+.down-arrow {
+  opacity: 0.7;
 }
 
-function register() {
-  openModal(`
-    <h2>Registracija</h2>
-
-    <div class="tabs">
-      <button class="active" id="individualTab" type="button">
-        Fizičko lice
-      </button>
-
-      <button id="companyTab" type="button">
-        Pravno lice
-      </button>
-    </div>
-
-    <form id="registerForm">
-      <input
-        name="name"
-        placeholder="Ime i prezime"
-        autocomplete="name"
-        required
-      >
-
-      <input
-        name="email"
-        type="email"
-        placeholder="Email"
-        autocomplete="email"
-        required
-      >
-
-      <input
-        name="password"
-        type="password"
-        placeholder="Lozinka (najmanje 6 karaktera)"
-        autocomplete="new-password"
-        minlength="6"
-        required
-      >
-
-      <div id="companyFields"></div>
-
-      <button class="submit" type="submit">
-        Kreiraj nalog
-      </button>
-    </form>
-  `);
-
-  let accountType = "individual";
-
-  const individualTab = $("#individualTab");
-  const companyTab = $("#companyTab");
-  const companyFields = $("#companyFields");
-  const registerForm = $("#registerForm");
-
-  individualTab.onclick = function() {
-    accountType = "individual";
-    individualTab.classList.add("active");
-    companyTab.classList.remove("active");
-    companyFields.innerHTML = "";
-  };
-
-  companyTab.onclick = function() {
-    accountType = "company";
-    companyTab.classList.add("active");
-    individualTab.classList.remove("active");
-
-    companyFields.innerHTML = `
-      <input
-        name="companyName"
-        placeholder="Naziv firme"
-        autocomplete="organization"
-        required
-      >
-
-      <input
-        name="pib"
-        placeholder="PIB"
-        inputmode="numeric"
-      >
-    `;
-  };
-
-  registerForm.onsubmit = async function(event) {
-    event.preventDefault();
-
-    const formData = new FormData(registerForm);
-    const values = Object.fromEntries(formData);
-
-    try {
-      const data = await api("/api/auth/register", {
-        method: "POST",
-        body: JSON.stringify({
-          ...values,
-          type: accountType
-        })
-      });
-
-      token = data.token;
-      localStorage.setItem("pm_token", token);
-      updateAuthUI();
-      closeModal();
-
-      alert("Registracija je uspešna.");
-    } catch (error) {
-      alert(error.message);
-    }
-  };
+/* Hero sekcija */
+.hero {
+  position: relative;
+  height: 55vh;
+  min-height: 360px;
+  max-height: 520px;
+  background:
+    url("/reference-homepage.jpg") center / cover no-repeat;
+  display: flex;
+  align-items: flex-end;
+  overflow: hidden;
 }
 
-function login() {
-  openModal(`
-    <h2>Prijava</h2>
-
-    <form id="loginForm">
-      <input
-        name="email"
-        type="email"
-        placeholder="Email"
-        autocomplete="email"
-        required
-      >
-
-      <input
-        name="password"
-        type="password"
-        placeholder="Lozinka"
-        autocomplete="current-password"
-        required
-      >
-
-      <button class="submit" type="submit">
-        Prijavi se
-      </button>
-    </form>
-  `);
-
-  const loginForm = $("#loginForm");
-
-  loginForm.onsubmit = async function(event) {
-    event.preventDefault();
-
-    const values = Object.fromEntries(new FormData(loginForm));
-
-    try {
-      const data = await api("/api/auth/login", {
-        method: "POST",
-        body: JSON.stringify(values)
-      });
-
-      token = data.token;
-      localStorage.setItem("pm_token", token);
-      updateAuthUI();
-      closeModal();
-
-      alert("Uspešna prijava.");
-    } catch (error) {
-      alert(error.message);
-    }
-  };
+.hero-shade {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to bottom,
+    rgba(0, 0, 0, 0.25),
+    rgba(0, 0, 0, 0.08)
+  );
+  pointer-events: none;
 }
 
-function requireAuth() {
-  if (!token) {
-    alert("Za ovu opciju potrebna je prijava.");
-    login();
-    return false;
-  }
-
-  return true;
+.hero-copy {
+  position: relative;
+  z-index: 1;
+  color: #fff;
+  padding: 2rem;
+  max-width: 720px;
 }
 
-function listing() {
-  if (!requireAuth()) {
-    return;
-  }
-
-  openModal(`
-    <h2>Objavi oglas</h2>
-
-    <form id="listingForm">
-      <input
-        name="title"
-        placeholder="Naslov oglasa"
-        required
-      >
-
-      <select name="category" required>
-        ${categories
-          .map(function(category) {
-            return `<option value="${escapeHtml(category)}">${escapeHtml(category)}</option>`;
-          })
-          .join("")}
-      </select>
-
-      <input
-        name="location"
-        placeholder="Lokacija"
-        required
-      >
-
-      <input
-        name="price"
-        type="number"
-        min="0"
-        step="0.01"
-        placeholder="Cena (€)"
-      >
-
-      <input
-        name="image"
-        type="url"
-        placeholder="Link do slike (opciono)"
-      >
-
-      <textarea
-        name="description"
-        placeholder="Opis oglasa"
-      ></textarea>
-
-      <button class="submit" type="submit">
-        Objavi oglas
-      </button>
-    </form>
-  `);
-
-  const listingForm = $("#listingForm");
-
-  listingForm.onsubmit = async function(event) {
-    event.preventDefault();
-
-    const values = Object.fromEntries(new FormData(listingForm));
-
-    try {
-      await api("/api/listings", {
-        method: "POST",
-        body: JSON.stringify(values)
-      });
-
-      closeModal();
-      await doSearch();
-
-      alert("Oglas je uspešno objavljen.");
-    } catch (error) {
-      alert(error.message);
-    }
-  };
+.hero-copy h1 {
+  font-size: clamp(2rem, 5vw, 3rem);
+  font-weight: 800;
+  line-height: 1.1;
+  margin-bottom: 0.75rem;
 }
 
-function request() {
-  if (!requireAuth()) {
-    return;
-  }
-
-  openModal(`
-    <h2>Postavi zahtev</h2>
-
-    <form id="requestForm">
-      <input
-        name="title"
-        placeholder="Šta tražite?"
-        required
-      >
-
-      <select name="category">
-        <option value="">Kategorija</option>
-        ${categories
-          .map(function(category) {
-            return `<option value="${escapeHtml(category)}">${escapeHtml(category)}</option>`;
-          })
-          .join("")}
-      </select>
-
-      <input
-        name="location"
-        placeholder="Lokacija"
-      >
-
-      <input
-        name="budget"
-        type="number"
-        min="0"
-        step="0.01"
-        placeholder="Budžet (€)"
-      >
-
-      <textarea
-        name="description"
-        placeholder="Opišite šta vam je potrebno"
-      ></textarea>
-
-      <button class="submit" type="submit">
-        Pošalji zahtev
-      </button>
-    </form>
-  `);
-
-  const requestForm = $("#requestForm");
-
-  requestForm.onsubmit = async function(event) {
-    event.preventDefault();
-
-    const values = Object.fromEntries(new FormData(requestForm));
-
-    try {
-      await api("/api/requests", {
-        method: "POST",
-        body: JSON.stringify(values)
-      });
-
-      closeModal();
-
-      alert("Zahtev je uspešno sačuvan.");
-    } catch (error) {
-      alert(error.message);
-    }
-  };
+.hero-copy p {
+  font-size: clamp(1rem, 2.2vw, 1.15rem);
+  opacity: 0.95;
 }
 
-function support() {
-  openModal(`
-    <h2>Centar za podršku</h2>
-
-    <div class="tabs">
-      <button class="active" id="chatTab" type="button">
-        PonudiMi Asistent
-      </button>
-
-      <button id="faqTab" type="button">
-        Najčešća pitanja
-      </button>
-
-      <button id="ticketTab" type="button">
-        Pošalji upit
-      </button>
-    </div>
-
-    <div id="supportArea"></div>
-  `);
-
-  showChat();
-
-  $("#chatTab").onclick = showChat;
-  $("#faqTab").onclick = showFaq;
-  $("#ticketTab").onclick = showTicket;
+/* Benefiti */
+.benefits {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 1.25rem;
+  padding: 1.5rem 1rem;
+  background: #fafafa;
+  border-bottom: 1px solid #eee;
 }
 
-function setSupportActiveTab(tabId) {
-  document.querySelectorAll(".tabs button").forEach(function(button) {
-    button.classList.remove("active");
-  });
-
-  const tab = $(tabId);
-
-  if (tab) {
-    tab.classList.add("active");
-  }
+.benefit {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
 }
 
-function showChat() {
-  setSupportActiveTab("#chatTab");
-
-  $("#supportArea").innerHTML = `
-    <div class="notice">
-      Asistent može da pomogne oko registracije, prijave, oglasa,
-      zahteva i paketa za firme.
-    </div>
-
-    <div class="chat" id="chat">
-      <div class="msg bot">Zdravo! Kako mogu da pomognem?</div>
-    </div>
-
-    <div class="chatrow">
-      <input
-        id="chatInput"
-        placeholder="Napišite pitanje..."
-        autocomplete="off"
-      >
-
-      <button class="submit" id="sendChatBtn" type="button">
-        Pošalji
-      </button>
-    </div>
-  `;
-
-  $("#sendChatBtn").onclick = sendChat;
-
-  $("#chatInput").onkeydown = function(event) {
-    if (event.key === "Enter") {
-      event.preventDefault();
-      sendChat();
-    }
-  };
+.benefit-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  font-size: 1.25rem;
+  flex-shrink: 0;
 }
 
-async function sendChat() {
-  const input = $("#chatInput");
-  const chat = $("#chat");
-
-  if (!input || !chat) {
-    return;
-  }
-
-  const message = input.value.trim();
-
-  if (!message) {
-    return;
-  }
-
-  chat.innerHTML += `
-    <div class="msg me">${escapeHtml(message)}</div>
-  `;
-
-  input.value = "";
-  chat.scrollTop = chat.scrollHeight;
-
-  try {
-    const data = await api("/api/support/chat", {
-      method: "POST",
-      body: JSON.stringify({
-        message: message
-      })
-    });
-
-    chat.innerHTML += `
-      <div class="msg bot">${escapeHtml(data.answer)}</div>
-    `;
-  } catch (error) {
-    chat.innerHTML += `
-      <div class="msg bot">
-        ${escapeHtml(error.message)}
-      </div>
-    `;
-  }
-
-  chat.scrollTop = chat.scrollHeight;
+.blue-icon {
+  background: #e3f2fd;
+  color: #1976d2;
 }
 
-function showFaq() {
-  setSupportActiveTab("#faqTab");
-
-  const questions = [
-    "Kako da se registrujem kao fizičko lice?",
-    "Kako da registrujem firmu?",
-    "Kako da se prijavim?",
-    "Kako da objavim oglas?",
-    "Kako da postavim zahtev?",
-    "Kako rade paketi za firme?"
-  ];
-
-  $("#supportArea").innerHTML = `
-    <div class="faq">
-      ${questions
-        .map(function(question, index) {
-          return `
-            <button
-              type="button"
-              class="faq-question"
-              data-question-index="${index}"
-            >
-              ${escapeHtml(question)}
-            </button>
-          `;
-        })
-        .join("")}
-    </div>
-  `;
-
-  document.querySelectorAll(".faq-question").forEach(function(button) {
-    button.onclick = async function() {
-      const question = questions[Number(button.dataset.questionIndex)];
-
-      try {
-        const data = await api("/api/support/chat", {
-          method: "POST",
-          body: JSON.stringify({
-            message: question
-          })
-        });
-
-        alert(data.answer);
-      } catch (error) {
-        alert(error.message);
-      }
-    };
-  });
+.yellow-icon {
+  background: #fff8e1;
+  color: #f57f17;
 }
 
-function showTicket() {
-  setSupportActiveTab("#ticketTab");
-
-  $("#supportArea").innerHTML = `
-    <form id="ticketForm">
-      <input
-        name="name"
-        placeholder="Ime i prezime"
-        autocomplete="name"
-        required
-      >
-
-      <input
-        name="email"
-        type="email"
-        placeholder="Email"
-        autocomplete="email"
-        required
-      >
-
-      <input
-        name="subject"
-        placeholder="Naslov upita"
-        required
-      >
-
-      <textarea
-        name="message"
-        placeholder="Opišite problem ili pitanje"
-        required
-      ></textarea>
-
-      <button class="submit" type="submit">
-        Pošalji upit
-      </button>
-    </form>
-  `;
-
-  const ticketForm = $("#ticketForm");
-
-  ticketForm.onsubmit = async function(event) {
-    event.preventDefault();
-
-    const values = Object.fromEntries(new FormData(ticketForm));
-
-    try {
-      const data = await api("/api/support/tickets", {
-        method: "POST",
-        body: JSON.stringify(values)
-      });
-
-      closeModal();
-
-      alert(data.message);
-    } catch (error) {
-      alert(error.message);
-    }
-  };
+.green-icon {
+  background: #e8f5e9;
+  color: #2e7d32;
 }
 
-function bindPageEvents() {
-  const closeButton = $("#close");
-  const searchButton = $("#searchBtn");
-  const supportButton = $("#supportBtn");
-  const loginButton = $("#loginBtn");
-  const registerButton = $("#registerBtn");
-  const ctaRegisterButton = $("#ctaRegister");
-  const listingButton = $("#listingBtn");
-  const requestButton = $("#requestBtn");
-  const logoutButton = $("#logoutBtn");
-  const userButton = $("#userBtn");
-  const heroRegisterButton = $("#heroRegisterBtn");
-  const heroSearchButton = $("#heroSearchBtn");
-  const searchInput = $("#q");
+.benefit b {
+  display: block;
+  font-size: 1rem;
+  margin-bottom: 0.15rem;
+}
 
-  if (closeButton) {
-    closeButton.onclick = closeModal;
+.benefit small {
+  font-size: 0.85rem;
+  color: #555;
+}
+
+/* Kategorije */
+.categories {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 0.75rem;
+  padding: 1rem;
+}
+
+.cat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 1rem 0.5rem;
+  border-radius: 12px;
+  background: #f5f5f5;
+  text-decoration: none;
+  color: #222;
+  text-align: center;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.cat:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+}
+
+.cat-icon {
+  font-size: 2rem;
+}
+
+.cat-name {
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+/* Pretraga */
+.search {
+  display: grid;
+  grid-template-columns: 1.5fr 1fr 1fr auto;
+  gap: 0.5rem;
+  padding: 1rem;
+  background: #fff;
+  border-bottom: 1px solid #eee;
+}
+
+.search-field {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.6rem 0.75rem;
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  background: #fff;
+}
+
+.search-field span {
+  opacity: 0.5;
+}
+
+.search-field input,
+.search-field select {
+  border: 0;
+  outline: 0;
+  background: transparent;
+  font: inherit;
+  width: 100%;
+}
+
+.searchbtn {
+  background: #111;
+  color: #fff;
+  padding: 0.6rem 1.25rem;
+  border-radius: 10px;
+  border: 0;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+/* Akcije */
+.actions {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 0.75rem;
+  padding: 1rem;
+}
+
+.actions button {
+  appearance: none;
+  border: 0;
+  border-radius: 14px;
+  padding: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  cursor: pointer;
+  text-align: left;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.actions button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+}
+
+.blue {
+  background: #e3f2fd;
+  color: #0d47a1;
+}
+
+.orange {
+  background: #fff3e0;
+  color: #e65100;
+}
+
+.action-icon {
+  font-size: 1.75rem;
+}
+
+.action-text {
+  display: flex;
+  flex-direction: column;
+}
+
+.action-text b {
+  font-size: 1.05rem;
+}
+
+.action-text small {
+  font-size: 0.85rem;
+  opacity: 0.8;
+}
+
+.action-arrow {
+  margin-left: auto;
+  font-size: 1.5rem;
+  opacity: 0.6;
+}
+
+/* Content sekcija */
+.content {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1rem;
+  padding: 1rem;
+}
+
+.panel {
+  background: #fff;
+  border: 1px solid #eee;
+  border-radius: 14px;
+  padding: 1rem;
+}
+
+.panel-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.75rem;
+}
+
+.panel-heading h2 {
+  font-size: 1.1rem;
+  font-weight: 700;
+}
+
+.steps-note {
+  font-size: 0.85rem;
+  color: #666;
+}
+
+.more-link {
+  background: none;
+  border: 0;
+  color: #1976d2;
+  font: inherit;
+  cursor: pointer;
+  font-size: 0.9rem;
+}
+
+/* Zahtevi */
+.request-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.6rem 0;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.request-item:last-child {
+  border-bottom: 0;
+}
+
+.request-icon {
+  font-size: 1.5rem;
+}
+
+.request-item b {
+  display: block;
+  font-size: 0.95rem;
+}
+
+.request-item small {
+  font-size: 0.8rem;
+  color: #666;
+}
+
+/* Ponude */
+.featured-list {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.featured-item {
+  display: grid;
+  grid-template-columns: 80px 1fr;
+  gap: 0.75rem;
+  padding: 0.5rem;
+  border: 1px solid #eee;
+  border-radius: 10px;
+}
+
+.featured-item img {
+  width: 80px;
+  height: 80px;
+  object-fit: cover;
+  border-radius: 8px;
+}
+
+.featured-item b {
+  font-size: 0.95rem;
+  display: block;
+}
+
+.featured-item small {
+  font-size: 0.8rem;
+  color: #666;
+}
+
+/* Koraci */
+.steps {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.5rem;
+  text-align: center;
+}
+
+.step {
+  padding: 0.75rem 0.5rem;
+  background: #f9f9f9;
+  border-radius: 10px;
+}
+
+.step b {
+  display: block;
+  font-size: 1.5rem;
+  color: #1976d2;
+  margin-bottom: 0.25rem;
+}
+
+.step strong {
+  display: block;
+  font-size: 0.9rem;
+  margin-bottom: 0.25rem;
+}
+
+.step small {
+  font-size: 0.75rem;
+  color: #666;
+}
+
+/* CTA sekcija */
+.cta {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1.5rem 1rem;
+  background: #f5f5f5;
+  border-top: 1px solid #eee;
+  flex-wrap: wrap;
+}
+
+.cta-icon {
+  font-size: 2.5rem;
+  color: #d32f2f;
+}
+
+.cta b {
+  display: block;
+  font-size: 1.1rem;
+  margin-bottom: 0.25rem;
+}
+
+.cta span {
+  font-size: 0.95rem;
+  color: #555;
+}
+
+.cta button {
+  margin-left: auto;
+  background: #111;
+  color: #fff;
+  border: 0;
+  padding: 0.6rem 1.25rem;
+  border-radius: 999px;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.cta-people {
+  font-size: 1.5rem;
+  margin-left: 0.5rem;
+}
+
+/* Modal */
+.modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: grid;
+  place-items: center;
+  z-index: 100;
+  padding: 1rem;
+}
+
+.dialog {
+  background: #fff;
+  border-radius: 14px;
+  max-width: 480px;
+  width: 100%;
+  max-height: 85vh;
+  overflow: auto;
+  position: relative;
+  padding: 1.5rem;
+}
+
+.dialog .close {
+  position: absolute;
+  top: 0.75rem;
+  right: 0.75rem;
+  background: none;
+  border: 0;
+  font-size: 1.75rem;
+  cursor: pointer;
+  color: #666;
+  line-height: 1;
+}
+
+/* Formulari u modalu */
+.form-group {
+  margin-bottom: 1rem;
+}
+
+.form-group label {
+  display: block;
+  font-weight: 600;
+  margin-bottom: 0.4rem;
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+  width: 100%;
+  padding: 0.6rem;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  font: inherit;
+}
+
+.form-group textarea {
+  resize: vertical;
+  min-height: 80px;
+}
+
+.form-actions {
+  display: flex;
+  gap: 0.5rem;
+  justify-content: flex-end;
+  margin-top: 1rem;
+}
+
+.form-actions button {
+  padding: 0.6rem 1rem;
+  border-radius: 8px;
+  border: 0;
+  font: inherit;
+  cursor: pointer;
+}
+
+.form-actions .cancel {
+  background: #f0f0f0;
+}
+
+.form-actions .submit {
+  background: #111;
+  color: #fff;
+}
+
+/* Tabovi u registraciji i podršci */
+.tabs {
+  display: flex;
+  gap: 0.5rem;
+  margin: 1rem 0;
+  border-bottom: 1px solid #eee;
+  padding-bottom: 0.5rem;
+}
+
+.tabs button {
+  appearance: none;
+  border: 0;
+  background: #f5f5f5;
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  font: inherit;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.tabs button:hover {
+  background: #e8e8e8;
+}
+
+.tabs button.active {
+  background: #111;
+  color: #fff;
+}
+
+/* Chat u podršci */
+.chat {
+  max-height: 280px;
+  overflow-y: auto;
+  border: 1px solid #eee;
+  border-radius: 10px;
+  padding: 0.75rem;
+  margin: 0.75rem 0;
+  background: #fafafa;
+}
+
+.chat .msg {
+  padding: 0.5rem 0.75rem;
+  border-radius: 10px;
+  margin-bottom: 0.5rem;
+  max-width: 85%;
+  word-wrap: break-word;
+}
+
+.chat .msg.bot {
+  background: #e3f2fd;
+  color: #0d47a1;
+  margin-right: auto;
+}
+
+.chat .msg.me {
+  background: #111;
+  color: #fff;
+  margin-left: auto;
+}
+
+.chatrow {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.chatrow input {
+  flex: 1;
+  padding: 0.6rem;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font: inherit;
+}
+
+.chatrow .submit {
+  background: #111;
+  color: #fff;
+  border: 0;
+  padding: 0.6rem 1rem;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+/* Notice u chat-u */
+.notice {
+  background: #fff8e1;
+  border: 1px solid #ffe082;
+  border-radius: 10px;
+  padding: 0.75rem;
+  font-size: 0.9rem;
+  color: #5d4037;
+  margin-bottom: 0.75rem;
+}
+
+/* FAQ */
+.faq {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.faq-question {
+  appearance: none;
+  border: 1px solid #ddd;
+  background: #f9f9f9;
+  padding: 0.75rem 1rem;
+  border-radius: 10px;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.faq-question:hover {
+  background: #f0f0f0;
+}
+
+/* Formulari u modalu - inputi */
+#registerForm input,
+#registerForm select,
+#loginForm input,
+#listingForm input,
+#listingForm select,
+#listingForm textarea,
+#requestForm input,
+#requestForm select,
+#requestForm textarea,
+#ticketForm input,
+#ticketForm textarea {
+  width: 100%;
+  padding: 0.6rem;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  font: inherit;
+  margin-bottom: 0.75rem;
+}
+
+#registerForm .submit,
+#loginForm .submit,
+#listingForm .submit,
+#requestForm .submit,
+#ticketForm .submit {
+  width: 100%;
+  background: #111;
+  color: #fff;
+  border: 0;
+  padding: 0.75rem;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  margin-top: 0.5rem;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .hero {
+    height: 50vh;
+    min-height: 320px;
   }
 
-  if (modal) {
-    modal.onclick = function(event) {
-      if (event.target === modal) {
-        closeModal();
-      }
-    };
+  .search {
+    grid-template-columns: 1fr;
   }
 
-  if (searchButton) {
-    searchButton.onclick = doSearch;
+  .content {
+    grid-template-columns: 1fr;
   }
 
-  if (searchInput) {
-    searchInput.onkeydown = function(event) {
-      if (event.key === "Enter") {
-        doSearch();
-      }
-    };
+  .cta {
+    flex-direction: column;
+    text-align: center;
   }
 
-  if (supportButton) {
-    supportButton.onclick = support;
+  .cta button {
+    margin-left: 0;
+    width: 100%;
   }
 
-  if (loginButton) {
-    loginButton.onclick = login;
-  }
-
-  if (registerButton) {
-    registerButton.onclick = register;
-  }
-
-  if (ctaRegisterButton) {
-    ctaRegisterButton.onclick = register;
-  }
-
-  if (listingButton) {
-    listingButton.onclick = listing;
-  }
-
-  if (requestButton) {
-    requestButton.onclick = request;
-  }
-
-  if (logoutButton) {
-    logoutButton.onclick = logout;
-  }
-
-  if (userButton) {
-    userButton.onclick = function() {
-      alert("Profil korisnika ćemo dodati u sledećoj verziji.");
-    };
-  }
-
-  if (heroRegisterButton) {
-    heroRegisterButton.onclick = register;
-  }
-
-  if (heroSearchButton) {
-    heroSearchButton.onclick = function() {
-      if (!searchInput) {
-        return;
-      }
-
-      searchInput.scrollIntoView({
-        behavior: "smooth",
-        block: "center"
-      });
-
-      searchInput.focus();
-    };
+  .cta-people {
+    margin-left: 0;
   }
 }
 
-function init() {
-  renderCategories();
-  bindPageEvents();
-  updateAuthUI();
-  doSearch();
+.hidden {
+  display: none !important;
 }
-
-init();
