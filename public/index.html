@@ -3,7 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PonudiMi</title>
+    <meta
+        name="description"
+        content="PonudiMi — pronađi ono što ti treba ili ponudi ono što imaš."
+    >
+    <title>PonudiMi — kupuj i prodaj jednostavno</title>
 
     <style>
         :root {
@@ -15,19 +19,31 @@
             --green: #90ee90;
             --page: #f0f8ff;
             --white: #ffffff;
+            --muted: #667085;
+            --border: #dfe7f2;
+            --shadow: 0 10px 30px rgba(26, 26, 46, 0.1);
         }
 
         * {
+            box-sizing: border-box;
             margin: 0;
             padding: 0;
-            box-sizing: border-box;
             font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        html {
+            scroll-behavior: smooth;
         }
 
         body {
             min-height: 100vh;
-            background-color: var(--page);
             color: var(--navy);
+            background-color: var(--page);
+        }
+
+        a {
+            color: inherit;
+            text-decoration: none;
         }
 
         button,
@@ -35,417 +51,471 @@
             font: inherit;
         }
 
-        /* HEADER */
+        button,
+        a {
+            -webkit-tap-highlight-color: transparent;
+        }
 
-        header {
-            display: flex;
-            justify-content: center;
+        button:focus-visible,
+        a:focus-visible,
+        input:focus-visible {
+            outline: 3px solid rgba(65, 105, 225, 0.45);
+            outline-offset: 3px;
+        }
+
+        .container {
+            width: min(1180px, calc(100% - 40px));
+            margin: 0 auto;
+        }
+
+        .btn {
+            min-height: 42px;
+            display: inline-flex;
             align-items: center;
-            gap: 15px;
-            padding: 15px 20px;
-            background-color: var(--page);
-        }
-
-        .btn-support,
-        .btn-login,
-        .btn-register {
-            border: none;
-            border-radius: 12px;
-            padding: 10px 20px;
-            color: var(--navy);
+            justify-content: center;
+            border: 1px solid transparent;
+            border-radius: 11px;
+            padding: 10px 15px;
             font-size: 14px;
-            font-weight: 600;
+            font-weight: 700;
             cursor: pointer;
-            transition: transform 0.2s ease, background-color 0.2s ease;
+            transition: transform 0.2s ease, background-color 0.2s ease, border-color 0.2s ease;
         }
 
-        .btn-support {
-            background-color: var(--green);
-        }
-
-        .btn-login {
-            color: var(--white);
-            background-color: var(--orange);
-        }
-
-        .btn-register {
-            color: var(--white);
-            background-color: var(--blue);
-        }
-
-        .btn-support:hover,
-        .btn-login:hover,
-        .btn-register:hover {
+        .btn:hover {
             transform: translateY(-2px);
         }
 
-        .btn-support:hover {
-            background-color: #7cda7c;
-        }
-
-        .btn-login:hover {
-            background-color: var(--orange-dark);
-        }
-
-        .btn-register:hover {
-            background-color: var(--blue-dark);
-        }
-
-        /* HERO */
+        /* HERO — CELA SLIKA, BEZ SEČENJA */
 
         .hero {
             position: relative;
-            width: 100%;
-            height: clamp(360px, 48vw, 600px);
-            min-height: 360px;
             overflow: hidden;
             isolation: isolate;
-            background-color: #172238;
-        }
-
-        .hero-image {
-            position: absolute;
-            inset: 0;
-            z-index: -3;
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            object-position: center;
-        }
-
-        .hero-overlay {
-            position: absolute;
-            inset: 0;
-            z-index: -2;
             background:
-                linear-gradient(
-                    90deg,
-                    rgba(12, 21, 37, 0.9) 0%,
-                    rgba(12, 21, 37, 0.72) 32%,
-                    rgba(12, 21, 37, 0.32) 51%,
-                    rgba(12, 21, 37, 0.04) 76%
-                ),
-                linear-gradient(
-                    180deg,
-                    rgba(0, 0, 0, 0.22) 0%,
-                    transparent 35%,
-                    rgba(0, 0, 0, 0.22) 100%
-                );
-        }
-
-        .hero-content {
-            position: relative;
-            z-index: 1;
-            height: 100%;
-            display: flex;
-            flex-direction: column;
-            align-items: flex-start;
-            justify-content: flex-end;
-            padding: 20px 6% 34px;
-            color: var(--white);
+                radial-gradient(circle at 78% 20%, #40526e 0%, #172238 48%, #0d1524 100%);
         }
 
         /*
-          Tekst je ograničen na levu polovinu.
-          Na desktopu ne prelazi 470 px, dok je na telefonu
-          ograničen na maksimalno 47% širine ekrana.
+          Fotografija zadržava originalnu proporciju.
+          height: auto znači da slika nije istegnuta niti isečena.
         */
-        .hero-copy {
-            width: min(470px, 43%);
+        .hero-image {
+            position: relative;
+            z-index: 0;
+            display: block;
+            width: 100%;
+            height: auto;
+            object-fit: contain;
+            object-position: center center;
         }
 
-        .hero-top {
+        /*
+          Blagi tamni sloj sa leve strane, samo radi čitljivosti teksta.
+          Ne utiče na veličinu ili sečenje slike.
+        */
+        .hero-overlay {
+            position: absolute;
+            inset: 0;
+            z-index: 1;
+            pointer-events: none;
+            background:
+                linear-gradient(
+                    90deg,
+                    rgba(12, 21, 37, 0.83) 0%,
+                    rgba(12, 21, 37, 0.58) 34%,
+                    rgba(12, 21, 37, 0.18) 57%,
+                    rgba(12, 21, 37, 0) 78%
+                ),
+                linear-gradient(
+                    180deg,
+                    rgba(0, 0, 0, 0.12) 0%,
+                    transparent 40%,
+                    rgba(0, 0, 0, 0.16) 100%
+                );
+        }
+
+        /*
+          Sadržaj je apsolutno preko slike:
+          logo gore levo, tekst dole levo.
+        */
+        .hero-content {
+            position: absolute;
+            inset: 0;
+            z-index: 2;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 22px 6% 34px;
+            color: var(--white);
+        }
+
+        .hero-topbar {
             display: flex;
             align-items: center;
-            min-height: 54px;
-            margin-bottom: 18px;
+            justify-content: space-between;
+            gap: 18px;
         }
 
-        .hero-logo-img {
+        .hero-logo {
+            display: inline-flex;
+            flex-shrink: 0;
+            align-items: center;
+        }
+
+        .hero-logo img {
             display: block;
             width: auto;
-            height: 54px;
-            max-width: 220px;
+            height: 46px;
+            max-width: min(220px, 45vw);
             object-fit: contain;
             object-position: left center;
             filter: drop-shadow(0 2px 12px rgba(0, 0, 0, 0.34));
         }
 
-        .hero-text {
-            max-width: 100%;
-            margin: 0;
-            color: rgba(255, 255, 255, 0.98);
-            text-shadow: 0 3px 15px rgba(0, 0, 0, 0.44);
-        }
-
-        .hero-text-line1 {
-            margin-bottom: 9px;
-            font-size: clamp(27px, 3.2vw, 48px);
-            font-weight: 800;
-            letter-spacing: -0.045em;
-            line-height: 0.98;
-        }
-
-        .hero-text-line2 {
-            margin-bottom: 0;
-            font-size: clamp(14px, 1.35vw, 18px);
-            font-weight: 500;
-            line-height: 1.35;
-        }
-
-        .text-orange {
-            color: #ff9a78;
-        }
-
-        .hero-buttons {
+        .hero-nav {
             display: flex;
-            flex-wrap: wrap;
+            align-items: center;
             gap: 10px;
-            margin-top: 20px;
         }
 
-        .btn-hero {
+        .btn-support {
+            color: #173d24;
+            background: var(--green);
+        }
+
+        .btn-support:hover {
+            background: #7cda7c;
+        }
+
+        .btn-login {
+            color: var(--white);
+            background: var(--orange);
+        }
+
+        .btn-login:hover {
+            background: var(--orange-dark);
+        }
+
+        .btn-register {
+            color: var(--white);
+            background: var(--blue);
+        }
+
+        .btn-register:hover {
+            background: var(--blue-dark);
+        }
+
+        /*
+          Tekst ostaje na levoj strani, bez prelaska preko slike.
+        */
+        .hero-copy {
+            width: min(480px, 43%);
+        }
+
+        .hero-eyebrow {
             display: inline-flex;
             align-items: center;
-            justify-content: center;
-            min-height: 42px;
-            padding: 10px 15px;
-            border: 1px solid transparent;
-            border-radius: 11px;
-            color: var(--white);
-            font-size: 13px;
+            gap: 8px;
+            margin-bottom: 14px;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 999px;
+            padding: 7px 11px;
+            color: rgba(255, 255, 255, 0.95);
+            background: rgba(17, 23, 44, 0.38);
+            backdrop-filter: blur(8px);
+            font-size: 11px;
             font-weight: 700;
-            text-decoration: none;
-            cursor: pointer;
-            transition: transform 0.2s ease, background-color 0.2s ease;
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
         }
 
-        .btn-hero:hover {
-            transform: translateY(-2px);
+        .hero-eyebrow::before {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: #ff9a78;
+            content: "";
         }
 
-        .btn-hero-primary {
-            background-color: var(--orange);
-            box-shadow: 0 10px 24px rgba(100, 30, 10, 0.35);
+        .hero-title {
+            color: var(--white);
+            font-size: clamp(36px, 4.2vw, 64px);
+            font-weight: 800;
+            letter-spacing: -0.055em;
+            line-height: 0.98;
+            text-shadow: 0 3px 18px rgba(0, 0, 0, 0.36);
         }
 
-        .btn-hero-primary:hover {
-            background-color: var(--orange-dark);
+        .hero-description {
+            max-width: 420px;
+            margin-top: 17px;
+            color: rgba(255, 255, 255, 0.93);
+            font-size: clamp(15px, 1.35vw, 18px);
+            line-height: 1.38;
+            text-shadow: 0 2px 14px rgba(0, 0, 0, 0.34);
         }
 
-        .btn-hero-secondary {
+        .hero-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 11px;
+            margin-top: 24px;
+        }
+
+        .btn-primary {
+            color: var(--white);
+            background: var(--orange);
+            box-shadow: 0 12px 24px rgba(100, 31, 10, 0.36);
+        }
+
+        .btn-primary:hover {
+            background: var(--orange-dark);
+        }
+
+        .btn-secondary {
             border-color: rgba(255, 255, 255, 0.58);
-            background-color: rgba(255, 255, 255, 0.13);
+            color: var(--white);
+            background: rgba(255, 255, 255, 0.13);
             backdrop-filter: blur(8px);
         }
 
-        .btn-hero-secondary:hover {
-            background-color: rgba(255, 255, 255, 0.25);
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.25);
+        }
+
+        /* PRETRAGA */
+
+        .search-band {
+            position: relative;
+            z-index: 3;
+            margin-top: -28px;
+        }
+
+        .search-panel {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) minmax(170px, 0.42fr) auto;
+            gap: 10px;
+            border: 1px solid rgba(26, 26, 46, 0.1);
+            border-radius: 16px;
+            padding: 14px;
+            background: rgba(255, 255, 255, 0.97);
+            box-shadow: var(--shadow);
+        }
+
+        .field {
+            position: relative;
+        }
+
+        .field-icon {
+            position: absolute;
+            top: 50%;
+            left: 13px;
+            transform: translateY(-50%);
+            pointer-events: none;
+            font-size: 17px;
+        }
+
+        .field input {
+            width: 100%;
+            min-height: 46px;
+            border: 1px solid var(--border);
+            border-radius: 11px;
+            padding: 11px 13px;
+            color: var(--navy);
+            background: var(--white);
+            font-size: 14px;
+        }
+
+        .field-with-icon input {
+            padding-left: 41px;
+        }
+
+        .field input::placeholder {
+            color: #98a2b3;
+        }
+
+        .btn-search {
+            min-height: 46px;
+            color: var(--white);
+            background: var(--blue);
+        }
+
+        .btn-search:hover {
+            background: var(--blue-dark);
+        }
+
+        /* BRZE AKCIJE */
+
+        .quick-actions {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 18px;
+            margin: 42px 0;
+        }
+
+        .action-card {
+            min-height: 135px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 18px;
+            border-radius: 18px;
+            padding: 24px;
+            color: var(--white);
+            box-shadow: var(--shadow);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .action-card:hover {
+            box-shadow: 0 16px 35px rgba(26, 26, 46, 0.16);
+            transform: translateY(-4px);
+        }
+
+        .action-card-request {
+            background: linear-gradient(135deg, var(--blue), #79a4ff);
+        }
+
+        .action-card-ad {
+            background: linear-gradient(135deg, var(--orange), #ff9b57);
+        }
+
+        .action-card h2 {
+            margin-bottom: 6px;
+            font-size: clamp(20px, 2vw, 27px);
+            letter-spacing: -0.035em;
+        }
+
+        .action-card p {
+            max-width: 290px;
+            font-size: 14px;
+            line-height: 1.4;
+            opacity: 0.96;
+        }
+
+        .action-arrow {
+            width: 42px;
+            height: 42px;
+            flex: 0 0 auto;
+            display: grid;
+            place-items: center;
+            border-radius: 50%;
+            color: var(--navy);
+            background: rgba(255, 255, 255, 0.9);
+            font-size: 22px;
+            font-weight: 800;
         }
 
         /* KATEGORIJE */
 
-        .categories {
-            padding: 25px 20px;
-            background-color: var(--page);
+        .section {
+            margin: 64px 0;
         }
 
-        .categories-container {
+        .section-heading {
+            display: flex;
+            align-items: end;
+            justify-content: space-between;
+            gap: 18px;
+            margin-bottom: 20px;
+        }
+
+        .section-heading h2 {
+            font-size: clamp(25px, 3vw, 35px);
+            letter-spacing: -0.04em;
+        }
+
+        .section-heading p {
+            max-width: 510px;
+            margin-top: 7px;
+            color: var(--muted);
+            font-size: 15px;
+            line-height: 1.5;
+        }
+
+        .view-all {
+            flex: 0 0 auto;
+            color: var(--blue);
+            font-size: 14px;
+            font-weight: 700;
+        }
+
+        .categories-grid {
             display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 15px;
-            overflow-x: auto;
-            -webkit-overflow-scrolling: touch;
-            scrollbar-width: none;
-        }
-
-        .categories-container::-webkit-scrollbar {
-            display: none;
+            grid-template-columns: repeat(6, 1fr);
+            gap: 14px;
         }
 
         .category-card {
-            width: 100%;
-            aspect-ratio: 1;
+            min-height: 150px;
             display: flex;
             flex-direction: column;
+            justify-content: flex-end;
             overflow: hidden;
-            border-radius: 20px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-            transition: transform 0.3s ease;
+            border: 1px solid rgba(26, 26, 46, 0.08);
+            border-radius: 16px;
+            background: var(--white);
+            box-shadow: 0 4px 14px rgba(26, 26, 46, 0.06);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
         }
 
         .category-card:hover {
-            transform: scale(1.05);
+            box-shadow: var(--shadow);
+            transform: translateY(-4px);
         }
-
-        .category-card:nth-child(1) { background: rgba(65, 105, 225, 0.25); }
-        .category-card:nth-child(2) { background: rgba(255, 165, 0, 0.25); }
-        .category-card:nth-child(3) { background: rgba(50, 205, 50, 0.25); }
-        .category-card:nth-child(4) { background: rgba(255, 105, 180, 0.25); }
-        .category-card:nth-child(5) { background: rgba(135, 206, 235, 0.25); }
-        .category-card:nth-child(6) { background: rgba(255, 215, 0, 0.25); }
-        .category-card:nth-child(7) { background: rgba(219, 112, 147, 0.25); }
-        .category-card:nth-child(8) { background: rgba(144, 238, 144, 0.25); }
-        .category-card:nth-child(9) { background: rgba(221, 160, 221, 0.25); }
 
         .category-image {
             flex: 1;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            overflow: hidden;
+            min-height: 95px;
         }
 
         .category-image img {
             width: 100%;
             height: 100%;
+            display: block;
             object-fit: cover;
         }
 
         .category-name {
-            padding: 8px 5px;
+            padding: 11px;
             color: var(--navy);
-            background: rgba(255, 255, 255, 0.9);
-            text-align: center;
-            font-size: 12px;
-            font-weight: 600;
-        }
-
-        /* PRETRAGA */
-
-        .search-section {
-            padding: 15px 20px;
-            background-color: var(--page);
-        }
-
-        .search-container {
-            display: flex;
-            gap: 10px;
-        }
-
-        .search-wrapper {
-            position: relative;
-            flex: 1;
-            display: flex;
-            align-items: center;
-        }
-
-        .search-input,
-        .location-input {
-            width: 100%;
-            border: none;
-            border-radius: 12px;
-            padding: 12px 15px;
-            background: var(--white);
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-            font-size: 15px;
-            outline: none;
-        }
-
-        .search-input {
-            padding-left: 40px;
-        }
-
-        .search-icon {
-            position: absolute;
-            left: 12px;
-            color: #999;
-            font-size: 18px;
-        }
-
-        .location-input {
-            flex: 1;
-        }
-
-        /* DUGMAD */
-
-        .action-buttons {
-            display: flex;
-            justify-content: center;
-            gap: 20px;
-            padding: 20px;
-            background-color: var(--page);
-        }
-
-        .btn-action {
-            min-width: 180px;
-            border: none;
-            border-radius: 15px;
-            padding: 18px 25px;
-            color: var(--white);
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-            cursor: pointer;
-            text-align: center;
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-        }
-
-        .btn-action:hover {
-            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
-            transform: translateY(-3px);
-        }
-
-        .btn-request {
-            background: linear-gradient(135deg, var(--blue), #6495ed);
-        }
-
-        .btn-ad {
-            background: linear-gradient(135deg, var(--orange), #ff8c42);
-        }
-
-        .btn-action-title {
-            margin-bottom: 4px;
-            font-size: 17px;
-            font-weight: 700;
-        }
-
-        .btn-action-subtitle {
             font-size: 13px;
-            opacity: 0.95;
+            font-weight: 700;
+            text-align: center;
         }
 
-        /* SEKCIJE */
+        /* ZAHTEVI I PONUDE */
 
-        .sections-container {
+        .content-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 20px;
-            padding: 20px;
-            background-color: var(--page);
+            gap: 22px;
+            margin-bottom: 68px;
         }
 
-        .section-card {
-            padding: 20px;
+        .content-card {
+            border: 1px solid rgba(26, 26, 46, 0.08);
             border-radius: 20px;
-            background: rgba(255, 255, 255, 0.8);
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+            padding: 24px;
+            background: rgba(255, 255, 255, 0.84);
+            box-shadow: 0 4px 15px rgba(26, 26, 46, 0.06);
         }
 
-        .section-card-offers {
-            background: rgba(255, 240, 230, 0.8);
+        .content-card-offers {
+            background: rgba(255, 240, 230, 0.82);
         }
 
-        .section-header {
+        .content-card-header {
             display: flex;
             align-items: center;
             justify-content: space-between;
-            gap: 10px;
+            gap: 12px;
             margin-bottom: 15px;
         }
 
-        .section-title {
-            color: var(--navy);
-            font-size: 18px;
-            font-weight: 700;
-        }
-
-        .view-all {
-            display: flex;
-            align-items: center;
-            gap: 5px;
-            color: var(--blue);
-            font-size: 12px;
-            font-weight: 600;
-            text-decoration: none;
+        .content-card h2 {
+            font-size: 20px;
+            letter-spacing: -0.025em;
         }
 
         .request-list {
@@ -453,10 +523,11 @@
         }
 
         .request-item {
-            padding: 12px 0;
-            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
-            color: #333;
+            border-bottom: 1px solid rgba(26, 26, 46, 0.08);
+            padding: 13px 0;
+            color: #2f3545;
             font-size: 14px;
+            line-height: 1.4;
         }
 
         .request-item:last-child {
@@ -464,331 +535,275 @@
         }
 
         .request-date {
-            margin-top: 3px;
-            color: #999;
-            font-size: 11px;
+            margin-top: 4px;
+            color: var(--muted);
+            font-size: 12px;
         }
 
         .offers-grid {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
-            gap: 10px;
+            gap: 12px;
         }
 
         .offer-item {
             overflow: hidden;
-            border-radius: 10px;
+            border-radius: 12px;
             background: var(--white);
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            box-shadow: 0 2px 9px rgba(26, 26, 46, 0.08);
         }
 
         .offer-image {
-            width: 100%;
-            height: 80px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            overflow: hidden;
+            height: 105px;
         }
 
         .offer-image img {
             width: 100%;
             height: 100%;
+            display: block;
             object-fit: cover;
         }
 
         .offer-info {
-            padding: 8px;
+            padding: 10px;
         }
 
         .offer-title {
             margin-bottom: 3px;
             color: var(--navy);
-            font-size: 12px;
-            font-weight: 600;
+            font-size: 13px;
+            font-weight: 700;
         }
 
         .offer-price {
             color: var(--orange);
-            font-size: 13px;
-            font-weight: 700;
+            font-size: 14px;
+            font-weight: 800;
         }
 
         /* FOOTER */
 
         footer {
+            padding: 28px 0;
+            color: var(--white);
+            background: var(--navy);
+        }
+
+        .footer-inner {
             display: flex;
             align-items: center;
             justify-content: space-between;
-            gap: 20px;
-            padding: 20px;
-            background-color: var(--navy);
+            gap: 22px;
         }
 
-        .footer-left {
-            flex: 1;
+        .footer-message {
             display: flex;
             align-items: center;
-            gap: 15px;
-        }
-
-        .footer-logo-circle {
-            width: 50px;
-            height: 50px;
-            display: flex;
-            flex-shrink: 0;
-            align-items: center;
-            justify-content: center;
-            border-radius: 50%;
-            background: linear-gradient(135deg, #4caf50, #8bc34a);
-        }
-
-        .footer-shield {
-            width: 28px;
-            height: 35px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
-            background: var(--white);
+            gap: 14px;
         }
 
         .footer-check {
+            width: 45px;
+            height: 45px;
+            flex: 0 0 auto;
+            display: grid;
+            place-items: center;
+            border-radius: 50%;
             color: var(--orange);
+            background: linear-gradient(135deg, #4caf50, #8bc34a);
+            box-shadow: inset 0 0 0 8px rgba(255, 255, 255, 0.94);
             font-size: 20px;
-            font-weight: bold;
+            font-weight: 900;
         }
 
-        .footer-text {
-            color: var(--white);
-        }
-
-        .footer-text h3 {
+        .footer-message h2 {
             margin-bottom: 4px;
-            font-size: 16px;
-            font-weight: 700;
+            font-size: 18px;
         }
 
-        .footer-text p {
-            font-size: 12px;
-            line-height: 1.4;
-            opacity: 0.85;
+        .footer-message p {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 13px;
+            line-height: 1.45;
         }
 
-        .btn-footer-register {
-            flex-shrink: 0;
-            border: none;
-            border-radius: 12px;
-            padding: 12px 25px;
+        .btn-footer {
+            flex: 0 0 auto;
             color: var(--white);
-            background-color: var(--orange);
-            font-size: 15px;
-            font-weight: 700;
-            cursor: pointer;
-            transition: transform 0.2s ease, background-color 0.2s ease;
+            background: var(--orange);
         }
 
-        .btn-footer-register:hover {
-            background-color: var(--orange-dark);
-            transform: translateY(-2px);
+        .btn-footer:hover {
+            background: var(--orange-dark);
         }
 
         /* TABLET */
 
-        @media (max-width: 768px) {
-            .hero {
-                height: 440px;
-                min-height: 440px;
-            }
-
-            .hero-image {
-                object-position: 58% center;
-            }
-
-            .hero-content {
-                padding: 18px 20px 28px;
-            }
-
-            .hero-copy {
-                width: min(47vw, 270px);
-            }
-
-            .hero-logo-img {
-                height: 42px;
-                max-width: 170px;
-            }
-
-            .hero-text-line1 {
-                font-size: clamp(25px, 6vw, 36px);
-            }
-
-            .hero-text-line2 {
-                font-size: 14px;
-                line-height: 1.3;
-            }
-
-            .sections-container {
-                grid-template-columns: 1fr;
-            }
-
-            footer {
-                flex-direction: column;
-                text-align: center;
-            }
-
-            .footer-left {
-                flex-direction: column;
-            }
-
-            .btn-footer-register {
-                width: 100%;
+        @media (max-width: 980px) {
+            .categories-grid {
+                grid-template-columns: repeat(3, 1fr);
             }
         }
 
-        /* TELEFON */
+        /* MOBILNI */
 
-        @media (max-width: 520px) {
-            header {
-                gap: 8px;
-                padding: 12px 10px;
-            }
-
-            .btn-support,
-            .btn-login,
-            .btn-register {
-                flex: 1;
-                padding: 9px 6px;
-                border-radius: 10px;
-                font-size: 12px;
-            }
-
-            .hero {
-                height: 485px;
-                min-height: 485px;
-            }
-
-            /*
-              Namerno prikazuje desni deo slike (par, automobil),
-              dok leva strana ostaje tamnija za tekst.
-            */
-            .hero-image {
-                object-position: 61% center;
-            }
-
-            .hero-overlay {
-                background:
-                    linear-gradient(
-                        90deg,
-                        rgba(12, 21, 37, 0.9) 0%,
-                        rgba(12, 21, 37, 0.73) 48%,
-                        rgba(12, 21, 37, 0.27) 67%,
-                        rgba(12, 21, 37, 0.02) 100%
-                    ),
-                    linear-gradient(
-                        180deg,
-                        rgba(0, 0, 0, 0.2) 0%,
-                        transparent 40%,
-                        rgba(0, 0, 0, 0.24) 100%
-                    );
+        @media (max-width: 700px) {
+            .container {
+                width: min(100% - 28px, 1180px);
             }
 
             .hero-content {
-                justify-content: flex-end;
-                padding: 16px 15px 25px;
+                padding: 15px 0 20px;
             }
 
-            /*
-              Ovo rešava problem preširokog teksta:
-              tekst je strogo ograničen na levu polovinu telefona.
-            */
-            .hero-copy {
-                width: min(47vw, 180px);
-            }
-
-            .hero-top {
-                min-height: 37px;
-                margin-bottom: 13px;
-            }
-
-            .hero-logo-img {
+            .hero-logo img {
                 height: 37px;
-                max-width: 150px;
+                max-width: 145px;
             }
 
-            .hero-text-line1 {
-                margin-bottom: 8px;
-                font-size: clamp(25px, 7.4vw, 32px);
-                letter-spacing: -0.055em;
-                line-height: 1;
+            .hero-nav {
+                gap: 6px;
             }
 
-            .hero-text-line2 {
-                font-size: 12px;
-                line-height: 1.28;
-            }
-
-            .hero-buttons {
-                flex-direction: column;
-                align-items: stretch;
-                gap: 7px;
-                margin-top: 15px;
-            }
-
-            .btn-hero {
-                min-height: 36px;
+            .hero-nav .btn {
+                min-height: 37px;
                 padding: 8px 10px;
                 border-radius: 9px;
                 font-size: 11px;
             }
 
-            .categories {
-                padding: 20px 12px;
+            .btn-support {
+                display: none;
             }
 
-            .categories-container {
-                grid-template-columns: repeat(2, minmax(135px, 1fr));
-                gap: 12px;
+            /*
+              Tekst ostaje u levoj polovini telefona.
+              Slika ostaje cela jer .hero-image ima height: auto.
+            */
+            .hero-copy {
+                width: min(47vw, 185px);
             }
 
-            .search-section {
-                padding: 12px;
+            .hero-eyebrow {
+                margin-bottom: 10px;
+                padding: 6px 8px;
+                font-size: 8px;
+                line-height: 1;
             }
 
-            .search-container {
+            .hero-eyebrow::before {
+                width: 6px;
+                height: 6px;
+            }
+
+            .hero-title {
+                font-size: clamp(28px, 8vw, 35px);
+                line-height: 1;
+            }
+
+            .hero-description {
+                margin-top: 12px;
+                font-size: 12px;
+                line-height: 1.32;
+            }
+
+            .hero-actions {
                 flex-direction: column;
+                align-items: stretch;
+                gap: 8px;
+                margin-top: 17px;
             }
 
-            .action-buttons {
-                flex-direction: column;
-                gap: 12px;
-                padding: 12px;
+            .hero-actions .btn {
+                min-height: 38px;
+                padding: 8px 9px;
+                font-size: 11px;
             }
 
-            .btn-action {
-                width: 100%;
-                min-width: 0;
+            .search-band {
+                margin-top: -18px;
             }
 
-            .sections-container {
+            .search-panel {
+                grid-template-columns: 1fr;
+                gap: 8px;
+                border-radius: 14px;
+                padding: 11px;
+            }
+
+            .field input,
+            .btn-search {
+                min-height: 43px;
+            }
+
+            .quick-actions,
+            .content-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .quick-actions {
                 gap: 14px;
-                padding: 12px;
+                margin: 31px 0 52px;
             }
 
-            .section-card {
-                padding: 16px;
+            .action-card {
+                min-height: 115px;
+                padding: 20px;
+            }
+
+            .section {
+                margin: 50px 0;
+            }
+
+            .section-heading {
+                flex-direction: column;
+                align-items: flex-start;
+                margin-bottom: 16px;
+            }
+
+            .categories-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 12px;
+            }
+
+            .category-card {
+                min-height: 145px;
+            }
+
+            .content-grid {
+                gap: 15px;
+                margin-bottom: 52px;
+            }
+
+            .content-card {
+                padding: 18px;
+            }
+
+            .footer-inner {
+                flex-direction: column;
+                align-items: stretch;
+                text-align: center;
+            }
+
+            .footer-message {
+                flex-direction: column;
+            }
+
+            .btn-footer {
+                width: 100%;
             }
         }
 
-        @media (max-width: 360px) {
+        @media (max-width: 380px) {
             .hero-copy {
-                width: min(47vw, 165px);
+                width: min(47vw, 170px);
             }
 
-            .hero-text-line1 {
-                font-size: 24px;
+            .hero-title {
+                font-size: 27px;
             }
 
-            .hero-text-line2 {
+            .hero-description {
                 font-size: 11px;
             }
         }
@@ -796,240 +811,283 @@
 </head>
 
 <body>
-    <!-- HEADER -->
-    <header>
-        <button class="btn-support">Podrška</button>
-        <button class="btn-login">Prijava</button>
-        <button class="btn-register">Registracija</button>
-    </header>
+    <main>
+        <section class="hero" id="pocetna">
+            <img
+                src="reference-homepage.png"
+                alt="Par pregledava ponude telefonom i laptopom ispred moderne kuće"
+                class="hero-image"
+            >
 
-    <!-- HERO SEKCIJA -->
-    <section class="hero">
-        <!-- Lokalna PNG hero slika -->
-        <img src="reference-homepage.png" alt="Par pregledava ponude ispred moderne kuće" class="hero-image">
+            <div class="hero-overlay"></div>
 
-        <div class="hero-overlay"></div>
+            <div class="container hero-content">
+                <div class="hero-topbar">
+                    <a href="#pocetna" class="hero-logo" aria-label="PonudiMi početna strana">
+                        <img src="ponudimi-logo.png" alt="PonudiMi">
+                    </a>
 
-        <div class="hero-content">
-            <div class="hero-copy">
-                <!-- Lokalni PNG logo -->
-                <div class="hero-top">
-                    <img src="ponudimi-logo.png" alt="PonudiMi" class="hero-logo-img">
+                    <nav class="hero-nav" aria-label="Korisničke opcije">
+                        <a href="#podrska" class="btn btn-support">Podrška</a>
+                        <a href="#prijava" class="btn btn-login">Prijava</a>
+                        <a href="#registracija" class="btn btn-register">Registracija</a>
+                    </nav>
                 </div>
 
-                <div class="hero-text">
-                    <div class="hero-text-line1">
-                        Pronađi pravu <span class="text-orange">ponudu</span>.
-                    </div>
+                <div class="hero-copy">
+                    <p class="hero-eyebrow">Ponude na jednom mestu</p>
 
-                    <div class="hero-text-line2">
-                        Kupuj, prodaj i pronađi ono što ti treba — brzo i jednostavno.
-                    </div>
-                </div>
+                    <h1 class="hero-title">Pronađi pravu ponudu za sebe.</h1>
 
-                <div class="hero-buttons">
-                    <a href="#ponude" class="btn-hero btn-hero-primary">Pogledaj ponude</a>
-                    <a href="#objavi-oglas" class="btn-hero btn-hero-secondary">Objavi oglas</a>
+                    <p class="hero-description">
+                        Kupi, prodaj i pronađi ono što ti treba — brzo i jednostavno.
+                    </p>
+
+                    <div class="hero-actions">
+                        <a href="#ponude" class="btn btn-primary">Pogledaj ponude</a>
+                        <a href="#objavi-oglas" class="btn btn-secondary">Objavi oglas</a>
+                    </div>
                 </div>
             </div>
+        </section>
+
+        <section class="search-band" aria-label="Pretraga oglasa">
+            <div class="container">
+                <form class="search-panel" action="/pretraga" method="get">
+                    <label class="field field-with-icon">
+                        <span class="field-icon" aria-hidden="true">⌕</span>
+                        <input
+                            type="search"
+                            name="q"
+                            placeholder="Šta tražiš danas?"
+                            aria-label="Pretraži oglase"
+                        >
+                    </label>
+
+                    <label class="field">
+                        <input
+                            type="text"
+                            name="lokacija"
+                            placeholder="Lokacija"
+                            aria-label="Izaberi lokaciju"
+                        >
+                    </label>
+
+                    <button type="submit" class="btn btn-search">Pretraži</button>
+                </form>
+            </div>
+        </section>
+
+        <div class="container">
+            <section class="quick-actions" id="objavi-oglas">
+                <a href="#zahtev" class="action-card action-card-request">
+                    <div>
+                        <h2>Postavi zahtev</h2>
+                        <p>Napiši šta tražiš, a prodavci mogu da ti pošalju ponude.</p>
+                    </div>
+                    <span class="action-arrow" aria-hidden="true">→</span>
+                </a>
+
+                <a href="#oglas" class="action-card action-card-ad">
+                    <div>
+                        <h2>Objavi oglas</h2>
+                        <p>Dodaj proizvod ili uslugu i pronađi zainteresovane kupce.</p>
+                    </div>
+                    <span class="action-arrow" aria-hidden="true">→</span>
+                </a>
+            </section>
+
+            <section class="section" id="kategorije">
+                <div class="section-heading">
+                    <div>
+                        <h2>Istraži kategorije</h2>
+                        <p>Pregledaj aktuelne ponude u kategoriji koja te zanima.</p>
+                    </div>
+
+                    <a href="#sve-kategorije" class="view-all">Sve kategorije →</a>
+                </div>
+
+                <div class="categories-grid">
+                    <a href="#automobili" class="category-card">
+                        <div class="category-image">
+                            <img
+                                src="https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?w=400&h=300&fit=crop"
+                                alt="Automobili"
+                                loading="lazy"
+                            >
+                        </div>
+                        <div class="category-name">Automobili</div>
+                    </a>
+
+                    <a href="#nekretnine" class="category-card">
+                        <div class="category-image">
+                            <img
+                                src="https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=400&h=300&fit=crop"
+                                alt="Nekretnine"
+                                loading="lazy"
+                            >
+                        </div>
+                        <div class="category-name">Nekretnine</div>
+                    </a>
+
+                    <a href="#racunari" class="category-card">
+                        <div class="category-image">
+                            <img
+                                src="https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=400&h=300&fit=crop"
+                                alt="Računari"
+                                loading="lazy"
+                            >
+                        </div>
+                        <div class="category-name">Računari</div>
+                    </a>
+
+                    <a href="#mobilni" class="category-card">
+                        <div class="category-image">
+                            <img
+                                src="https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=400&h=300&fit=crop"
+                                alt="Mobilni telefoni"
+                                loading="lazy"
+                            >
+                        </div>
+                        <div class="category-name">Mobilni</div>
+                    </a>
+
+                    <a href="#tehnika" class="category-card">
+                        <div class="category-image">
+                            <img
+                                src="https://images.unsplash.com/photo-1581092921461-eab62e97a782?w=400&h=300&fit=crop"
+                                alt="Tehnika"
+                                loading="lazy"
+                            >
+                        </div>
+                        <div class="category-name">Tehnika</div>
+                    </a>
+
+                    <a href="#posao" class="category-card">
+                        <div class="category-image">
+                            <img
+                                src="https://images.unsplash.com/photo-1556910103-1c02745a30bf?w=400&h=300&fit=crop"
+                                alt="Posao i usluge"
+                                loading="lazy"
+                            >
+                        </div>
+                        <div class="category-name">Posao i usluge</div>
+                    </a>
+                </div>
+            </section>
+
+            <section class="content-grid" id="ponude">
+                <article class="content-card" id="zahtev">
+                    <div class="content-card-header">
+                        <h2>Najnoviji zahtevi</h2>
+                        <a href="#svi-zahtevi" class="view-all">Pogledaj sve →</a>
+                    </div>
+
+                    <ul class="request-list">
+                        <li class="request-item">
+                            Tražim iPhone 15 Pro, 256 GB
+                            <div class="request-date">Beograd · pre 2 sata</div>
+                        </li>
+                        <li class="request-item">
+                            Potrebna pomoć pri selidbi
+                            <div class="request-date">Novi Sad · pre 3 sata</div>
+                        </li>
+                        <li class="request-item">
+                            Kupujem polovan automobil do 5.000 €
+                            <div class="request-date">Niš · pre 5 sati</div>
+                        </li>
+                        <li class="request-item">
+                            Tražim majstora za renoviranje kupatila
+                            <div class="request-date">Kragujevac · pre 6 sati</div>
+                        </li>
+                        <li class="request-item">
+                            Potrebna pomoć oko instalacije Windowsa
+                            <div class="request-date">Beograd · pre 8 sati</div>
+                        </li>
+                    </ul>
+                </article>
+
+                <article class="content-card content-card-offers" id="oglas">
+                    <div class="content-card-header">
+                        <h2>Istaknute ponude</h2>
+                        <a href="#sve-ponude" class="view-all">Pogledaj još →</a>
+                    </div>
+
+                    <div class="offers-grid">
+                        <article class="offer-item">
+                            <div class="offer-image">
+                                <img
+                                    src="https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=300&h=200&fit=crop"
+                                    alt="iPhone 14"
+                                    loading="lazy"
+                                >
+                            </div>
+                            <div class="offer-info">
+                                <div class="offer-title">iPhone 14</div>
+                                <div class="offer-price">850 €</div>
+                            </div>
+                        </article>
+
+                        <article class="offer-item">
+                            <div class="offer-image">
+                                <img
+                                    src="https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?w=300&h=200&fit=crop"
+                                    alt="Golf 8"
+                                    loading="lazy"
+                                >
+                            </div>
+                            <div class="offer-info">
+                                <div class="offer-title">Golf 8</div>
+                                <div class="offer-price">22.000 €</div>
+                            </div>
+                        </article>
+
+                        <article class="offer-item">
+                            <div class="offer-image">
+                                <img
+                                    src="https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=300&h=200&fit=crop"
+                                    alt="MacBook Pro"
+                                    loading="lazy"
+                                >
+                            </div>
+                            <div class="offer-info">
+                                <div class="offer-title">MacBook Pro</div>
+                                <div class="offer-price">1.450 €</div>
+                            </div>
+                        </article>
+
+                        <article class="offer-item">
+                            <div class="offer-image">
+                                <img
+                                    src="https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=300&h=200&fit=crop"
+                                    alt="Stan od 55 kvadratnih metara"
+                                    loading="lazy"
+                                >
+                            </div>
+                            <div class="offer-info">
+                                <div class="offer-title">Stan 55 m²</div>
+                                <div class="offer-price">120.000 €</div>
+                            </div>
+                        </article>
+                    </div>
+                </article>
+            </section>
         </div>
-    </section>
+    </main>
 
-    <!-- KATEGORIJE -->
-    <section class="categories">
-        <div class="categories-container">
-            <div class="category-card">
-                <div class="category-image">
-                    <img src="https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?w=200&h=200&fit=crop" alt="Automobili">
+    <footer id="registracija">
+        <div class="container footer-inner">
+            <div class="footer-message">
+                <span class="footer-check" aria-hidden="true">✓</span>
+
+                <div>
+                    <h2>Pridruži se korisnicima PonudiMi</h2>
+                    <p>Registruj se besplatno i koristi sve mogućnosti platforme.</p>
                 </div>
-                <div class="category-name">Automobili</div>
             </div>
 
-            <div class="category-card">
-                <div class="category-image">
-                    <img src="https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=200&h=200&fit=crop" alt="Nekretnine">
-                </div>
-                <div class="category-name">Nekretnine</div>
-            </div>
-
-            <div class="category-card">
-                <div class="category-image">
-                    <img src="https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=200&h=200&fit=crop" alt="Računari">
-                </div>
-                <div class="category-name">Računari</div>
-            </div>
-
-            <div class="category-card">
-                <div class="category-image">
-                    <img src="https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=200&h=200&fit=crop" alt="Mobilni telefoni">
-                </div>
-                <div class="category-name">Mobilni</div>
-            </div>
-
-            <div class="category-card">
-                <div class="category-image">
-                    <img src="https://images.unsplash.com/photo-1541888946425-d81bb19240f5?w=200&h=200&fit=crop" alt="Građevina">
-                </div>
-                <div class="category-name">Građevina</div>
-            </div>
-
-            <div class="category-card">
-                <div class="category-image">
-                    <img src="https://images.unsplash.com/photo-1581092921461-eab62e97a782?w=200&h=200&fit=crop" alt="Tehnika">
-                </div>
-                <div class="category-name">Tehnika</div>
-            </div>
-
-            <div class="category-card">
-                <div class="category-image">
-                    <img src="https://images.unsplash.com/photo-1483985988355-763728e1935b?w=200&h=200&fit=crop" alt="Moda">
-                </div>
-                <div class="category-name">Moda</div>
-            </div>
-
-            <div class="category-card">
-                <div class="category-image">
-                    <img src="https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?w=200&h=200&fit=crop" alt="Ostalo">
-                </div>
-                <div class="category-name">Ostalo</div>
-            </div>
-
-            <div class="category-card">
-                <div class="category-image">
-                    <img src="https://images.unsplash.com/photo-1556910103-1c02745a30bf?w=200&h=200&fit=crop" alt="Posao">
-                </div>
-                <div class="category-name">Posao</div>
-            </div>
+            <a href="#prijava" class="btn btn-footer">Registruj se</a>
         </div>
-    </section>
-
-    <!-- PRETRAGA -->
-    <section class="search-section">
-        <div class="search-container">
-            <div class="search-wrapper">
-                <span class="search-icon">🔍</span>
-                <input type="text" class="search-input" placeholder="Šta tražite danas?">
-            </div>
-
-            <input type="text" class="location-input" placeholder="Lokacija">
-        </div>
-    </section>
-
-    <!-- DUGMAD -->
-    <section class="action-buttons" id="objavi-oglas">
-        <button class="btn-action btn-request">
-            <div class="btn-action-title">Postavi zahtev</div>
-            <div class="btn-action-subtitle">Recite nam šta tražite</div>
-        </button>
-
-        <button class="btn-action btn-ad">
-            <div class="btn-action-title">Objavi oglas</div>
-            <div class="btn-action-subtitle">Ponudite ono što imate</div>
-        </button>
-    </section>
-
-    <!-- SEKCIJE -->
-    <section class="sections-container" id="ponude">
-        <div class="section-card">
-            <div class="section-header">
-                <h2 class="section-title">Najnoviji zahtevi kupaca</h2>
-                <a href="#" class="view-all">Pogledaj sve →</a>
-            </div>
-
-            <ul class="request-list">
-                <li class="request-item">
-                    Tražim iPhone 15 Pro, 256GB
-                    <div class="request-date">Beograd • Pre 2 sata</div>
-                </li>
-
-                <li class="request-item">
-                    Potrebna pomoć pri selidbi
-                    <div class="request-date">Novi Sad • Pre 3 sata</div>
-                </li>
-
-                <li class="request-item">
-                    Kupujem polovan automobil do 5000€
-                    <div class="request-date">Niš • Pre 5 sati</div>
-                </li>
-
-                <li class="request-item">
-                    Tražim majstora za renoviranje kupatila
-                    <div class="request-date">Kragujevac • Pre 6 sati</div>
-                </li>
-
-                <li class="request-item">
-                    Hitno potrebna pomoć oko instalacije Windowsa
-                    <div class="request-date">Beograd • Pre 8 sati</div>
-                </li>
-            </ul>
-        </div>
-
-        <div class="section-card section-card-offers">
-            <div class="section-header">
-                <h2 class="section-title">Istaknute ponude</h2>
-                <a href="#" class="view-all">Pogledaj još →</a>
-            </div>
-
-            <div class="offers-grid">
-                <div class="offer-item">
-                    <div class="offer-image">
-                        <img src="https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=150&h=100&fit=crop" alt="iPhone 14">
-                    </div>
-                    <div class="offer-info">
-                        <div class="offer-title">iPhone 14</div>
-                        <div class="offer-price">850€</div>
-                    </div>
-                </div>
-
-                <div class="offer-item">
-                    <div class="offer-image">
-                        <img src="https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?w=150&h=100&fit=crop" alt="Golf 8">
-                    </div>
-                    <div class="offer-info">
-                        <div class="offer-title">Golf 8</div>
-                        <div class="offer-price">22.000€</div>
-                    </div>
-                </div>
-
-                <div class="offer-item">
-                    <div class="offer-image">
-                        <img src="https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=150&h=100&fit=crop" alt="MacBook Pro">
-                    </div>
-                    <div class="offer-info">
-                        <div class="offer-title">MacBook Pro</div>
-                        <div class="offer-price">1.450€</div>
-                    </div>
-                </div>
-
-                <div class="offer-item">
-                    <div class="offer-image">
-                        <img src="https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=150&h=100&fit=crop" alt="Stan 55 kvadrata">
-                    </div>
-                    <div class="offer-info">
-                        <div class="offer-title">Stan 55m²</div>
-                        <div class="offer-price">120.000€</div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- FOOTER -->
-    <footer>
-        <div class="footer-left">
-            <div class="footer-logo-circle">
-                <div class="footer-shield">
-                    <span class="footer-check">✓</span>
-                </div>
-            </div>
-
-            <div class="footer-text">
-                <h3>Pridruži se zadovoljnim korisnicima</h3>
-                <p>Registruj se besplatno i otključaj sve mogućnosti platforme PonudiMi</p>
-            </div>
-        </div>
-
-        <button class="btn-footer-register">Registruj se</button>
     </footer>
 </body>
 </html>
