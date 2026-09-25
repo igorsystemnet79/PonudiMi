@@ -87,7 +87,7 @@
         }
 
         /* =================================================
-           HEADER — JEDAN RED
+           HEADER — UVEK JEDAN RED
            ================================================= */
 
         .site-header {
@@ -112,10 +112,6 @@
             align-items: center;
         }
 
-        /*
-          Logo je malo veći od prethodne verzije:
-          desktop: 66 px
-        */
         .header-logo img {
             display: block;
             width: auto;
@@ -231,9 +227,6 @@
             transform: translateY(6%);
         }
 
-        /*
-          PRVI RED — manji “badge” tekst.
-        */
         .hero-eyebrow {
             display: inline-flex;
             align-items: center;
@@ -259,9 +252,6 @@
             content: "";
         }
 
-        /*
-          DRUGI RED — manji glavni naslov.
-        */
         .hero-title {
             color: var(--white);
             font-size: clamp(30px, 3.55vw, 52px);
@@ -281,13 +271,11 @@
         }
 
         /* =================================================
-           PRETRAGA
+           PRETRAGA — ISPOD HERO SLIKE
            ================================================= */
 
-        .search-band {
-            position: relative;
-            z-index: 3;
-            margin-top: -28px;
+        .search-section {
+            padding: 24px 0 0;
         }
 
         .search-panel {
@@ -344,32 +332,32 @@
         }
 
         /* =================================================
-           BRZE AKCIJE
+           BRZE AKCIJE — KOMPAKTNE I U JEDNOM REDU
            ================================================= */
 
         .quick-actions {
             display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 18px;
-            margin: 42px 0;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 12px;
+            margin: 14px 0 44px;
         }
 
         .action-card {
-            min-height: 135px;
+            min-height: 82px;
             display: flex;
             align-items: center;
             justify-content: space-between;
-            gap: 18px;
-            border-radius: 18px;
-            padding: 24px;
+            gap: 12px;
+            border-radius: 15px;
+            padding: 15px 18px;
             color: var(--white);
-            box-shadow: var(--shadow);
+            box-shadow: 0 6px 18px rgba(26, 26, 46, 0.12);
             transition: transform 0.2s ease, box-shadow 0.2s ease;
         }
 
         .action-card:hover {
-            box-shadow: 0 16px 35px rgba(26, 26, 46, 0.16);
-            transform: translateY(-4px);
+            box-shadow: 0 12px 25px rgba(26, 26, 46, 0.16);
+            transform: translateY(-3px);
         }
 
         .action-card-request {
@@ -381,28 +369,28 @@
         }
 
         .action-card h2 {
-            margin-bottom: 6px;
-            font-size: clamp(20px, 2vw, 27px);
-            letter-spacing: -0.035em;
+            margin-bottom: 3px;
+            font-size: clamp(17px, 1.75vw, 22px);
+            letter-spacing: -0.025em;
         }
 
         .action-card p {
-            max-width: 290px;
-            font-size: 14px;
-            line-height: 1.4;
+            max-width: 310px;
+            font-size: 12px;
+            line-height: 1.3;
             opacity: 0.96;
         }
 
         .action-arrow {
-            width: 42px;
-            height: 42px;
+            width: 34px;
+            height: 34px;
             flex: 0 0 auto;
             display: grid;
             place-items: center;
             border-radius: 50%;
             color: var(--navy);
             background: rgba(255, 255, 255, 0.9);
-            font-size: 22px;
+            font-size: 18px;
             font-weight: 800;
         }
 
@@ -654,7 +642,7 @@
         }
 
         /* =================================================
-           MOBILNI — HEADER U JEDNOM REDU
+           MOBILNI — HEADER I BRZE AKCIJE OSTAJU U JEDNOM REDU
            ================================================= */
 
         @media (max-width: 700px) {
@@ -671,10 +659,6 @@
                 padding: 8px 0;
             }
 
-            /*
-              Logo je malo veći i na telefonu:
-              prethodno 50 px, sada 54 px.
-            */
             .header-logo img {
                 height: 54px;
                 max-width: 33vw;
@@ -702,18 +686,11 @@
                 display: inline-flex;
             }
 
-            .hero-content {
-                align-items: center;
-            }
-
             .hero-copy {
                 width: min(47vw, 185px);
                 transform: translateY(9%);
             }
 
-            /*
-              Smanjen prvi red hero teksta na telefonu.
-            */
             .hero-eyebrow {
                 margin-bottom: 8px;
                 padding: 5px 7px;
@@ -726,9 +703,6 @@
                 height: 5px;
             }
 
-            /*
-              Smanjen drugi red, odnosno glavni naslov, na telefonu.
-            */
             .hero-title {
                 font-size: clamp(24px, 7vw, 30px);
                 line-height: 1;
@@ -741,8 +715,9 @@
                 line-height: 1.3;
             }
 
-            .search-band {
-                margin-top: -18px;
+            /* Pretraga odmah ispod slike, bez preklapanja. */
+            .search-section {
+                padding: 14px 0 0;
             }
 
             .search-panel {
@@ -757,23 +732,45 @@
                 min-height: 43px;
             }
 
-            .quick-actions,
-            .content-grid {
-                grid-template-columns: 1fr;
-            }
-
+            /*
+              Postavi zahtev i Objavi oglas:
+              ostaju u jednom redu i na telefonu.
+            */
             .quick-actions {
-                gap: 14px;
-                margin: 31px 0 52px;
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+                gap: 8px;
+                margin: 10px 0 40px;
             }
 
             .action-card {
-                min-height: 115px;
-                padding: 20px;
+                min-width: 0;
+                min-height: 72px;
+                gap: 6px;
+                border-radius: 12px;
+                padding: 10px;
+            }
+
+            .action-card h2 {
+                margin-bottom: 2px;
+                font-size: clamp(12px, 3.5vw, 16px);
+                line-height: 1.08;
+            }
+
+            .action-card p {
+                max-width: 126px;
+                font-size: clamp(8px, 2.25vw, 10px);
+                line-height: 1.18;
+            }
+
+            .action-arrow {
+                width: 25px;
+                height: 25px;
+                flex: 0 0 25px;
+                font-size: 14px;
             }
 
             .section {
-                margin: 50px 0;
+                margin: 46px 0;
             }
 
             .section-heading {
@@ -792,6 +789,7 @@
             }
 
             .content-grid {
+                grid-template-columns: 1fr;
                 gap: 15px;
                 margin-bottom: 52px;
             }
@@ -858,6 +856,26 @@
             .hero-description {
                 font-size: 10px;
             }
+
+            .action-card {
+                min-height: 66px;
+                padding: 8px;
+            }
+
+            .action-card h2 {
+                font-size: 11px;
+            }
+
+            .action-card p {
+                font-size: 7.5px;
+            }
+
+            .action-arrow {
+                width: 22px;
+                height: 22px;
+                flex-basis: 22px;
+                font-size: 12px;
+            }
         }
     </style>
 </head>
@@ -879,7 +897,7 @@
     </header>
 
     <main>
-        <!-- HERO: CELA SLIKA, MANJI TEKST LEVO NA SREDINI -->
+        <!-- HERO: CELA SLIKA, TEKST LEVO NA SREDINI -->
         <section class="hero" id="pocetna">
             <img
                 src="reference-homepage.png"
@@ -902,8 +920,8 @@
             </div>
         </section>
 
-        <!-- PRETRAGA -->
-        <section class="search-band" aria-label="Pretraga oglasa">
+        <!-- PRETRAGA: POTPUNO ISPOD HERO SLIKE -->
+        <section class="search-section" aria-label="Pretraga oglasa">
             <div class="container">
                 <form class="search-panel" action="/pretraga" method="get">
                     <label class="field field-with-icon">
@@ -931,12 +949,12 @@
         </section>
 
         <div class="container">
-            <!-- BRZE AKCIJE -->
+            <!-- KOMPAKTNE AKCIJE: ODMAH ISPOD PRETRAGE, U JEDNOM REDU -->
             <section class="quick-actions" id="objavi-oglas">
                 <a href="#zahtev" class="action-card action-card-request">
                     <div>
                         <h2>Postavi zahtev</h2>
-                        <p>Napiši šta tražiš, a prodavci mogu da ti pošalju ponude.</p>
+                        <p>Napiši šta tražiš.</p>
                     </div>
                     <span class="action-arrow" aria-hidden="true">→</span>
                 </a>
@@ -944,7 +962,7 @@
                 <a href="#oglas" class="action-card action-card-ad">
                     <div>
                         <h2>Objavi oglas</h2>
-                        <p>Dodaj proizvod ili uslugu i pronađi zainteresovane kupce.</p>
+                        <p>Ponudi proizvod ili uslugu.</p>
                     </div>
                     <span class="action-arrow" aria-hidden="true">→</span>
                 </a>
@@ -1134,6 +1152,7 @@
         </div>
     </main>
 
+    <!-- FOOTER -->
     <footer id="registracija">
         <div class="container footer-inner">
             <div class="footer-message">
