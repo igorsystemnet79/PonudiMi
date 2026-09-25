@@ -393,7 +393,7 @@
         /* KATEGORIJE */
 
         .categories-section {
-            margin: 16px 0 64px;
+            margin: 16px 0 40px;
         }
 
         .section-heading {
@@ -528,6 +528,55 @@
             transform: translateY(1px) scale(0.99);
         }
 
+        /* NAJNOVIJI ZAHTEVI */
+
+        .requests-section {
+            margin: 0 0 56px;
+        }
+
+        .requests-card {
+            border: 1px solid rgba(26, 26, 46, 0.08);
+            border-radius: 20px;
+            padding: 24px;
+            background: rgba(255, 255, 255, 0.84);
+            box-shadow: 0 4px 15px rgba(26, 26, 46, 0.06);
+        }
+
+        .requests-card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            margin-bottom: 15px;
+        }
+
+        .requests-card h2 {
+            font-size: 20px;
+            letter-spacing: -0.025em;
+        }
+
+        .request-list {
+            list-style: none;
+        }
+
+        .request-item {
+            border-bottom: 1px solid rgba(26, 26, 46, 0.08);
+            padding: 13px 0;
+            color: #2f3545;
+            font-size: 14px;
+            line-height: 1.4;
+        }
+
+        .request-item:last-child {
+            border-bottom: none;
+        }
+
+        .request-date {
+            margin-top: 4px;
+            color: var(--muted);
+            font-size: 12px;
+        }
+
         /* ZAHTEVI I PONUDE */
 
         .content-grid {
@@ -560,28 +609,6 @@
         .content-card h2 {
             font-size: 20px;
             letter-spacing: -0.025em;
-        }
-
-        .request-list {
-            list-style: none;
-        }
-
-        .request-item {
-            border-bottom: 1px solid rgba(26, 26, 46, 0.08);
-            padding: 13px 0;
-            color: #2f3545;
-            font-size: 14px;
-            line-height: 1.4;
-        }
-
-        .request-item:last-child {
-            border-bottom: none;
-        }
-
-        .request-date {
-            margin-top: 4px;
-            color: var(--muted);
-            font-size: 12px;
         }
 
         .offers-grid {
@@ -628,9 +655,10 @@
         /* FOOTER */
 
         footer {
-            padding: 28px 0;
-            color: var(--white);
-            background: var(--navy);
+            padding: 32px 0;
+            color: var(--navy);
+            background: #f5f7fb; /* svetla, topla siva umesto tamne */
+            border-top: 1px solid rgba(26, 26, 46, 0.06);
         }
 
         .footer-inner {
@@ -647,27 +675,28 @@
         }
 
         .footer-check {
-            width: 45px;
-            height: 45px;
+            width: 48px;
+            height: 48px;
             flex: 0 0 auto;
             display: grid;
             place-items: center;
             border-radius: 50%;
-            color: var(--orange);
-            background: linear-gradient(135deg, #4caf50, #8bc34a);
-            box-shadow: inset 0 0 0 8px rgba(255, 255, 255, 0.94);
-            font-size: 20px;
+            color: var(--white);
+            background: linear-gradient(135deg, var(--blue), #79a4ff);
+            box-shadow: 0 6px 18px rgba(65, 105, 225, 0.25);
+            font-size: 22px;
             font-weight: 900;
         }
 
         .footer-message h2 {
-            margin-bottom: 4px;
-            font-size: 18px;
+            margin-bottom: 5px;
+            font-size: 19px;
+            letter-spacing: -0.02em;
         }
 
         .footer-message p {
-            color: rgba(255, 255, 255, 0.8);
-            font-size: 13px;
+            color: var(--muted);
+            font-size: 14px;
             line-height: 1.45;
         }
 
@@ -675,10 +704,24 @@
             flex: 0 0 auto;
             color: var(--white);
             background: var(--orange);
+            min-height: 44px;
+            padding: 10px 18px;
+            border-radius: 12px;
+            font-weight: 800;
+            font-size: 14px;
+            transition: transform 0.2s ease, background-color 0.2s ease, box-shadow 0.2s ease;
+            box-shadow: 0 6px 16px rgba(255, 107, 53, 0.25);
         }
 
         .btn-footer:hover {
             background: var(--orange-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 22px rgba(255, 107, 53, 0.32);
+        }
+
+        .btn-footer:active {
+            transform: translateY(0);
+            box-shadow: 0 4px 10px rgba(255, 107, 53, 0.22);
         }
 
         /* TABLET */
@@ -797,7 +840,7 @@
             }
 
             .categories-section {
-                margin: 16px 0 46px;
+                margin: 16px 0 32px;
             }
 
             .section-heading {
@@ -845,6 +888,14 @@
                 min-height: 38px;
                 border-radius: 10px;
                 font-size: 12px;
+            }
+
+            .requests-section {
+                margin: 0 0 40px;
+            }
+
+            .requests-card {
+                padding: 18px;
             }
 
             .content-grid {
@@ -944,6 +995,10 @@
             .category-name {
                 padding: 6px 3px;
                 font-size: 9px;
+            }
+
+            .requests-card {
+                padding: 16px;
             }
         }
     </style>
@@ -1119,15 +1174,15 @@
                     </a>
 
                     <a href="#sve-za-kucu" class="category-card">
-    <div class="category-image">
-        <img
-            src="https://st.perplexity.ai/estatic/0b226c450798410ac541646c86ec31afd840e5beab817a5d84fa821e7db61981ec84c3b4a3f072a7a2e1899c9fb06c6e9f5b8ea4665cb27a806db60cb69349997ea24b190c57ff7ee239c1671f30f3236b3eb3f29d188e4255dd49c5bf55c3176d6ddf396227d7cc00b5f4dfd3906c8f"
-            alt="Sve za kuću — moderna kuhinja, nameštaj i aparati"
-            loading="lazy"
-        >
-    </div>
-    <span class="category-name">Sve za kuću</span>
-</a>
+                        <div class="category-image">
+                            <img
+                                src="https://st.perplexity.ai/estatic/0b226c450798410ac541646c86ec31afd840e5beab817a5d84fa821e7db61981ec84c3b4a3f072a7a2e1899c9fb06c6e9f5b8ea4665cb27a806db60cb69349997ea24b190c57ff7ee239c1671f30f3236b3eb3f29d188e4255dd49c5bf55c3176d6ddf396227d7cc00b5f4dfd3906c8f"
+                                alt="Sve za kuću — moderna kuhinja, nameštaj i aparati"
+                                loading="lazy"
+                            >
+                        </div>
+                        <span class="category-name">Sve za kuću</span>
+                    </a>
 
                     <a href="#kolekcionarstvo" class="category-card">
                         <div class="category-image">
@@ -1154,9 +1209,10 @@
                 </a>
             </section>
 
-            <section class="content-grid" id="ponude">
-                <article class="content-card" id="zahtev">
-                    <div class="content-card-header">
+            <!-- NAJNOVIJI ZAHTEVI (nova sekcija odmah ispod kategorija) -->
+            <section class="requests-section" id="zahtev">
+                <div class="requests-card">
+                    <div class="requests-card-header">
                         <h2>Najnoviji zahtevi</h2>
                         <a href="#svi-zahtevi" class="view-all">Pogledaj sve →</a>
                     </div>
@@ -1187,8 +1243,10 @@
                             <div class="request-date">Beograd · pre 8 sati</div>
                         </li>
                     </ul>
-                </article>
+                </div>
+            </section>
 
+            <section class="content-grid" id="ponude">
                 <article class="content-card content-card-offers" id="oglas">
                     <div class="content-card-header">
                         <h2>Istaknute ponude</h2>
@@ -1263,12 +1321,12 @@
                 <span class="footer-check" aria-hidden="true">✓</span>
 
                 <div>
-                    <h2>Pridruži se korisnicima PonudiMi</h2>
-                    <p>Registruj se besplatno i koristi sve mogućnosti platforme.</p>
+                    <h2>Pridruži se zajednici koja kupuje i prodaje pametnije.</h2>
+                    <p>Hiljade oglasa i zahteva na jednom mestu.</p>
                 </div>
             </div>
 
-            <a href="#prijava" class="btn btn-footer">Registruj se</a>
+            <a href="#prijava" class="btn btn-footer">Pridruži se besplatno</a>
         </div>
     </footer>
 </body>
