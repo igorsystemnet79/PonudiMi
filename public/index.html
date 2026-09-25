@@ -1062,6 +1062,29 @@
                 grid-template-columns: 1fr;
             }
         }
+   /* ZAVRŠNO CENTRIRANJE DUGMETA PRETRAGE */
+
+@media (max-width: 1100px) {
+    .search-panel {
+        display: flex !important;
+        flex-wrap: wrap !important;
+        gap: 8px !important;
+        justify-content: center !important;
+    }
+
+    .search-panel .field {
+        width: calc(50% - 4px) !important;
+        flex: 0 0 calc(50% - 4px) !important;
+    }
+
+    .search-panel .btn-search {
+        width: 150px !important;
+        min-height: 72px !important;
+        flex: 0 0 150px !important;
+        margin: 0 auto !important;
+        align-self: center !important;
+    }
+}
     </style>
 </head>
 
