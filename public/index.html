@@ -943,6 +943,40 @@
             }
         }
 
+        /* PRETRAGA: dva polja gore, dugme ispod — radi i na širem telefonu */
+
+@media (max-width: 1100px) {
+    .search-panel {
+        grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) !important;
+        grid-template-areas:
+            "search location"
+            "button button" !important;
+        gap: 8px !important;
+        justify-items: center !important;
+    }
+
+    .search-panel .field:first-of-type {
+        grid-area: search !important;
+        width: 100% !important;
+    }
+
+    .search-panel .field:nth-of-type(2) {
+        grid-area: location !important;
+        width: 100% !important;
+    }
+
+    .search-panel .btn-search {
+        grid-area: button !important;
+        grid-column: auto !important;
+        width: min(33vw, 150px) !important;
+        min-height: 72px !important;
+        justify-self: center !important;
+        align-self: center !important;
+        border-radius: 12px !important;
+        padding: 10px 12px !important;
+        font-size: 14px !important;
+    }
+}
         /* VEOMA USKI TELEFONI */
 
         @media (max-width: 380px) {
