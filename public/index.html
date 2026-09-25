@@ -87,7 +87,7 @@
         }
 
         /* =================================================
-           HEADER — SVE U JEDNOM REDU
+           HEADER — LOGO I DUGMAD U JEDNOM REDU
            ================================================= */
 
         .site-header {
@@ -98,7 +98,6 @@
         .header-inner {
             min-height: 88px;
             display: flex;
-            flex-direction: row;
             flex-wrap: nowrap;
             align-items: center;
             justify-content: space-between;
@@ -145,7 +144,6 @@
         }
 
         .btn-support {
-            display: inline-flex;
             color: #173d24;
             background: var(--green);
         }
@@ -332,14 +330,14 @@
         }
 
         /* =================================================
-           BRZE AKCIJE — ISPOD PRETRAGE U JEDNOM REDU
+           BRZE AKCIJE — ODMAH ISPOD PRETRAGE
            ================================================= */
 
         .quick-actions {
             display: grid;
             grid-template-columns: repeat(2, minmax(0, 1fr));
             gap: 12px;
-            margin: 14px 0 44px;
+            margin: 14px 0 20px;
         }
 
         .action-card {
@@ -352,7 +350,7 @@
             padding: 15px 18px;
             color: var(--white);
             box-shadow: 0 6px 18px rgba(26, 26, 46, 0.12);
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            transition: transform 0.2s ease, box-shadow 0.2s ease, filter 0.2s ease;
         }
 
         .action-card:hover {
@@ -401,11 +399,11 @@
         }
 
         /* =================================================
-           KATEGORIJE
+           KATEGORIJE — 3 × 3 MREŽA
            ================================================= */
 
-        .section {
-            margin: 64px 0;
+        .categories-section {
+            margin: 16px 0 64px;
         }
 
         .section-heading {
@@ -438,15 +436,15 @@
 
         .categories-grid {
             display: grid;
-            grid-template-columns: repeat(6, 1fr);
-            gap: 14px;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 12px;
         }
 
         .category-card {
-            min-height: 150px;
+            position: relative;
+            min-height: 165px;
             display: flex;
-            flex-direction: column;
-            justify-content: flex-end;
+            align-items: flex-end;
             overflow: hidden;
             border: 1px solid rgba(26, 26, 46, 0.08);
             border-radius: 16px;
@@ -460,24 +458,92 @@
             transform: translateY(-4px);
         }
 
-        .category-image {
-            flex: 1;
-            min-height: 95px;
+        .category-image,
+        .category-image img {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
         }
 
         .category-image img {
-            width: 100%;
-            height: 100%;
             display: block;
             object-fit: cover;
+            transition: transform 0.3s ease;
+        }
+
+        .category-card:hover .category-image img {
+            transform: scale(1.06);
+        }
+
+        .category-card::after {
+            position: absolute;
+            inset: 0;
+            background:
+                linear-gradient(
+                    180deg,
+                    rgba(12, 21, 37, 0.03) 20%,
+                    rgba(12, 21, 37, 0.78) 100%
+                );
+            content: "";
         }
 
         .category-name {
-            padding: 11px;
-            color: var(--navy);
-            font-size: 13px;
-            font-weight: 700;
+            position: relative;
+            z-index: 1;
+            width: 100%;
+            padding: 13px 12px;
+            color: var(--white);
+            font-size: 14px;
+            font-weight: 800;
+            line-height: 1.15;
             text-align: center;
+            text-shadow: 0 2px 8px rgba(0, 0, 0, 0.52);
+        }
+
+        /*
+          Strelica je zaseban vizuelni prelaz
+          između mreže od devet kategorija i linka.
+        */
+        .categories-down-arrow {
+            width: 34px;
+            height: 28px;
+            display: grid;
+            place-items: center;
+            margin: 11px auto 7px;
+            color: var(--blue);
+            font-size: 26px;
+            font-weight: 800;
+            line-height: 1;
+        }
+
+        /*
+          Nisko polje preko cele širine mreže.
+          Otvara kategorije.html u novom tabu.
+        */
+        .more-categories {
+            min-height: 45px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid rgba(65, 105, 225, 0.22);
+            border-radius: 13px;
+            color: var(--blue);
+            background: rgba(255, 255, 255, 0.82);
+            box-shadow: 0 4px 14px rgba(26, 26, 46, 0.06);
+            font-size: 14px;
+            font-weight: 800;
+            transition: transform 0.2s ease, background-color 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .more-categories:hover {
+            background: #edf2ff;
+            box-shadow: 0 8px 18px rgba(65, 105, 225, 0.14);
+            transform: translateY(-2px);
+        }
+
+        .more-categories:active {
+            transform: translateY(1px) scale(0.99);
         }
 
         /* =================================================
@@ -642,8 +708,8 @@
            ================================================= */
 
         @media (max-width: 980px) {
-            .categories-grid {
-                grid-template-columns: repeat(3, 1fr);
+            .category-card {
+                min-height: 145px;
             }
         }
 
@@ -658,9 +724,6 @@
 
             .header-inner {
                 min-height: 74px;
-                flex-direction: row;
-                flex-wrap: nowrap;
-                align-items: center;
                 gap: 6px;
                 padding: 8px 0;
             }
@@ -671,25 +734,15 @@
             }
 
             .header-nav {
-                flex: 1 1 auto;
-                min-width: 0;
-                flex-wrap: nowrap;
                 gap: 4px;
             }
 
             .header-nav .btn {
-                flex: 1 1 0;
-                min-width: 0;
                 min-height: 40px;
                 padding: 7px 2px;
                 border-radius: 9px;
-                white-space: nowrap;
                 font-size: clamp(8px, 2.45vw, 10px);
                 line-height: 1;
-            }
-
-            .btn-support {
-                display: inline-flex;
             }
 
             .hero-copy {
@@ -738,7 +791,6 @@
             }
 
             .quick-actions {
-                grid-template-columns: repeat(2, minmax(0, 1fr));
                 gap: 8px;
                 margin: 10px 0 20px;
             }
@@ -771,10 +823,10 @@
             }
 
             /*
-              KATEGORIJE — naslov je sredinom ekrana i
-              sekcija je približena karticama iznad.
+              Naslov je centriran i približen
+              karticama Postavi zahtev / Objavi oglas.
             */
-            .section {
+            .categories-section {
                 margin: 16px 0 46px;
             }
 
@@ -791,22 +843,42 @@
                 text-align: center;
             }
 
-            /*
-              Da naslov bude čist, bez dodatnog teksta
-              i linka na malom ekranu.
-            */
             .section-heading p,
             .section-heading .view-all {
                 display: none;
             }
 
+            /*
+              Tri kategorije po redu na telefonu,
+              ukupno tri reda po tri kartice.
+            */
             .categories-grid {
-                grid-template-columns: repeat(2, 1fr);
-                gap: 12px;
+                grid-template-columns: repeat(3, minmax(0, 1fr));
+                gap: 7px;
             }
 
             .category-card {
-                min-height: 145px;
+                min-height: 102px;
+                border-radius: 11px;
+            }
+
+            .category-name {
+                padding: 7px 4px;
+                font-size: clamp(9px, 2.65vw, 11px);
+                line-height: 1.05;
+            }
+
+            .categories-down-arrow {
+                width: 28px;
+                height: 22px;
+                margin: 8px auto 5px;
+                font-size: 22px;
+            }
+
+            .more-categories {
+                min-height: 38px;
+                border-radius: 10px;
+                font-size: 12px;
             }
 
             .content-grid {
@@ -867,7 +939,6 @@
 
             .hero-copy {
                 width: min(47vw, 170px);
-                transform: translateY(9%);
             }
 
             .hero-title {
@@ -901,12 +972,21 @@
             .section-heading h2 {
                 font-size: 21px;
             }
+
+            .category-card {
+                min-height: 91px;
+            }
+
+            .category-name {
+                padding: 6px 3px;
+                font-size: 9px;
+            }
         }
     </style>
 </head>
 
 <body>
-    <!-- HEADER: LOGO I SVA TRI DUGMETA U JEDNOM REDU -->
+    <!-- HEADER -->
     <header class="site-header">
         <div class="container header-inner">
             <a href="#pocetna" class="header-logo" aria-label="PonudiMi početna strana">
@@ -922,7 +1002,7 @@
     </header>
 
     <main>
-        <!-- HERO: CELA SLIKA, TEKST LEVO NA SREDINI -->
+        <!-- HERO -->
         <section class="hero" id="pocetna">
             <img
                 src="reference-homepage.png"
@@ -945,7 +1025,7 @@
             </div>
         </section>
 
-        <!-- PRETRAGA: ISPOD HERO SLIKE -->
+        <!-- PRETRAGA -->
         <section class="search-section" aria-label="Pretraga oglasa">
             <div class="container">
                 <form class="search-panel" action="/pretraga" method="get">
@@ -974,7 +1054,7 @@
         </section>
 
         <div class="container">
-            <!-- BRZE AKCIJE: ODMAH ISPOD PRETRAGE -->
+            <!-- BRZE AKCIJE -->
             <section class="quick-actions" id="objavi-oglas">
                 <a href="#zahtev" class="action-card action-card-request">
                     <div>
@@ -993,84 +1073,129 @@
                 </a>
             </section>
 
-            <!-- KATEGORIJE -->
-            <section class="section" id="kategorije">
+            <!-- KATEGORIJE: 9 KARTICA U MREŽI 3 × 3 -->
+            <section class="categories-section" id="kategorije">
                 <div class="section-heading">
                     <div>
                         <h2>Istraži kategorije</h2>
                         <p>Pregledaj aktuelne ponude u kategoriji koja te zanima.</p>
                     </div>
 
-                    <a href="#sve-kategorije" class="view-all">Sve kategorije →</a>
+                    <span class="view-all">Popularne kategorije</span>
                 </div>
 
                 <div class="categories-grid">
                     <a href="#automobili" class="category-card">
                         <div class="category-image">
                             <img
-                                src="https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?w=400&h=300&fit=crop"
+                                src="https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?w=500&h=400&fit=crop"
                                 alt="Automobili"
                                 loading="lazy"
                             >
                         </div>
-                        <div class="category-name">Automobili</div>
+                        <span class="category-name">Automobili</span>
                     </a>
 
                     <a href="#nekretnine" class="category-card">
                         <div class="category-image">
                             <img
-                                src="https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=400&h=300&fit=crop"
+                                src="https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=500&h=400&fit=crop"
                                 alt="Nekretnine"
                                 loading="lazy"
                             >
                         </div>
-                        <div class="category-name">Nekretnine</div>
+                        <span class="category-name">Nekretnine</span>
                     </a>
 
-                    <a href="#racunari" class="category-card">
+                    <a href="#mobilni-racunari" class="category-card">
                         <div class="category-image">
                             <img
-                                src="https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=400&h=300&fit=crop"
-                                alt="Računari"
+                                src="https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=500&h=400&fit=crop"
+                                alt="Mobilni i računari"
                                 loading="lazy"
                             >
                         </div>
-                        <div class="category-name">Računari</div>
+                        <span class="category-name">Mobilni i računari</span>
                     </a>
 
-                    <a href="#mobilni" class="category-card">
+                    <a href="#dom-basta" class="category-card">
                         <div class="category-image">
                             <img
-                                src="https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=400&h=300&fit=crop"
-                                alt="Mobilni telefoni"
+                                src="https://images.unsplash.com/photo-1556910103-1c02745a30bf?w=500&h=400&fit=crop"
+                                alt="Dom i bašta"
                                 loading="lazy"
                             >
                         </div>
-                        <div class="category-name">Mobilni</div>
+                        <span class="category-name">Dom i bašta</span>
                     </a>
 
                     <a href="#tehnika" class="category-card">
                         <div class="category-image">
                             <img
-                                src="https://images.unsplash.com/photo-1581092921461-eab62e97a782?w=400&h=300&fit=crop"
+                                src="https://images.unsplash.com/photo-1581092921461-eab62e97a782?w=500&h=400&fit=crop"
                                 alt="Tehnika"
                                 loading="lazy"
                             >
                         </div>
-                        <div class="category-name">Tehnika</div>
+                        <span class="category-name">Tehnika</span>
                     </a>
 
-                    <a href="#posao" class="category-card">
+                    <a href="#moda" class="category-card">
                         <div class="category-image">
                             <img
-                                src="https://images.unsplash.com/photo-1556910103-1c02745a30bf?w=400&h=300&fit=crop"
+                                src="https://images.unsplash.com/photo-1483985988355-763728e1935b?w=500&h=400&fit=crop"
+                                alt="Moda"
+                                loading="lazy"
+                            >
+                        </div>
+                        <span class="category-name">Moda</span>
+                    </a>
+
+                    <a href="#alati-gradjevina" class="category-card">
+                        <div class="category-image">
+                            <img
+                                src="https://images.unsplash.com/photo-1541888946425-d81bb19240f5?w=500&h=400&fit=crop"
+                                alt="Alati i građevina"
+                                loading="lazy"
+                            >
+                        </div>
+                        <span class="category-name">Alati i građevina</span>
+                    </a>
+
+                    <a href="#posao-usluge" class="category-card">
+                        <div class="category-image">
+                            <img
+                                src="https://images.unsplash.com/photo-1521737711867-e3b97375f902?w=500&h=400&fit=crop"
                                 alt="Posao i usluge"
                                 loading="lazy"
                             >
                         </div>
-                        <div class="category-name">Posao i usluge</div>
+                        <span class="category-name">Posao i usluge</span>
+                    </a>
+
+                    <a href="#sport" class="category-card">
+                        <div class="category-image">
+                            <img
+                                src="https://images.unsplash.com/photo-1517836357463-d25dfeac3438?w=500&h=400&fit=crop"
+                                alt="Sport i rekreacija"
+                                loading="lazy"
+                            >
+                        </div>
+                        <span class="category-name">Sport i rekreacija</span>
                     </a>
                 </div>
+
+                <div class="categories-down-arrow" aria-hidden="true">↓</div>
+
+                <a
+                    href="kategorije.html"
+                    class="more-categories"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label="Otvori sve kategorije u novom tabu"
+                >
+                    Pogledaj još
+                </a>
             </section>
 
             <!-- ZAHTEVI I PONUDE -->
