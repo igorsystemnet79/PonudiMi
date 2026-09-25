@@ -657,7 +657,7 @@
         footer {
             padding: 32px 0;
             color: var(--navy);
-            background: #f5f7fb; /* svetla, topla siva umesto tamne */
+            background: #f5f7fb;
             border-top: 1px solid rgba(26, 26, 46, 0.06);
         }
 
@@ -732,7 +732,7 @@
             }
         }
 
-        /* TELEFON */
+        /* TELEFON - VERTIKALNO */
 
         @media (max-width: 700px) {
             .container {
@@ -898,6 +898,7 @@
                 padding: 18px;
             }
 
+            /* Vertikalno: jedna kolona */
             .content-grid {
                 grid-template-columns: 1fr;
                 gap: 15px;
@@ -920,6 +921,15 @@
 
             .btn-footer {
                 width: 100%;
+            }
+        }
+
+        /* TELEFON - HORIZONTALNO (LANDSCAPE) */
+
+        @media (max-width: 980px) and (orientation: landscape) {
+            /* U horizontalnom položaju vraćamo dve kolone za zahteve i ponude */
+            .content-grid {
+                grid-template-columns: 1fr 1fr;
             }
         }
 
@@ -999,6 +1009,10 @@
 
             .requests-card {
                 padding: 16px;
+            }
+
+            .offers-grid {
+                grid-template-columns: 1fr;
             }
         }
     </style>
