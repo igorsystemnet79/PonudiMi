@@ -195,7 +195,7 @@
                 linear-gradient(
                     90deg,
                     rgba(12, 21, 37, 0.83) 0%,
-                    rgba(12, 21, 37, 0.58) 34%,
+                    rgba(12, 21,37, 0.58) 34%,
                     rgba(12, 21, 37, 0.18) 57%,
                     rgba(12, 21, 37, 0) 78%
                 ),
@@ -283,15 +283,25 @@
 
         .field {
             position: relative;
+            min-width: 0;
         }
 
-        .field-icon {
+        .field-icon,
+        .field-location-icon {
             position: absolute;
             top: 50%;
             left: 13px;
+            z-index: 1;
             transform: translateY(-50%);
             pointer-events: none;
+        }
+
+        .field-icon {
             font-size: 17px;
+        }
+
+        .field-location-icon {
+            font-size: 15px;
         }
 
         .field input {
@@ -305,7 +315,8 @@
             font-size: 14px;
         }
 
-        .field-with-icon input {
+        .field-with-icon input,
+        .field-with-location-icon input {
             padding-left: 41px;
         }
 
@@ -315,6 +326,7 @@
 
         .btn-search {
             min-height: 46px;
+            white-space: nowrap;
             color: var(--white);
             background: var(--blue);
         }
@@ -770,14 +782,28 @@
             }
 
             .search-panel {
-                grid-template-columns: 1fr;
+                grid-template-columns: repeat(2, minmax(0, 1fr));
                 gap: 8px;
+                justify-items: center;
                 border-radius: 14px;
                 padding: 11px;
             }
 
-            .field input,
-            .btn-search {
+            .search-panel .field {
+                width: 100%;
+            }
+
+            .search-panel .btn-search {
+                grid-column: 1 / -1;
+                width: min(33vw, 150px);
+                min-height: 72px;
+                justify-self: center;
+                border-radius: 12px;
+                padding: 10px 12px;
+                font-size: 14px;
+            }
+
+            .field input {
                 min-height: 43px;
             }
 
@@ -864,7 +890,6 @@
                 font-size: 12px;
             }
 
-            /* Uspravan telefon: zahtevi iznad, ponude ispod */
             .content-grid {
                 grid-template-columns: 1fr;
                 gap: 15px;
@@ -890,9 +915,21 @@
             }
         }
 
-        /* Telefon horizontalno: dve kolone */
+        /* TELEFON HORIZONTALNO */
 
         @media (max-width: 980px) and (orientation: landscape) {
+            .search-panel {
+                grid-template-columns: minmax(0, 1fr) minmax(170px, 0.42fr) auto;
+                justify-items: stretch;
+            }
+
+            .search-panel .btn-search {
+                grid-column: auto;
+                width: auto;
+                min-height: 46px;
+                padding: 10px 15px;
+            }
+
             .content-grid {
                 grid-template-columns: repeat(2, minmax(0, 1fr));
                 gap: 14px;
@@ -946,6 +983,12 @@
 
             .hero-description {
                 font-size: 10px;
+            }
+
+            .search-panel .btn-search {
+                width: min(37vw, 145px);
+                min-height: 66px;
+                font-size: 13px;
             }
 
             .action-card {
@@ -1037,7 +1080,8 @@
                         >
                     </label>
 
-                    <label class="field">
+                    <label class="field field-with-location-icon">
+                        <span class="field-location-icon" aria-hidden="true">📍</span>
                         <input
                             type="text"
                             name="lokacija"
