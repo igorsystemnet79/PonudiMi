@@ -393,7 +393,7 @@
         /* KATEGORIJE */
 
         .categories-section {
-            margin: 16px 0 40px;
+            margin: 16px 0 46px;
         }
 
         .section-heading {
@@ -528,13 +528,17 @@
             transform: translateY(1px) scale(0.99);
         }
 
-        /* NAJNOVIJI ZAHTEVI */
+        /* NAJNOVIJI ZAHTEVI I ISTAKNUTE PONUDE */
 
-        .requests-section {
-            margin: 0 0 56px;
+        .content-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 22px;
+            margin-bottom: 68px;
         }
 
-        .requests-card {
+        .content-card {
+            min-width: 0;
             border: 1px solid rgba(26, 26, 46, 0.08);
             border-radius: 20px;
             padding: 24px;
@@ -542,7 +546,11 @@
             box-shadow: 0 4px 15px rgba(26, 26, 46, 0.06);
         }
 
-        .requests-card-header {
+        .content-card-offers {
+            background: rgba(255, 240, 230, 0.82);
+        }
+
+        .content-card-header {
             display: flex;
             align-items: center;
             justify-content: space-between;
@@ -550,7 +558,7 @@
             margin-bottom: 15px;
         }
 
-        .requests-card h2 {
+        .content-card h2 {
             font-size: 20px;
             letter-spacing: -0.025em;
         }
@@ -577,43 +585,9 @@
             font-size: 12px;
         }
 
-        /* ZAHTEVI I PONUDE */
-
-        .content-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 22px;
-            margin-bottom: 68px;
-        }
-
-        .content-card {
-            border: 1px solid rgba(26, 26, 46, 0.08);
-            border-radius: 20px;
-            padding: 24px;
-            background: rgba(255, 255, 255, 0.84);
-            box-shadow: 0 4px 15px rgba(26, 26, 46, 0.06);
-        }
-
-        .content-card-offers {
-            background: rgba(255, 240, 230, 0.82);
-        }
-
-        .content-card-header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 12px;
-            margin-bottom: 15px;
-        }
-
-        .content-card h2 {
-            font-size: 20px;
-            letter-spacing: -0.025em;
-        }
-
         .offers-grid {
             display: grid;
-            grid-template-columns: repeat(2, 1fr);
+            grid-template-columns: repeat(2, minmax(0, 1fr));
             gap: 12px;
         }
 
@@ -702,26 +676,26 @@
 
         .btn-footer {
             flex: 0 0 auto;
+            min-height: 44px;
+            border-radius: 12px;
+            padding: 10px 18px;
             color: var(--white);
             background: var(--orange);
-            min-height: 44px;
-            padding: 10px 18px;
-            border-radius: 12px;
-            font-weight: 800;
-            font-size: 14px;
-            transition: transform 0.2s ease, background-color 0.2s ease, box-shadow 0.2s ease;
             box-shadow: 0 6px 16px rgba(255, 107, 53, 0.25);
+            font-size: 14px;
+            font-weight: 800;
+            transition: transform 0.2s ease, background-color 0.2s ease, box-shadow 0.2s ease;
         }
 
         .btn-footer:hover {
             background: var(--orange-dark);
-            transform: translateY(-2px);
             box-shadow: 0 10px 22px rgba(255, 107, 53, 0.32);
+            transform: translateY(-2px);
         }
 
         .btn-footer:active {
-            transform: translateY(0);
             box-shadow: 0 4px 10px rgba(255, 107, 53, 0.22);
+            transform: translateY(0);
         }
 
         /* TABLET */
@@ -732,7 +706,7 @@
             }
         }
 
-        /* TELEFON - VERTIKALNO */
+        /* TELEFON */
 
         @media (max-width: 700px) {
             .container {
@@ -756,8 +730,8 @@
 
             .header-nav .btn {
                 min-height: 40px;
-                padding: 7px 2px;
                 border-radius: 9px;
+                padding: 7px 2px;
                 font-size: clamp(8px, 2.45vw, 10px);
                 line-height: 1;
             }
@@ -890,15 +864,7 @@
                 font-size: 12px;
             }
 
-            .requests-section {
-                margin: 0 0 40px;
-            }
-
-            .requests-card {
-                padding: 18px;
-            }
-
-            /* Vertikalno: jedna kolona */
+            /* Uspravan telefon: zahtevi iznad, ponude ispod */
             .content-grid {
                 grid-template-columns: 1fr;
                 gap: 15px;
@@ -924,12 +890,20 @@
             }
         }
 
-        /* TELEFON - HORIZONTALNO (LANDSCAPE) */
+        /* Telefon horizontalno: dve kolone */
 
         @media (max-width: 980px) and (orientation: landscape) {
-            /* U horizontalnom položaju vraćamo dve kolone za zahteve i ponude */
             .content-grid {
-                grid-template-columns: 1fr 1fr;
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+                gap: 14px;
+            }
+
+            .content-card {
+                padding: 18px;
+            }
+
+            .offer-image {
+                height: 88px;
             }
         }
 
@@ -957,8 +931,8 @@
 
             .header-nav .btn {
                 min-height: 38px;
-                padding: 6px 1px;
                 border-radius: 8px;
+                padding: 6px 1px;
                 font-size: 8px;
             }
 
@@ -1005,10 +979,6 @@
             .category-name {
                 padding: 6px 3px;
                 font-size: 9px;
-            }
-
-            .requests-card {
-                padding: 16px;
             }
 
             .offers-grid {
@@ -1223,10 +1193,9 @@
                 </a>
             </section>
 
-            <!-- NAJNOVIJI ZAHTEVI (nova sekcija odmah ispod kategorija) -->
-            <section class="requests-section" id="zahtev">
-                <div class="requests-card">
-                    <div class="requests-card-header">
+            <section class="content-grid" id="ponude">
+                <article class="content-card" id="zahtev">
+                    <div class="content-card-header">
                         <h2>Najnoviji zahtevi</h2>
                         <a href="#svi-zahtevi" class="view-all">Pogledaj sve →</a>
                     </div>
@@ -1257,10 +1226,8 @@
                             <div class="request-date">Beograd · pre 8 sati</div>
                         </li>
                     </ul>
-                </div>
-            </section>
+                </article>
 
-            <section class="content-grid" id="ponude">
                 <article class="content-card content-card-offers" id="oglas">
                     <div class="content-card-header">
                         <h2>Istaknute ponude</h2>
