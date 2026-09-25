@@ -87,7 +87,8 @@
         }
 
         /* =================================================
-           HEADER — IZNAD HERO SLIKE
+           HEADER — UVEK JEDAN RED
+           [ LOGO ] [ PODRŠKA ] [ PRIJAVA ] [ REGISTRACIJA ]
            ================================================= */
 
         .site-header {
@@ -96,36 +97,57 @@
         }
 
         .header-inner {
-            min-height: 76px;
+            min-height: 82px;
             display: flex;
+            flex-direction: row;
+            flex-wrap: nowrap;
             align-items: center;
             justify-content: space-between;
-            gap: 20px;
+            gap: 18px;
         }
 
         .header-logo {
+            flex: 0 1 auto;
+            min-width: 0;
             display: inline-flex;
-            flex-shrink: 0;
             align-items: center;
         }
 
         .header-logo img {
             display: block;
             width: auto;
-            height: 44px;
-            max-width: 220px;
+            height: 58px;
+            max-width: 260px;
             object-fit: contain;
             object-position: left center;
         }
 
         .header-nav {
+            flex: 1 1 auto;
+            min-width: 0;
             display: flex;
+            flex-wrap: nowrap;
             align-items: center;
             justify-content: flex-end;
             gap: 10px;
         }
 
+        /* Potpuno jednaka širina i visina za sva tri dugmeta */
+        .header-nav .btn {
+            flex: 1 1 0;
+            min-width: 0;
+            min-height: 44px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 9px 8px;
+            border-radius: 11px;
+            white-space: nowrap;
+            font-size: 13px;
+        }
+
         .btn-support {
+            display: inline-flex;
             color: #173d24;
             background: var(--green);
         }
@@ -652,59 +674,51 @@
         }
 
         /* =================================================
-           TELEFON I USPRAVNI PRIKAZ
+           MOBILNI — HEADER OSTAJE U JEDNOM REDU
            ================================================= */
 
         @media (max-width: 700px) {
             .container {
-                width: min(100% - 24px, 1180px);
+                width: min(100% - 16px, 1180px);
             }
 
-            /*
-              Logo je u prvom redu; navigacija u drugom.
-              Tako sva tri dugmeta ostaju vidljiva.
-            */
             .header-inner {
-                min-height: 0;
-                flex-direction: column;
-                align-items: stretch;
-                gap: 10px;
-                padding: 13px 0 14px;
+                min-height: 70px;
+                flex-direction: row;
+                flex-wrap: nowrap;
+                align-items: center;
+                gap: 6px;
+                padding: 8px 0;
             }
 
             .header-logo {
-                align-self: flex-start;
+                flex: 0 1 auto;
+                min-width: 0;
             }
 
             .header-logo img {
-                height: 45px;
-                max-width: 200px;
+                height: 50px;
+                max-width: 31vw;
             }
 
             .header-nav {
-                width: 100%;
-                display: flex;
-                align-items: stretch;
-                gap: 7px;
+                flex: 1 1 auto;
+                min-width: 0;
+                flex-wrap: nowrap;
+                gap: 4px;
             }
 
-            /*
-              Ista dimenzija za Podrška, Prijava i Registracija.
-              flex: 1 deli ceo red na tri jednaka dela.
-            */
             .header-nav .btn {
                 flex: 1 1 0;
                 min-width: 0;
-                min-height: 42px;
-                padding: 8px 4px;
-                border-radius: 10px;
+                min-height: 40px;
+                padding: 7px 2px;
+                border-radius: 9px;
                 white-space: nowrap;
-                font-size: 11px;
+                font-size: clamp(8px, 2.45vw, 10px);
+                line-height: 1;
             }
 
-            /*
-              Podrška se ne skriva na telefonu.
-            */
             .btn-support {
                 display: inline-flex;
             }
@@ -828,30 +842,34 @@
         }
 
         /* =================================================
-           VEOMA USKI TELEFONI
+           VEOMA USKI TELEFONI — I DALJE JEDAN RED
            ================================================= */
 
         @media (max-width: 380px) {
+            .container {
+                width: min(100% - 12px, 1180px);
+            }
+
             .header-inner {
-                gap: 9px;
-                padding-top: 11px;
-                padding-bottom: 12px;
+                min-height: 65px;
+                gap: 4px;
+                padding: 7px 0;
             }
 
             .header-logo img {
-                height: 41px;
-                max-width: 180px;
+                height: 45px;
+                max-width: 30vw;
             }
 
             .header-nav {
-                gap: 5px;
+                gap: 3px;
             }
 
             .header-nav .btn {
-                min-height: 40px;
-                padding: 7px 2px;
-                border-radius: 9px;
-                font-size: 10px;
+                min-height: 38px;
+                padding: 6px 1px;
+                border-radius: 8px;
+                font-size: 8px;
             }
 
             .hero-copy {
@@ -870,7 +888,7 @@
 </head>
 
 <body>
-    <!-- HEADER IZNAD HERO SLIKE -->
+    <!-- HEADER: JEDAN RED IZNAD HERO SLIKE -->
     <header class="site-header">
         <div class="container header-inner">
             <a href="#pocetna" class="header-logo" aria-label="PonudiMi početna strana">
