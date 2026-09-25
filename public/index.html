@@ -132,7 +132,7 @@
             gap: 10px;
         }
 
-        /* Potpuno jednaka širina i visina za sva tri dugmeta */
+        /* Sva tri dugmeta imaju istu širinu i visinu. */
         .header-nav .btn {
             flex: 1 1 0;
             min-width: 0;
@@ -186,6 +186,10 @@
                 radial-gradient(circle at 78% 20%, #40526e 0%, #172238 48%, #0d1524 100%);
         }
 
+        /*
+          Slika ima width: 100% i height: auto, pa ostaje cela.
+          Ne koristi se object-fit: cover, zato se ništa ne odseca.
+        */
         .hero-image {
             position: relative;
             z-index: 0;
@@ -215,18 +219,22 @@
                 );
         }
 
+        /*
+          Tekst je vertikalno na sredini hero slike i ostaje
+          u levoj polovini. Nema hero dugmadi.
+        */
         .hero-content {
             position: absolute;
             inset: 0;
             z-index: 2;
             display: flex;
-            align-items: flex-end;
-            padding-bottom: 34px;
+            align-items: center;
             color: var(--white);
         }
 
         .hero-copy {
             width: min(480px, 43%);
+            transform: translateY(6%);
         }
 
         .hero-eyebrow {
@@ -270,34 +278,6 @@
             font-size: clamp(15px, 1.35vw, 18px);
             line-height: 1.38;
             text-shadow: 0 2px 14px rgba(0, 0, 0, 0.34);
-        }
-
-        .hero-actions {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 11px;
-            margin-top: 24px;
-        }
-
-        .btn-primary {
-            color: var(--white);
-            background: var(--orange);
-            box-shadow: 0 12px 24px rgba(100, 31, 10, 0.36);
-        }
-
-        .btn-primary:hover {
-            background: var(--orange-dark);
-        }
-
-        .btn-secondary {
-            border-color: rgba(255, 255, 255, 0.58);
-            color: var(--white);
-            background: rgba(255, 255, 255, 0.13);
-            backdrop-filter: blur(8px);
-        }
-
-        .btn-secondary:hover {
-            background: rgba(255, 255, 255, 0.25);
         }
 
         /* =================================================
@@ -674,7 +654,7 @@
         }
 
         /* =================================================
-           MOBILNI — HEADER OSTAJE U JEDNOM REDU
+           MOBILNI — HEADER U JEDNOM REDU
            ================================================= */
 
         @media (max-width: 700px) {
@@ -723,12 +703,17 @@
                 display: inline-flex;
             }
 
+            /*
+              Na telefonu tekst je u sredini leve polovine,
+              malo spušten nadole.
+            */
             .hero-content {
-                padding-bottom: 18px;
+                align-items: center;
             }
 
             .hero-copy {
                 width: min(47vw, 185px);
+                transform: translateY(9%);
             }
 
             .hero-eyebrow {
@@ -752,19 +737,6 @@
                 margin-top: 12px;
                 font-size: 12px;
                 line-height: 1.32;
-            }
-
-            .hero-actions {
-                flex-direction: column;
-                align-items: stretch;
-                gap: 8px;
-                margin-top: 17px;
-            }
-
-            .hero-actions .btn {
-                min-height: 38px;
-                padding: 8px 9px;
-                font-size: 11px;
             }
 
             .search-band {
@@ -874,6 +846,7 @@
 
             .hero-copy {
                 width: min(47vw, 170px);
+                transform: translateY(9%);
             }
 
             .hero-title {
@@ -888,7 +861,7 @@
 </head>
 
 <body>
-    <!-- HEADER: JEDAN RED IZNAD HERO SLIKE -->
+    <!-- HEADER: LOGO I SVA TRI DUGMETA U JEDNOM REDU -->
     <header class="site-header">
         <div class="container header-inner">
             <a href="#pocetna" class="header-logo" aria-label="PonudiMi početna strana">
@@ -904,7 +877,7 @@
     </header>
 
     <main>
-        <!-- HERO: CELA SLIKA BEZ SEČENJA -->
+        <!-- HERO: SLIKA JE CELA, TEKST JE LEVO NA SREDINI -->
         <section class="hero" id="pocetna">
             <img
                 src="reference-homepage.png"
@@ -923,11 +896,6 @@
                     <p class="hero-description">
                         Kupi, prodaj i pronađi ono što ti treba — brzo i jednostavno.
                     </p>
-
-                    <div class="hero-actions">
-                        <a href="#ponude" class="btn btn-primary">Pogledaj ponude</a>
-                        <a href="#objavi-oglas" class="btn btn-secondary">Objavi oglas</a>
-                    </div>
                 </div>
             </div>
         </section>
