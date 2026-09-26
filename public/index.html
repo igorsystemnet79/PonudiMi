@@ -624,6 +624,49 @@
             transition: transform 0.3s ease, text-shadow 0.3s ease;
         }
 
+        /* EFEKTI ZA KARTICE KATEGORIJA */
+
+        .category-card {
+            opacity: 0;
+            transform: translateY(18px);
+            animation: category-reveal 0.55s ease forwards;
+        }
+
+        .category-card:nth-child(1) { animation-delay: 0.04s; }
+        .category-card:nth-child(2) { animation-delay: 0.10s; }
+        .category-card:nth-child(3) { animation-delay: 0.16s; }
+        .category-card:nth-child(4) { animation-delay: 0.22s; }
+        .category-card:nth-child(5) { animation-delay: 0.28s; }
+        .category-card:nth-child(6) { animation-delay: 0.34s; }
+        .category-card:nth-child(7) { animation-delay: 0.40s; }
+        .category-card:nth-child(8) { animation-delay: 0.46s; }
+        .category-card:nth-child(9) { animation-delay: 0.52s; }
+
+        @keyframes category-reveal {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .category-card .category-image::after {
+            position: absolute;
+            top: -20%;
+            left: -110%;
+            width: 60%;
+            height: 140%;
+            z-index: 2;
+            background: linear-gradient(
+                110deg,
+                transparent 0%,
+                rgba(255, 255, 255, 0.38) 50%,
+                transparent 100%
+            );
+            content: "";
+            pointer-events: none;
+            transform: skewX(-18deg);
+        }
+
         @media (hover: hover) and (pointer: fine) {
             .category-card:hover {
                 box-shadow: var(--shadow);
@@ -642,6 +685,18 @@
             .category-card:hover .category-name {
                 text-shadow: 0 3px 12px rgba(0, 0, 0, 0.7);
                 transform: translateY(-3px);
+            }
+
+            .category-card:hover .category-image::after {
+                left: 150%;
+                transition: left 0.7s ease;
+            }
+        }
+
+        @media (hover: none) {
+            .category-card:active {
+                filter: brightness(1.08) saturate(1.1);
+                transform: scale(0.97);
             }
         }
 
@@ -1274,7 +1329,7 @@
 <body>
     <header class="site-header">
         <div class="container header-inner">
-            <a href="#pocetna" class="header-logo" aria-label="PonudiMi početna strana">
+            <a href="#pocetna" class="header-logo" aria-label="PonudiMi početна страна">
                 <img src="ponudimi-logo.png" alt="PonudiMi">
             </a>
 
@@ -1628,6 +1683,26 @@
             revealSections.forEach((section) => {
                 section.classList.add("visible");
             });
+        }
+
+        const categoriesSection = document.querySelector(".categories-section");
+
+        if (categoriesSection && "IntersectionObserver" in window && !reducedMotion) {
+            const categoriesObserver = new IntersectionObserver(
+                (entries, currentObserver) => {
+                    entries.forEach((entry) => {
+                        if (entry.isIntersecting) {
+                            entry.target.classList.add("categories-visible");
+                            currentObserver.unobserve(entry.target);
+                        }
+                    });
+                },
+                { threshold: 0.15 }
+            );
+
+            categoriesObserver.observe(categoriesSection);
+        } else if (categoriesSection) {
+            categoriesSection.classList.add("categories-visible");
         }
     </script>
 </body>
