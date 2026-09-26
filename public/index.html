@@ -79,7 +79,11 @@
             font-size: 14px;
             font-weight: 700;
             cursor: pointer;
-            transition: transform 0.2s ease, background-color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+            transition:
+                transform 0.2s ease,
+                background-color 0.2s ease,
+                border-color 0.2s ease,
+                box-shadow 0.2s ease;
         }
 
         .btn:hover {
@@ -95,7 +99,7 @@
         }
 
         .header-inner {
-            min-height: 88px;
+            min-height: 104px;
             display: flex;
             flex-wrap: nowrap;
             align-items: center;
@@ -130,17 +134,60 @@
         }
 
         .header-nav .btn {
+            position: relative;
             flex: 1 1 0;
             min-width: 0;
             min-height: 48px;
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            padding: 11px 12px;
+            overflow: hidden;
             border-radius: 11px;
+            padding: 11px 12px;
             white-space: nowrap;
             font-size: 17px;
             font-weight: 700;
+        }
+
+        .header-nav .btn::before {
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 200%;
+            height: 100%;
+            background: linear-gradient(
+                120deg,
+                transparent,
+                rgba(255, 255, 255, 0.35),
+                transparent
+            );
+            content: "";
+            pointer-events: none;
+            transition: left 0.5s ease;
+        }
+
+        .header-nav .btn:hover::before {
+            left: 100%;
+        }
+
+        .header-nav .btn:hover {
+            animation: border-pulse 1.2s ease-in-out infinite;
+        }
+
+        .header-nav .btn:active {
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.06);
+            transform: translateY(-1px) scale(0.97);
+        }
+
+        @keyframes border-pulse {
+            0%,
+            100% {
+                box-shadow: 0 6px 14px rgba(0, 0, 0, 0.08);
+            }
+
+            50% {
+                box-shadow: 0 8px 20px rgba(0, 0, 0, 0.14);
+            }
         }
 
         .btn-support {
@@ -174,11 +221,11 @@
 
         .hero {
             position: relative;
-            overflow: hidden;
             isolation: isolate;
+            overflow: hidden;
+            padding: 18px 0 10px;
             background:
                 radial-gradient(circle at 78% 20%, #40526e 0%, #172238 48%, #0d1524 100%);
-            padding: 18px 0 10px;
         }
 
         .hero-image {
@@ -310,6 +357,7 @@
 
         .field input {
             width: 100%;
+            min-width: 0;
             min-height: 46px;
             border: 1px solid var(--border);
             border-radius: 11px;
@@ -322,18 +370,8 @@
 
         .field input:focus {
             border-color: var(--blue);
-            box-shadow: 0 0 0 3px rgba(65, 105, 225, 0.15);
             outline: none;
-        }
-
-        .field input:focus + .field-icon,
-        .field input:focus + .field-location-icon {
-            animation: iconShimmer 0.6s ease;
-        }
-
-        @keyframes iconShimmer {
-            0%, 100% { transform: translateY(-50%) scale(1); opacity: 1; }
-            50% { transform: translateY(-50%) scale(1.15); opacity: 0.85; }
+            box-shadow: 0 0 0 3px rgba(65, 105, 225, 0.15);
         }
 
         .field-with-icon input,
@@ -369,22 +407,21 @@
         }
 
         .action-card {
+            position: relative;
             min-height: 60px;
             display: flex;
             align-items: center;
             justify-content: space-between;
             gap: 12px;
+            overflow: hidden;
             border-radius: 15px;
             padding: 10px 14px;
             color: var(--white);
             box-shadow: 0 6px 18px rgba(26, 26, 46, 0.12);
             transition: transform 0.25s ease, box-shadow 0.25s ease, filter 0.25s ease;
-            position: relative;
-            overflow: hidden;
         }
 
         .action-card::before {
-            content: "";
             position: absolute;
             inset: -50%;
             background: radial-gradient(
@@ -392,19 +429,28 @@
                 rgba(255, 255, 255, 0.18),
                 transparent 60%
             );
-            animation: gradientPulse 4s ease-in-out infinite;
+            content: "";
             pointer-events: none;
+            animation: gradient-pulse 4s ease-in-out infinite;
         }
 
-        @keyframes gradientPulse {
-            0%, 100% { transform: scale(1); opacity: 0.6; }
-            50% { transform: scale(1.05); opacity: 0.9; }
+        @keyframes gradient-pulse {
+            0%,
+            100% {
+                opacity: 0.6;
+                transform: scale(1);
+            }
+
+            50% {
+                opacity: 0.9;
+                transform: scale(1.05);
+            }
         }
 
         .action-card:hover {
             box-shadow: 0 14px 28px rgba(26, 26, 46, 0.18);
-            transform: translateY(-4px);
             filter: brightness(1.03);
+            transform: translateY(-4px);
         }
 
         .action-card:active {
@@ -419,6 +465,13 @@
 
         .action-card-ad {
             background: linear-gradient(135deg, var(--orange), #ff9b57);
+        }
+
+        .action-card h2,
+        .action-card p,
+        .action-arrow {
+            position: relative;
+            z-index: 1;
         }
 
         .action-card h2 {
@@ -449,8 +502,8 @@
         }
 
         .action-card:hover .action-arrow {
-            transform: translateX(4px);
             background: var(--white);
+            transform: translateX(4px);
         }
 
         /* KATEGORIJE */
@@ -539,12 +592,6 @@
             transform: scale(1.08);
         }
 
-        /* Parallax efekat na skrol */
-        .category-image img.parallax {
-            transform: translateY(0);
-            transition: transform 0.1s ease-out;
-        }
-
         .category-card::after {
             position: absolute;
             inset: 0;
@@ -584,8 +631,14 @@
         }
 
         @keyframes bounce {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(4px); }
+            0%,
+            100% {
+                transform: translateY(0);
+            }
+
+            50% {
+                transform: translateY(4px);
+            }
         }
 
         .more-categories {
@@ -613,7 +666,7 @@
             transform: translateY(1px) scale(0.99);
         }
 
-        /* NAJNOVIJI ZAHTEVI I ISTAKNUTE PONUDE */
+        /* ZAHTEVI I PONUDE */
 
         .content-grid {
             display: grid;
@@ -691,8 +744,8 @@
         }
 
         .offer-item:hover {
-            transform: translateY(-3px);
             box-shadow: 0 8px 18px rgba(26, 26, 46, 0.12);
+            transform: translateY(-3px);
         }
 
         .offer-image {
@@ -726,10 +779,10 @@
         /* FOOTER */
 
         footer {
+            border-top: 1px solid rgba(26, 26, 46, 0.06);
             padding: 32px 0;
             color: var(--navy);
             background: #f5f7fb;
-            border-top: 1px solid rgba(26, 26, 46, 0.06);
         }
 
         .footer-inner {
@@ -795,7 +848,7 @@
             transform: translateY(0);
         }
 
-        /* FADE-IN ANIMACIJA PRI SKROLOVANJU */
+        /* FADE-IN PRI SKROLOVANJU */
 
         .fade-in-section {
             opacity: 0;
@@ -991,56 +1044,56 @@
             }
         }
 
-        /* TELEFON HORIZONTALNO: samo zahtevi i ponude su u dve kolone */
-
-        @media (max-width: 980px) and (orientation: landscape) {
-            .content-grid {
-                grid-template-columns: repeat(2, minmax(0, 1fr));
-                gap: 14px;
-            }
-
-            .content-card {
-                padding: 18px;
-            }
-
-            .offer-image {
-                height: 88px;
-            }
-        }
-
-        /* PRETRAGA ZA TELEFON I ŠIRI MOBILNI PRIKAZ */
+        /* MOBILNA PRETRAGA */
 
         @media (max-width: 1100px) {
             .search-panel {
-                display: flex;
-                flex-wrap: wrap;
+                display: grid;
+                grid-template-columns: minmax(0, 1.62fr) minmax(0, 1fr);
+                grid-template-areas:
+                    "search location"
+                    "button button";
                 gap: 8px;
-                justify-content: center;
                 padding: 11px;
                 border-radius: 14px;
             }
 
             .search-panel .field:first-of-type {
-                width: calc(75% - 4px);
-                flex: 0 0 calc(75% - 4px);
+                grid-area: search;
+                width: auto;
+                min-width: 0;
             }
 
             .search-panel .field:nth-of-type(2) {
-                width: calc(25% - 4px);
-                flex: 0 0 calc(25% - 4px);
+                grid-area: location;
+                width: auto;
+                min-width: 0;
             }
 
             .search-panel .field input {
+                width: 100%;
+                min-width: 0;
                 min-height: 58px;
                 padding-top: 14px;
                 padding-bottom: 14px;
+                font-size: 15px;
+            }
+
+            .search-panel .field-with-location-icon input {
+                padding-left: 49px;
+                padding-right: 8px;
+            }
+
+            .search-panel .field-location-icon {
+                left: 12px;
+                font-size: 14px;
             }
 
             .search-panel .btn-search {
-                width: 150px;
+                grid-area: button;
+                width: 48%;
                 min-height: 54px;
-                flex: 0 0 150px;
-                margin: 0 auto;
+                justify-self: center;
                 align-self: center;
                 border-radius: 12px;
                 padding: 10px 12px;
@@ -1048,7 +1101,30 @@
             }
         }
 
-        /* VEOMA USKI TELEFONI */
+        /* USKI TELEFONI */
+
+        @media (max-width: 430px) {
+            .search-panel {
+                grid-template-columns: minmax(0, 1.55fr) minmax(0, 1fr);
+            }
+
+            .search-panel .field-with-location-icon input {
+                padding-left: 44px;
+                padding-right: 6px;
+                font-size: 14px;
+            }
+
+            .search-panel .field-location-icon {
+                left: 10px;
+                font-size: 13px;
+            }
+
+            .search-panel .btn-search {
+                width: 48%;
+                min-height: 52px;
+                font-size: 16px;
+            }
+        }
 
         @media (max-width: 380px) {
             .container {
@@ -1091,12 +1167,23 @@
 
             .search-panel .field input {
                 min-height: 54px;
+                font-size: 14px;
+            }
+
+            .search-panel .field-with-location-icon input {
+                padding-left: 41px;
+                padding-right: 5px;
+                font-size: 13px;
+            }
+
+            .search-panel .field-location-icon {
+                left: 9px;
+                font-size: 12px;
             }
 
             .search-panel .btn-search {
-                width: 145px;
-                min-height: 54px;
-                flex-basis: 145px;
+                width: 48%;
+                min-height: 52px;
                 font-size: 16px;
             }
 
@@ -1135,6 +1222,17 @@
 
             .offers-grid {
                 grid-template-columns: 1fr;
+            }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            *,
+            *::before,
+            *::after {
+                scroll-behavior: auto !important;
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
             }
         }
     </style>
@@ -1474,42 +1572,35 @@
     </footer>
 
     <script>
-        // Fade-in animacija pri skrolovanju
-        const observerOptions = {
-            root: null,
-            rootMargin: '0px',
-            threshold: 0.1
-        };
+        const reducedMotion = window.matchMedia(
+            "(prefers-reduced-motion: reduce)"
+        ).matches;
 
-        const observer = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    entry.target.classList.add('visible');
-                    observer.unobserve(entry.target);
+        if (!reducedMotion && "IntersectionObserver" in window) {
+            const observer = new IntersectionObserver(
+                (entries, currentObserver) => {
+                    entries.forEach((entry) => {
+                        if (entry.isIntersecting) {
+                            entry.target.classList.add("visible");
+                            currentObserver.unobserve(entry.target);
+                        }
+                    });
+                },
+                {
+                    root: null,
+                    rootMargin: "0px",
+                    threshold: 0.1
                 }
+            );
+
+            document.querySelectorAll(".fade-in-section").forEach((section) => {
+                observer.observe(section);
             });
-        }, observerOptions);
-
-        document.querySelectorAll('.fade-in-section').forEach(section => {
-            observer.observe(section);
-        });
-
-        // Parallax efekat na slikama u kategorijama
-        const parallaxImages = document.querySelectorAll('.category-image img.parallax');
-
-        window.addEventListener('scroll', () => {
-            const scrolled = window.pageYOffset;
-            parallaxImages.forEach(img => {
-                const card = img.closest('.category-card');
-                const cardTop = card.getBoundingClientRect().top;
-                const cardHeight = card.offsetHeight;
-
-                if (cardTop < window.innerHeight && cardTop + cardHeight > 0) {
-                    const offset = (scrolled * 0.04);
-                    img.style.transform = `translateY(${offset}px) scale(1.05)`;
-                }
+        } else {
+            document.querySelectorAll(".fade-in-section").forEach((section) => {
+                section.classList.add("visible");
             });
-        });
+        }
     </script>
 </body>
 </html>
