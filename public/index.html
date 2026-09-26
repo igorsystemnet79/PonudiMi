@@ -297,6 +297,7 @@
             z-index: 1;
             transform: translateY(-50%);
             pointer-events: none;
+            transition: transform 0.2s ease, opacity 0.2s ease;
         }
 
         .field-icon {
@@ -323,6 +324,16 @@
             border-color: var(--blue);
             box-shadow: 0 0 0 3px rgba(65, 105, 225, 0.15);
             outline: none;
+        }
+
+        .field input:focus + .field-icon,
+        .field input:focus + .field-location-icon {
+            animation: iconShimmer 0.6s ease;
+        }
+
+        @keyframes iconShimmer {
+            0%, 100% { transform: translateY(-50%) scale(1); opacity: 1; }
+            50% { transform: translateY(-50%) scale(1.15); opacity: 0.85; }
         }
 
         .field-with-icon input,
@@ -368,6 +379,26 @@
             color: var(--white);
             box-shadow: 0 6px 18px rgba(26, 26, 46, 0.12);
             transition: transform 0.25s ease, box-shadow 0.25s ease, filter 0.25s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .action-card::before {
+            content: "";
+            position: absolute;
+            inset: -50%;
+            background: radial-gradient(
+                circle at 50% 50%,
+                rgba(255, 255, 255, 0.18),
+                transparent 60%
+            );
+            animation: gradientPulse 4s ease-in-out infinite;
+            pointer-events: none;
+        }
+
+        @keyframes gradientPulse {
+            0%, 100% { transform: scale(1); opacity: 0.6; }
+            50% { transform: scale(1.05); opacity: 0.9; }
         }
 
         .action-card:hover {
@@ -493,14 +524,25 @@
             height: 100%;
         }
 
+        .category-image {
+            overflow: hidden;
+        }
+
         .category-image img {
             display: block;
             object-fit: cover;
             transition: transform 0.4s ease;
+            will-change: transform;
         }
 
         .category-card:hover .category-image img {
             transform: scale(1.08);
+        }
+
+        /* Parallax efekat na skrol */
+        .category-image img.parallax {
+            transform: translateY(0);
+            transition: transform 0.1s ease-out;
         }
 
         .category-card::after {
@@ -750,6 +792,19 @@
 
         .btn-footer:active {
             box-shadow: 0 4px 10px rgba(255, 107, 53, 0.22);
+            transform: translateY(0);
+        }
+
+        /* FADE-IN ANIMACIJA PRI SKROLOVANJU */
+
+        .fade-in-section {
+            opacity: 0;
+            transform: translateY(24px);
+            transition: opacity 0.6s ease, transform 0.6s ease;
+        }
+
+        .fade-in-section.visible {
+            opacity: 1;
             transform: translateY(0);
         }
 
@@ -1101,7 +1156,7 @@
     </header>
 
     <main>
-        <section class="hero" id="pocetna">
+        <section class="hero fade-in-section" id="pocetna">
             <img
                 src="reference-homepage.png"
                 alt="Par pregledava ponude telefonom i laptopom ispred moderne kuće"
@@ -1121,7 +1176,7 @@
             </div>
         </section>
 
-        <section class="search-section" aria-label="Pretraga oglasa">
+        <section class="search-section fade-in-section" aria-label="Pretraga oglasa">
             <div class="container">
                 <form class="search-panel" action="/pretraga" method="get">
                     <label class="field field-with-icon">
@@ -1150,7 +1205,7 @@
         </section>
 
         <div class="container">
-            <section class="quick-actions" id="objavi-oglas">
+            <section class="quick-actions fade-in-section" id="objavi-oglas">
                 <a href="#zahtev" class="action-card action-card-request">
                     <div>
                         <h2>Postavi zahtev</h2>
@@ -1168,7 +1223,7 @@
                 </a>
             </section>
 
-            <section class="categories-section" id="kategorije">
+            <section class="categories-section fade-in-section" id="kategorije">
                 <div class="section-heading">
                     <div>
                         <h2>Istraži kategorije</h2>
@@ -1184,6 +1239,7 @@
                                 src="https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?w=500&h=400&fit=crop"
                                 alt="Automobili"
                                 loading="lazy"
+                                class="parallax"
                             >
                         </div>
                         <span class="category-name">Automobili</span>
@@ -1195,6 +1251,7 @@
                                 src="https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=500&h=400&fit=crop"
                                 alt="Nekretnine"
                                 loading="lazy"
+                                class="parallax"
                             >
                         </div>
                         <span class="category-name">Nekretnine</span>
@@ -1206,6 +1263,7 @@
                                 src="https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=500&h=400&fit=crop"
                                 alt="Mobilni telefoni"
                                 loading="lazy"
+                                class="parallax"
                             >
                         </div>
                         <span class="category-name">Mobilni telefoni</span>
@@ -1217,6 +1275,7 @@
                                 src="https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=500&h=400&fit=crop"
                                 alt="Računari"
                                 loading="lazy"
+                                class="parallax"
                             >
                         </div>
                         <span class="category-name">Računari</span>
@@ -1228,6 +1287,7 @@
                                 src="https://images.unsplash.com/photo-1483985988355-763728e1935b?w=500&h=400&fit=crop"
                                 alt="Moda"
                                 loading="lazy"
+                                class="parallax"
                             >
                         </div>
                         <span class="category-name">Moda</span>
@@ -1239,6 +1299,7 @@
                                 src="https://images.unsplash.com/photo-1517836357463-d25dfeac3438?w=500&h=400&fit=crop"
                                 alt="Sport"
                                 loading="lazy"
+                                class="parallax"
                             >
                         </div>
                         <span class="category-name">Sport</span>
@@ -1250,6 +1311,7 @@
                                 src="https://images.unsplash.com/photo-1521737711867-e3b97375f902?w=500&h=400&fit=crop"
                                 alt="Ljudi na razgovoru za posao"
                                 loading="lazy"
+                                class="parallax"
                             >
                         </div>
                         <span class="category-name">Posao</span>
@@ -1261,6 +1323,7 @@
                                 src="https://st.perplexity.ai/estatic/0b226c450798410ac541646c86ec31afd840e5beab817a5d84fa821e7db61981ec84c3b4a3f072a7a2e1899c9fb06c6e9f5b8ea4665cb27a806db60cb69349997ea24b190c57ff7ee239c1671f30f3236b3eb3f29d188e4255dd49c5bf55c3176d6ddf396227d7cc00b5f4dfd3906c8f"
                                 alt="Sve za kuću — moderna kuhinja, nameštaj i aparati"
                                 loading="lazy"
+                                class="parallax"
                             >
                         </div>
                         <span class="category-name">Sve za kuću</span>
@@ -1272,6 +1335,7 @@
                                 src="https://images.unsplash.com/photo-1519682337058-a94d519337bc?w=500&h=400&fit=crop"
                                 alt="Kolekcionarstvo"
                                 loading="lazy"
+                                class="parallax"
                             >
                         </div>
                         <span class="category-name">Kolekcionarstvo</span>
@@ -1291,7 +1355,7 @@
                 </a>
             </section>
 
-            <section class="content-grid" id="ponude">
+            <section class="content-grid fade-in-section" id="ponude">
                 <article class="content-card" id="zahtev">
                     <div class="content-card-header">
                         <h2>Najnoviji zahtevi</h2>
@@ -1408,5 +1472,44 @@
             <a href="#prijava" class="btn btn-footer">Pridruži se besplatno</a>
         </div>
     </footer>
+
+    <script>
+        // Fade-in animacija pri skrolovanju
+        const observerOptions = {
+            root: null,
+            rootMargin: '0px',
+            threshold: 0.1
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                    observer.unobserve(entry.target);
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.fade-in-section').forEach(section => {
+            observer.observe(section);
+        });
+
+        // Parallax efekat na slikama u kategorijama
+        const parallaxImages = document.querySelectorAll('.category-image img.parallax');
+
+        window.addEventListener('scroll', () => {
+            const scrolled = window.pageYOffset;
+            parallaxImages.forEach(img => {
+                const card = img.closest('.category-card');
+                const cardTop = card.getBoundingClientRect().top;
+                const cardHeight = card.offsetHeight;
+
+                if (cardTop < window.innerHeight && cardTop + cardHeight > 0) {
+                    const offset = (scrolled * 0.04);
+                    img.style.transform = `translateY(${offset}px) scale(1.05)`;
+                }
+            });
+        });
+    </script>
 </body>
 </html>
