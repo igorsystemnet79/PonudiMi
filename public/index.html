@@ -564,11 +564,6 @@
             transition: transform 0.3s ease, box-shadow 0.3s ease;
         }
 
-        .category-card:hover {
-            box-shadow: var(--shadow);
-            transform: translateY(-6px);
-        }
-
         .category-card::before {
             position: absolute;
             inset: 0;
@@ -582,10 +577,6 @@
             opacity: 0;
             pointer-events: none;
             transition: opacity 0.35s ease;
-        }
-
-        .category-card:hover::before {
-            opacity: 1;
         }
 
         .category-image,
@@ -605,11 +596,6 @@
             object-fit: cover;
             transition: transform 0.4s ease, filter 0.4s ease;
             will-change: transform;
-        }
-
-        .category-card:hover .category-image img {
-            filter: saturate(1.08) brightness(1.05);
-            transform: scale(1.08);
         }
 
         .category-card::after {
@@ -638,9 +624,25 @@
             transition: transform 0.3s ease, text-shadow 0.3s ease;
         }
 
-        .category-card:hover .category-name {
-            text-shadow: 0 3px 12px rgba(0, 0, 0, 0.7);
-            transform: translateY(-3px);
+        @media (hover: hover) and (pointer: fine) {
+            .category-card:hover {
+                box-shadow: var(--shadow);
+                transform: translateY(-6px);
+            }
+
+            .category-card:hover::before {
+                opacity: 1;
+            }
+
+            .category-card:hover .category-image img {
+                filter: saturate(1.08) brightness(1.05);
+                transform: scale(1.08);
+            }
+
+            .category-card:hover .category-name {
+                text-shadow: 0 3px 12px rgba(0, 0, 0, 0.7);
+                transform: translateY(-3px);
+            }
         }
 
         .categories-down-arrow {
@@ -874,19 +876,6 @@
             transform: translateY(0);
         }
 
-        /* FADE-IN PRI SKROLOVANJU */
-
-        .fade-in-section {
-            opacity: 0;
-            transform: translateY(24px);
-            transition: opacity 0.6s ease, transform 0.6s ease;
-        }
-
-        .fade-in-section.visible {
-            opacity: 1;
-            transform: translateY(0);
-        }
-
         /* TABLET */
 
         @media (max-width: 980px) {
@@ -968,9 +957,10 @@
             }
 
             .action-card {
-                min-width: 0;
+                height: 58px;
                 min-height: 58px;
                 gap: 6px;
+                overflow: hidden;
                 border-radius: 12px;
                 padding: 8px 10px;
             }
@@ -983,8 +973,11 @@
 
             .action-card p {
                 max-width: 126px;
+                overflow: hidden;
                 font-size: clamp(10px, 2.8vw, 12px);
                 line-height: 1.18;
+                text-overflow: ellipsis;
+                white-space: nowrap;
             }
 
             .action-arrow {
@@ -1214,6 +1207,7 @@
             }
 
             .action-card {
+                height: 54px;
                 min-height: 54px;
                 padding: 7px 8px;
             }
@@ -1249,6 +1243,19 @@
             .offers-grid {
                 grid-template-columns: 1fr;
             }
+        }
+
+        /* FADE-IN ANIMACIJA SAMO KADA JAVASCRIPT RADI */
+
+        html.js-ready .fade-in-section {
+            opacity: 0;
+            transform: translateY(24px);
+            transition: opacity 0.6s ease, transform 0.6s ease;
+        }
+
+        html.js-ready .fade-in-section.visible {
+            opacity: 1;
+            transform: translateY(0);
         }
 
         @media (prefers-reduced-motion: reduce) {
@@ -1589,9 +1596,13 @@
     </footer>
 
     <script>
+        document.documentElement.classList.add("js-ready");
+
         const reducedMotion = window.matchMedia(
             "(prefers-reduced-motion: reduce)"
         ).matches;
+
+        const revealSections = document.querySelectorAll(".fade-in-section");
 
         if (!reducedMotion && "IntersectionObserver" in window) {
             const observer = new IntersectionObserver(
@@ -1610,11 +1621,11 @@
                 }
             );
 
-            document.querySelectorAll(".fade-in-section").forEach((section) => {
+            revealSections.forEach((section) => {
                 observer.observe(section);
             });
         } else {
-            document.querySelectorAll(".fade-in-section").forEach((section) => {
+            revealSections.forEach((section) => {
                 section.classList.add("visible");
             });
         }
