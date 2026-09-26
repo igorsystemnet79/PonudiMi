@@ -569,6 +569,25 @@
             transform: translateY(-6px);
         }
 
+        .category-card::before {
+            position: absolute;
+            inset: 0;
+            z-index: 1;
+            background: radial-gradient(
+                circle at 50% 15%,
+                rgba(255, 255, 255, 0.28),
+                transparent 48%
+            );
+            content: "";
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.35s ease;
+        }
+
+        .category-card:hover::before {
+            opacity: 1;
+        }
+
         .category-image,
         .category-image img {
             position: absolute;
@@ -584,29 +603,30 @@
         .category-image img {
             display: block;
             object-fit: cover;
-            transition: transform 0.4s ease;
+            transition: transform 0.4s ease, filter 0.4s ease;
             will-change: transform;
         }
 
         .category-card:hover .category-image img {
+            filter: saturate(1.08) brightness(1.05);
             transform: scale(1.08);
         }
 
         .category-card::after {
             position: absolute;
             inset: 0;
-            background:
-                linear-gradient(
-                    180deg,
-                    rgba(12, 21, 37, 0.03) 20%,
-                    rgba(12, 21, 37, 0.78) 100%
-                );
+            z-index: 1;
+            background: linear-gradient(
+                180deg,
+                rgba(12, 21, 37, 0.03) 20%,
+                rgba(12, 21, 37, 0.78) 100%
+            );
             content: "";
         }
 
         .category-name {
             position: relative;
-            z-index: 1;
+            z-index: 2;
             width: 100%;
             padding: 13px 12px;
             color: var(--white);
@@ -615,6 +635,12 @@
             line-height: 1.15;
             text-align: center;
             text-shadow: 0 2px 8px rgba(0, 0, 0, 0.52);
+            transition: transform 0.3s ease, text-shadow 0.3s ease;
+        }
+
+        .category-card:hover .category-name {
+            text-shadow: 0 3px 12px rgba(0, 0, 0, 0.7);
+            transform: translateY(-3px);
         }
 
         .categories-down-arrow {
@@ -943,10 +969,10 @@
 
             .action-card {
                 min-width: 0;
-                min-height: 62px;
+                min-height: 58px;
                 gap: 6px;
                 border-radius: 12px;
-                padding: 10px;
+                padding: 8px 10px;
             }
 
             .action-card h2 {
@@ -1188,8 +1214,8 @@
             }
 
             .action-card {
-                min-height: 58px;
-                padding: 8px;
+                min-height: 54px;
+                padding: 7px 8px;
             }
 
             .action-card h2 {
@@ -1337,7 +1363,6 @@
                                 src="https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?w=500&h=400&fit=crop"
                                 alt="Automobili"
                                 loading="lazy"
-                                class="parallax"
                             >
                         </div>
                         <span class="category-name">Automobili</span>
@@ -1349,7 +1374,6 @@
                                 src="https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=500&h=400&fit=crop"
                                 alt="Nekretnine"
                                 loading="lazy"
-                                class="parallax"
                             >
                         </div>
                         <span class="category-name">Nekretnine</span>
@@ -1361,7 +1385,6 @@
                                 src="https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=500&h=400&fit=crop"
                                 alt="Mobilni telefoni"
                                 loading="lazy"
-                                class="parallax"
                             >
                         </div>
                         <span class="category-name">Mobilni telefoni</span>
@@ -1373,7 +1396,6 @@
                                 src="https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=500&h=400&fit=crop"
                                 alt="Računari"
                                 loading="lazy"
-                                class="parallax"
                             >
                         </div>
                         <span class="category-name">Računari</span>
@@ -1385,7 +1407,6 @@
                                 src="https://images.unsplash.com/photo-1483985988355-763728e1935b?w=500&h=400&fit=crop"
                                 alt="Moda"
                                 loading="lazy"
-                                class="parallax"
                             >
                         </div>
                         <span class="category-name">Moda</span>
@@ -1397,7 +1418,6 @@
                                 src="https://images.unsplash.com/photo-1517836357463-d25dfeac3438?w=500&h=400&fit=crop"
                                 alt="Sport"
                                 loading="lazy"
-                                class="parallax"
                             >
                         </div>
                         <span class="category-name">Sport</span>
@@ -1409,7 +1429,6 @@
                                 src="https://images.unsplash.com/photo-1521737711867-e3b97375f902?w=500&h=400&fit=crop"
                                 alt="Ljudi na razgovoru za posao"
                                 loading="lazy"
-                                class="parallax"
                             >
                         </div>
                         <span class="category-name">Posao</span>
@@ -1421,7 +1440,6 @@
                                 src="https://st.perplexity.ai/estatic/0b226c450798410ac541646c86ec31afd840e5beab817a5d84fa821e7db61981ec84c3b4a3f072a7a2e1899c9fb06c6e9f5b8ea4665cb27a806db60cb69349997ea24b190c57ff7ee239c1671f30f3236b3eb3f29d188e4255dd49c5bf55c3176d6ddf396227d7cc00b5f4dfd3906c8f"
                                 alt="Sve za kuću — moderna kuhinja, nameštaj i aparati"
                                 loading="lazy"
-                                class="parallax"
                             >
                         </div>
                         <span class="category-name">Sve za kuću</span>
@@ -1433,7 +1451,6 @@
                                 src="https://images.unsplash.com/photo-1519682337058-a94d519337bc?w=500&h=400&fit=crop"
                                 alt="Kolekcionarstvo"
                                 loading="lazy"
-                                class="parallax"
                             >
                         </div>
                         <span class="category-name">Kolekcionarstvo</span>
