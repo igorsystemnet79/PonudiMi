@@ -614,45 +614,45 @@
             transition: transform 0.3s ease, text-shadow 0.3s ease;
         }
 
-        .categories-grid .category-card {
+        .categories-section.categories-visible .categories-grid .category-card {
             opacity: 0;
             transform: translateY(18px);
             animation: category-reveal 0.55s ease forwards;
         }
 
-        .categories-grid .category-card:nth-child(1) {
+        .categories-section.categories-visible .categories-grid .category-card:nth-child(1) {
             animation-delay: 0.04s;
         }
 
-        .categories-grid .category-card:nth-child(2) {
+        .categories-section.categories-visible .categories-grid .category-card:nth-child(2) {
             animation-delay: 0.10s;
         }
 
-        .categories-grid .category-card:nth-child(3) {
+        .categories-section.categories-visible .categories-grid .category-card:nth-child(3) {
             animation-delay: 0.16s;
         }
 
-        .categories-grid .category-card:nth-child(4) {
+        .categories-section.categories-visible .categories-grid .category-card:nth-child(4) {
             animation-delay: 0.22s;
         }
 
-        .categories-grid .category-card:nth-child(5) {
+        .categories-section.categories-visible .categories-grid .category-card:nth-child(5) {
             animation-delay: 0.28s;
         }
 
-        .categories-grid .category-card:nth-child(6) {
+        .categories-section.categories-visible .categories-grid .category-card:nth-child(6) {
             animation-delay: 0.34s;
         }
 
-        .categories-grid .category-card:nth-child(7) {
+        .categories-section.categories-visible .categories-grid .category-card:nth-child(7) {
             animation-delay: 0.40s;
         }
 
-        .categories-grid .category-card:nth-child(8) {
+        .categories-section.categories-visible .categories-grid .category-card:nth-child(8) {
             animation-delay: 0.46s;
         }
 
-        .categories-grid .category-card:nth-child(9) {
+        .categories-section.categories-visible .categories-grid .category-card:nth-child(9) {
             animation-delay: 0.52s;
         }
 
@@ -1688,6 +1688,26 @@
             revealSections.forEach((section) => {
                 section.classList.add("visible");
             });
+        }
+
+        const categoriesSection = document.querySelector(".categories-section");
+
+        if (categoriesSection && "IntersectionObserver" in window && !reducedMotion) {
+            const categoriesObserver = new IntersectionObserver(
+                (entries, currentObserver) => {
+                    entries.forEach((entry) => {
+                        if (entry.isIntersecting) {
+                            entry.target.classList.add("categories-visible");
+                            currentObserver.unobserve(entry.target);
+                        }
+                    });
+                },
+                { threshold: 0.15 }
+            );
+
+            categoriesObserver.observe(categoriesSection);
+        } else if (categoriesSection) {
+            categoriesSection.classList.add("categories-visible");
         }
     </script>
 </body>
