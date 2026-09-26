@@ -91,8 +91,6 @@
             box-shadow: 0 6px 14px rgba(0, 0, 0, 0.08);
         }
 
-        /* HEADER */
-
         .site-header {
             border-bottom: 1px solid rgba(26, 26, 46, 0.08);
             background: var(--page);
@@ -217,8 +215,6 @@
             background: var(--blue-dark);
         }
 
-        /* HERO */
-
         .hero {
             position: relative;
             isolation: isolate;
@@ -314,8 +310,6 @@
             text-shadow: 0 2px 14px rgba(0, 0, 0, 0.34);
         }
 
-        /* PRETRAGA */
-
         .search-section {
             padding: 32px 0 0;
         }
@@ -396,8 +390,6 @@
             background: var(--blue-dark);
             box-shadow: 0 8px 18px rgba(65, 105, 225, 0.25);
         }
-
-        /* BRZE AKCIJE */
 
         .quick-actions {
             display: grid;
@@ -505,8 +497,6 @@
             background: var(--white);
             transform: translateX(4px);
         }
-
-        /* KATEGORIJE */
 
         .categories-section {
             margin: 24px 0 56px;
@@ -624,99 +614,45 @@
             transition: transform 0.3s ease, text-shadow 0.3s ease;
         }
 
-        /* EFEKTI ZA KARTICE KATEGORIJA */
+        .categories-grid .category-card {
+            opacity: 0;
+            transform: translateY(18px);
+            animation: category-reveal 0.55s ease forwards;
+        }
 
-        /* EFEKTI ZA KARTICE KATEGORIJA */
-
-.categories-grid .category-card {
-    opacity: 0;
-    transform: translateY(18px);
-    animation: category-reveal 0.55s ease forwards;
-}
-
-.categories-grid .category-card:nth-child(1) {
-    animation-delay: 0.04s;
-}
-
-.categories-grid .category-card:nth-child(2) {
-    animation-delay: 0.10s;
-}
-
-.categories-grid .category-card:nth-child(3) {
-    animation-delay: 0.16s;
-}
-
-.categories-grid .category-card:nth-child(4) {
-    animation-delay: 0.22s;
-}
-
-.categories-grid .category-card:nth-child(5) {
-    animation-delay: 0.28s;
-}
-
-.categories-grid .category-card:nth-child(6) {
-    animation-delay: 0.34s;
-}
-
-.categories-grid .category-card:nth-child(7) {
-    animation-delay: 0.40s;
-}
-
-.categories-grid .category-card:nth-child(8) {
-    animation-delay: 0.46s;
-}
-
-.categories-grid .category-card:nth-child(9) {
-    animation-delay: 0.52s;
-}
-
-@keyframes category-reveal {
-    from {
-        opacity: 0;
-        transform: translateY(18px);
-    }
-
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-    
-
-        .category-card:nth-child(1) {
+        .categories-grid .category-card:nth-child(1) {
             animation-delay: 0.04s;
         }
 
-        .category-card:nth-child(2) {
+        .categories-grid .category-card:nth-child(2) {
             animation-delay: 0.10s;
         }
 
-        .category-card:nth-child(3) {
+        .categories-grid .category-card:nth-child(3) {
             animation-delay: 0.16s;
         }
 
-        .category-card:nth-child(4) {
+        .categories-grid .category-card:nth-child(4) {
             animation-delay: 0.22s;
         }
 
-        .category-card:nth-child(5) {
+        .categories-grid .category-card:nth-child(5) {
             animation-delay: 0.28s;
         }
 
-        .category-card:nth-child(6) {
+        .categories-grid .category-card:nth-child(6) {
             animation-delay: 0.34s;
         }
 
-        .category-card:nth-child(7) {
+        .categories-grid .category-card:nth-child(7) {
             animation-delay: 0.40s;
         }
 
-        .category-card:nth-child(8) {
+        .categories-grid .category-card:nth-child(8) {
             animation-delay: 0.46s;
         }
 
-        .category-card:nth-child(9) {
+        .categories-grid .category-card:nth-child(9) {
             animation-delay: 0.52s;
         }
 
@@ -832,8 +768,6 @@
             transform: translateY(1px) scale(0.99);
         }
 
-        /* ZAHTEVI I PONUDE */
-
         .content-grid {
             display: grid;
             grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -942,8 +876,6 @@
             font-weight: 800;
         }
 
-        /* FOOTER */
-
         footer {
             border-top: 1px solid rgba(26, 26, 46, 0.06);
             padding: 32px 0;
@@ -1014,15 +946,11 @@
             transform: translateY(0);
         }
 
-        /* TABLET */
-
         @media (max-width: 980px) {
             .category-card {
                 min-height: 145px;
             }
         }
-
-        /* TELEFON */
 
         @media (max-width: 700px) {
             .container {
@@ -1201,8 +1129,6 @@
             }
         }
 
-        /* MOBILNA PRETRAGA */
-
         @media (max-width: 1100px) {
             .search-panel {
                 display: grid;
@@ -1257,8 +1183,6 @@
                 font-size: 17px;
             }
         }
-
-        /* USKI TELEFONI */
 
         @media (max-width: 430px) {
             .search-panel {
@@ -1382,8 +1306,6 @@
                 grid-template-columns: 1fr;
             }
         }
-
-        /* FADE-IN ANIMACIJA SAMO KADA JAVASCRIPT RADI */
 
         html.js-ready .fade-in-section {
             opacity: 0;
