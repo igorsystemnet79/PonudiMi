@@ -11,6 +11,18 @@ const JWT_SECRET =
   process.env.JWT_SECRET || "ponudimi-mvp-change-this-secret";
 
 const publicPath = path.join(__dirname, "public");
+const CATEGORY_DEFINITIONS = [
+  { slug: "polovni-automobili", name: "Polovni automobili" },
+  { slug: "nekretnine", name: "Nekretnine" },
+  { slug: "mobilni-telefoni", name: "Mobilni telefoni" },
+  { slug: "tehnika", name: "Tehnika" },
+  { slug: "usluge", name: "Usluge" },
+  { slug: "gradjevina", name: "Građevina" },
+  { slug: "poljoprivreda", name: "Poljoprivreda" },
+  { slug: "moda", name: "Moda" },
+  { slug: "ostalo", name: "Ostalo" }
+];
+
 
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
@@ -212,17 +224,7 @@ app.get("/api/health", async function(req, res) {
 });
 
 app.get("/api/categories", function(req, res) {
-  res.json([
-    "Polovni automobili",
-    "Nekretnine",
-    "Mobilni telefoni",
-    "Tehnika",
-    "Usluge",
-    "Građevina",
-    "Poljoprivreda",
-    "Moda",
-    "Ostalo"
-  ]);
+  res.json(CATEGORY_DEFINITIONS);
 });
 
 app.get("/api/listings", async function(req, res) {
@@ -275,6 +277,29 @@ app.get("/api/listings", async function(req, res) {
 
     res.status(500).json({
       error: "Greška pri učitavanju oglasa."
+    });
+  }
+});
+
+app.get("/api/requests", async function(req, res) {
+  try {
+    const requestedLimit = Number.parseInt(req.query.limit, 10);
+    const limit = Number.isFinite(requestedLimit)
+      ? Math.min(Math.max(requestedLimit, 1), 20)
+      : 5;
+
+    const result = await pool.query(
+      "SELECT id, title, category, location, budget, description, created_at " +
+        "FROM requests ORDER BY created_at DESC LIMIT $1",
+      [limit]
+    );
+
+    res.json(result.rows);
+  } catch (error) {
+    console.error("GET /api/requests error:", error);
+
+    res.status(500).json({
+      error: "Greška pri učitavanju zahteva."
     });
   }
 });
