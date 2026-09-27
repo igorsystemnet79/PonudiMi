@@ -23,7 +23,8 @@ const categoryIcons = ["🚗", "🏠", "📱", "💻", "🛠️", "👷", "🚜"
 
 const categoryCounts = [12580, 23120, 15890, 9452, 18760, 8542, 7310, 4125, 0];
 
-let activeCategory = "";
+const initialCategory = new URLSearchParams(window.location.search).get("category") || "";
+let activeCategory = initialCategory;
 const categoryImageMap = {
   "Polovni automobili": "https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?w=500&h=400&fit=crop",
   "Nekretnine": "https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=500&h=400&fit=crop",
