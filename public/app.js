@@ -8,7 +8,7 @@ const dialogBody = $("#dialogBody");
 let token = localStorage.getItem("pm_token");
 
 const categories = [
-  "Polovni automobili",
+  "Automobili",
   "Nekretnine",
   "Mobilni telefoni",
   "Tehnika",
@@ -26,7 +26,7 @@ const categoryCounts = [12580, 23120, 15890, 9452, 18760, 8542, 7310, 4125, 0];
 const initialCategory = new URLSearchParams(window.location.search).get("category") || "";
 let activeCategory = initialCategory;
 const categoryImageMap = {
-  "Polovni automobili": "https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?w=500&h=400&fit=crop",
+  "Automobili": "https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?w=500&h=400&fit=crop",
   "Nekretnine": "https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=500&h=400&fit=crop",
   "Mobilni telefoni": "https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=500&h=400&fit=crop",
   "Tehnika": "https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=500&h=400&fit=crop",
