@@ -52,20 +52,16 @@ function updateAuthUI() {
   const userBtn = $("#userBtn");
   const logoutBtn = $("#logoutBtn");
 
-  if (!loginBtn || !registerBtn || !userBtn || !logoutBtn) {
-    return;
-  }
-
   if (token) {
-    loginBtn.classList.add("hidden");
-    registerBtn.classList.add("hidden");
-    userBtn.classList.remove("hidden");
-    logoutBtn.classList.remove("hidden");
+    if (loginBtn) loginBtn.classList.add("hidden");
+    if (registerBtn) registerBtn.classList.add("hidden");
+    if (userBtn) userBtn.classList.remove("hidden");
+    if (logoutBtn) logoutBtn.classList.remove("hidden");
   } else {
-    loginBtn.classList.remove("hidden");
-    registerBtn.classList.remove("hidden");
-    userBtn.classList.add("hidden");
-    logoutBtn.classList.add("hidden");
+    if (loginBtn) loginBtn.classList.remove("hidden");
+    if (registerBtn) registerBtn.classList.remove("hidden");
+    if (userBtn) userBtn.classList.add("hidden");
+    if (logoutBtn) logoutBtn.classList.add("hidden");
   }
 }
 
@@ -166,12 +162,12 @@ async function doSearch() {
   const locationInput = $("#location");
   const featured = $("#featured");
 
-  if (!searchInput || !categorySelect || !locationInput || !featured) {
+  if (!searchInput || !locationInput || !featured) {
     return;
   }
 
   const q = searchInput.value.trim();
-  const category = categorySelect.value.trim();
+  const category = categorySelect ? categorySelect.value.trim() : "";
   const location = locationInput.value.trim();
 
   featured.innerHTML = "Učitavanje ponuda…";
@@ -189,25 +185,31 @@ async function doSearch() {
     }
 
     featured.innerHTML = data
-      .slice(0, 3)
+      .slice(0, 4)
       .map(function(item) {
         const price = item.price
           ? new Intl.NumberFormat("sr-RS").format(item.price) + " €"
           : "Po dogovoru";
 
         return `
-          <div class="offer">
-            ${listingImageMarkup(item.image, item.title)}
-            <div>
-              <b>${escapeHtml(item.title)}</b><br>
-              <small>${escapeHtml(item.location || "Lokacija nije navedena")} • ${price}</small>
+          <article class="offer-item">
+            <div class="offer-image">${listingImageMarkup(item.image, item.title)}</div>
+            <div class="offer-info">
+              <div class="offer-title">${escapeHtml(item.title)}</div>
+              <div class="offer-price">${price}</div>
+              <div class="offer-location">${escapeHtml(item.location || "Lokacija nije navedena")}</div>
             </div>
-          </div>
+          </article>
         `;
       })
       .join("");
   } catch (error) {
-    featured.innerHTML = '<span class="error-message">' + escapeHtml(error.message) + "</span>";
+    console.error("Početne ponude nisu učitane:", error);
+    if (!q && !category && !location && featured.dataset.fallbackMarkup) {
+      featured.innerHTML = featured.dataset.fallbackMarkup;
+    } else {
+      featured.innerHTML = '<span class="error-message">' + escapeHtml(error.message) + "</span>";
+    }
   }
 }
 
@@ -575,6 +577,7 @@ function showTicket() {
 
 function bindPageEvents() {
   const closeButton = $("#close");
+  const searchForm = $("#searchForm");
   const searchButton = $("#searchBtn");
   const supportButton = $("#supportBtn");
   const loginButton = $("#loginBtn");
@@ -600,45 +603,39 @@ function bindPageEvents() {
     };
   }
 
-  if (searchButton) {
-    searchButton.onclick = doSearch;
+  const bindAction = function(element, handler) {
+    if (!element) return;
+    element.onclick = function(event) {
+      if (event) event.preventDefault();
+      handler();
+    };
+  };
+
+  if (searchForm) {
+    searchForm.onsubmit = function(event) {
+      event.preventDefault();
+      doSearch();
+    };
+  } else if (searchButton) {
+    bindAction(searchButton, doSearch);
   }
 
-  if (searchInput) {
+  if (searchInput && !searchForm) {
     searchInput.onkeydown = function(event) {
       if (event.key === "Enter") {
+        event.preventDefault();
         doSearch();
       }
     };
   }
 
-  if (supportButton) {
-    supportButton.onclick = support;
-  }
-
-  if (loginButton) {
-    loginButton.onclick = login;
-  }
-
-  if (registerButton) {
-    registerButton.onclick = register;
-  }
-
-  if (ctaRegisterButton) {
-    ctaRegisterButton.onclick = register;
-  }
-
-  if (listingButton) {
-    listingButton.onclick = listing;
-  }
-
-  if (requestButton) {
-    requestButton.onclick = request;
-  }
-
-  if (logoutButton) {
-    logoutButton.onclick = logout;
-  }
+  bindAction(supportButton, support);
+  bindAction(loginButton, login);
+  bindAction(registerButton, register);
+  bindAction(ctaRegisterButton, register);
+  bindAction(listingButton, listing);
+  bindAction(requestButton, request);
+  bindAction(logoutButton, logout);
 
   if (userButton) {
     userButton.onclick = function() {
@@ -670,6 +667,12 @@ function init() {
   renderCategories();
   bindPageEvents();
   updateAuthUI();
+
+  const featured = $("#featured");
+  if (featured) {
+    featured.dataset.fallbackMarkup = featured.innerHTML;
+  }
+
   doSearch();
 }
 
