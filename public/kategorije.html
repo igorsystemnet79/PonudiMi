@@ -1,1 +1,71 @@
-
+<!DOCTYPE html>
+<html lang="sr-Latn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Sve kategorije na PonudiMi platformi.">
+    <meta name="theme-color" content="#1a1a2e">
+    <title>Sve kategorije — PonudiMi</title>
+    <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+    <header class="site-header">
+        <div class="container header-inner">
+            <a href="/" class="header-logo" aria-label="PonudiMi početna strana">
+                <img src="/ponudimi-logo.png" alt="PonudiMi">
+            </a>
+            <nav class="header-nav" aria-label="Glavna navigacija">
+                <a href="/" class="btn btn-register">Početna</a>
+            </nav>
+        </div>
+    </header>
+    <main class="container category-page">
+        <a href="/" class="back-link">← Nazad na početnu</a>
+        <div class="category-page-header">
+            <h1>Sve kategorije</h1>
+            <p>Izaberi kategoriju i pregledaj aktuelne ponude na PonudiMi platformi.</p>
+        </div>
+        <div id="all-categories" class="categories-grid category-page-grid"></div>
+        <p id="category-status" class="category-page-status" role="status">Učitavanje kategorija…</p>
+    </main>
+    <script>
+        const categoryImages = {
+            "Polovni automobili": "https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?w=500&h=400&fit=crop",
+            "Nekretnine": "https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=500&h=400&fit=crop",
+            "Mobilni telefoni": "https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=500&h=400&fit=crop",
+            "Tehnika": "https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=500&h=400&fit=crop",
+            "Usluge": "https://images.unsplash.com/photo-1521737711867-e3b97375f902?w=500&h=400&fit=crop",
+            "Građevina": "https://images.unsplash.com/photo-1503387762-592def58ef4e?w=500&h=400&fit=crop",
+            "Poljoprivreda": "https://images.unsplash.com/photo-1464227783982-cc95a0c2f3d6?w=500&h=400&fit=crop",
+            "Moda": "https://images.unsplash.com/photo-1483985988355-763728e1935b?w=500&h=400&fit=crop",
+            "Ostalo": "https://images.unsplash.com/photo-1519682337058-a94d519337bc?w=500&h=400&fit=crop"
+        };
+        function escapeHtml(value) {
+            return String(value || "").replace(/[&<>"']/g, function(character) {
+                const entities = { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#039;" };
+                return entities[character];
+            });
+        }
+        async function loadCategories() {
+            const grid = document.querySelector("#all-categories");
+            const status = document.querySelector("#category-status");
+            try {
+                const response = await fetch("/api/categories");
+                if (!response.ok) throw new Error("Kategorije nisu dostupne.");
+                const categories = await response.json();
+                grid.innerHTML = categories.map(function(category) {
+                    const name = category.name || category;
+                    const image = categoryImages[name] || "/reference-homepage.png";
+                    return '<a href="/?category=' + encodeURIComponent(name) + '" class="category-card">' +
+                        '<div class="category-image"><img src="' + escapeHtml(image) + '" alt="' + escapeHtml(name) + '" loading="lazy"></div>' +
+                        '<span class="category-name">' + escapeHtml(name) + '</span></a>';
+                }).join("");
+                status.textContent = categories.length + " kategorija";
+            } catch (error) {
+                status.textContent = error.message;
+            }
+        }
+        loadCategories();
+    </script>
+</body>
+</html>
