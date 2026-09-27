@@ -23,6 +23,28 @@ const categoryIcons = ["🚗", "🏠", "📱", "💻", "🛠️", "👷", "🚜"
 
 const categoryCounts = [12580, 23120, 15890, 9452, 18760, 8542, 7310, 4125, 0];
 
+let activeCategory = "";
+const categoryImageMap = {
+  "Polovni automobili": "https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?w=500&h=400&fit=crop",
+  "Nekretnine": "https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=500&h=400&fit=crop",
+  "Mobilni telefoni": "https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=500&h=400&fit=crop",
+  "Tehnika": "https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=500&h=400&fit=crop",
+  "Usluge": "https://images.unsplash.com/photo-1521737711867-e3b97375f902?w=500&h=400&fit=crop",
+  "Građevina": "https://images.unsplash.com/photo-1503387762-592def58ef4e?w=500&h=400&fit=crop",
+  "Poljoprivreda": "https://images.unsplash.com/photo-1464227783982-cc95a0c2f3d6?w=500&h=400&fit=crop",
+  "Moda": "https://images.unsplash.com/photo-1483985988355-763728e1935b?w=500&h=400&fit=crop",
+  "Ostalo": "https://images.unsplash.com/photo-1519682337058-a94d519337bc?w=500&h=400&fit=crop"
+};
+
+function categoryName(category) {
+  return typeof category === "string" ? category : category.name;
+}
+
+function categoryImage(category, index) {
+  return (category && category.image) || categoryImageMap[categoryName(category)] || "/reference-homepage.png";
+}
+
+
 function escapeHtml(value) {
   return String(value || "").replace(/[&<>"']/g, function(character) {
     const entities = {
@@ -107,41 +129,46 @@ async function api(url, options) {
   return data;
 }
 
-function renderCategories() {
+function renderCategories(categoryList) {
   const categoriesElement = $("#categories");
   const categorySelect = $("#category");
 
-  if (!categoriesElement || !categorySelect) {
+  if (!categoriesElement) {
     return;
   }
 
-  categoriesElement.innerHTML = categories
-    .map(function(category, index) {
-      return `
-        <button class="cat" type="button" data-category="${escapeHtml(category)}">
-          <b>${categoryIcons[index]} ${escapeHtml(category)}</b>
-          <small>${categoryCounts[index].toLocaleString("sr-RS")} oglasa</small>
-        </button>
-      `;
-    })
-    .join("");
+  const list = Array.isArray(categoryList) && categoryList.length ? categoryList : categories;
 
-  categorySelect.innerHTML =
-    '<option value="">Sve kategorije</option>' +
-    categories
-      .map(function(category) {
-        return `<option value="${escapeHtml(category)}">${escapeHtml(category)}</option>`;
-      })
-      .join("");
+  categoriesElement.innerHTML = list.map(function(category, index) {
+    const name = categoryName(category);
+    return `
+      <a href="#ponude" class="category-card" data-category="${escapeHtml(name)}" aria-label="Pretraži kategoriju ${escapeHtml(name)}">
+        <div class="category-image">
+          <img src="${escapeHtml(categoryImage(category, index))}" alt="${escapeHtml(name)}" loading="lazy">
+        </div>
+        <span class="category-name">${escapeHtml(name)}</span>
+      </a>
+    `;
+  }).join("");
 
-  categoriesElement.querySelectorAll(".cat").forEach(function(button) {
-    button.addEventListener("click", function() {
-      categorySelect.value = button.dataset.category;
+  if (categorySelect) {
+    categorySelect.innerHTML = '<option value="">Sve kategorije</option>' + list.map(function(category) {
+      const name = categoryName(category);
+      return `<option value="${escapeHtml(name)}">${escapeHtml(name)}</option>`;
+    }).join("");
+  }
+
+  categoriesElement.querySelectorAll(".category-card[data-category]").forEach(function(button) {
+    button.addEventListener("click", function(event) {
+      event.preventDefault();
+      activeCategory = button.dataset.category || "";
+      if (categorySelect) categorySelect.value = activeCategory;
       doSearch();
+      const offers = $("#ponude");
+      if (offers) offers.scrollIntoView({ behavior: "smooth", block: "start" });
     });
   });
 }
-
 function listingImageMarkup(image, title) {
   const safeTitle = escapeHtml(title || "Oglas");
 
@@ -167,7 +194,7 @@ async function doSearch() {
   }
 
   const q = searchInput.value.trim();
-  const category = categorySelect ? categorySelect.value.trim() : "";
+  const category = categorySelect ? categorySelect.value.trim() : activeCategory;
   const location = locationInput.value.trim();
 
   featured.innerHTML = "Učitavanje ponuda…";
@@ -334,7 +361,7 @@ function listing() {
       <input name="title" placeholder="Naslov oglasa" required>
       <select name="category" required>
         ${categories.map(function(category) {
-          return `<option value="${escapeHtml(category)}">${escapeHtml(category)}</option>`;
+          return `<option value="${escapeHtml(categoryName(category))}">${escapeHtml(categoryName(category))}</option>`;
         }).join("")}
       </select>
       <input name="location" placeholder="Lokacija" required>
@@ -380,7 +407,7 @@ function request() {
       <select name="category">
         <option value="">Kategorija</option>
         ${categories.map(function(category) {
-          return `<option value="${escapeHtml(category)}">${escapeHtml(category)}</option>`;
+          return `<option value="${escapeHtml(categoryName(category))}">${escapeHtml(categoryName(category))}</option>`;
         }).join("")}
       </select>
       <input name="location" placeholder="Lokacija">
@@ -575,6 +602,54 @@ function showTicket() {
   };
 }
 
+
+async function loadCategories() {
+  try {
+    const data = await api("/api/categories");
+    if (Array.isArray(data) && data.length) {
+      categories = data;
+      renderCategories(categories);
+    } else {
+      renderCategories(categories);
+    }
+  } catch (error) {
+    console.error("Kategorije nisu učitane:", error);
+    renderCategories(categories);
+  }
+}
+
+function relativeDate(value) {
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return "";
+  const minutes = Math.max(1, Math.floor((Date.now() - date.getTime()) / 60000));
+  if (minutes < 60) return "pre " + minutes + (minutes === 1 ? " minut" : " minuta");
+  const hours = Math.floor(minutes / 60);
+  if (hours < 24) return "pre " + hours + (hours === 1 ? " sat" : " sata");
+  const days = Math.floor(hours / 24);
+  return "pre " + days + (days === 1 ? " dan" : " dana");
+}
+
+async function loadLatestRequests() {
+  const requestList = $("#requestList");
+  if (!requestList) return;
+
+  try {
+    const data = await api("/api/requests?limit=5");
+    if (!data.length) {
+      requestList.innerHTML = '<li class="request-item">Trenutno nema aktivnih zahteva.</li>';
+      return;
+    }
+
+    requestList.innerHTML = data.map(function(item) {
+      const place = item.location || "Lokacija nije navedena";
+      const time = relativeDate(item.created_at);
+      return `<li class="request-item">${escapeHtml(item.title)}<div class="request-date">${escapeHtml(place)}${time ? " · " + time : ""}</div></li>`;
+    }).join("");
+  } catch (error) {
+    console.error("Zahtevi nisu učitani:", error);
+    if (requestList.dataset.fallbackMarkup) requestList.innerHTML = requestList.dataset.fallbackMarkup;
+  }
+}
 function bindPageEvents() {
   const closeButton = $("#close");
   const searchForm = $("#searchForm");
@@ -664,7 +739,7 @@ function bindPageEvents() {
 }
 
 function init() {
-  renderCategories();
+  renderCategories(categories);
   bindPageEvents();
   updateAuthUI();
 
@@ -673,7 +748,14 @@ function init() {
     featured.dataset.fallbackMarkup = featured.innerHTML;
   }
 
+  const requestList = $("#requestList");
+  if (requestList) {
+    requestList.dataset.fallbackMarkup = requestList.innerHTML;
+  }
+
   doSearch();
+  loadCategories();
+  loadLatestRequests();
 }
 
 init();
