@@ -7,7 +7,7 @@ const dialogBody = $("#dialogBody");
 
 let token = localStorage.getItem("pm_token");
 
-const categories = [
+let categories = [
   "Automobili",
   "Nekretnine",
   "Mobilni telefoni",
@@ -38,7 +38,8 @@ const categoryImageMap = {
 };
 
 function categoryName(category) {
-  return typeof category === "string" ? category : category.name;
+  if (!category) return "";
+  return typeof category === "string" ? category : (category.name || "");
 }
 
 function categoryImage(category, index) {
@@ -47,7 +48,7 @@ function categoryImage(category, index) {
 
 
 function escapeHtml(value) {
-  return String(value || "").replace(/[&<>"']/g, function(character) {
+  return String(value == null ? "" : value).replace(/[&<>"']/g, function(character) {
     const entities = {
       "&": "&amp;",
       "<": "&lt;",
@@ -157,6 +158,7 @@ function renderCategories(categoryList) {
       const name = categoryName(category);
       return `<option value="${escapeHtml(name)}">${escapeHtml(name)}</option>`;
     }).join("");
+    categorySelect.value = activeCategory;
   }
 
   categoriesElement.querySelectorAll(".category-card[data-category]").forEach(function(button) {
@@ -180,9 +182,11 @@ function listingImageMarkup(image, title) {
   const safeImage = escapeHtml(image);
 
   return `
-    <img src="${safeImage}" alt="${safeTitle}" onerror="this.replaceWith(Object.assign(document.createElement('div'), {className: 'offer-image-placeholder', textContent: '📦'}))">
+    <img src="${safeImage}" alt="${safeTitle}" data-fallback="1">
   `;
 }
+
+let searchRequestId = 0;
 
 async function doSearch() {
   const searchInput = $("#q");
@@ -195,10 +199,12 @@ async function doSearch() {
   }
 
   const q = searchInput.value.trim();
-  const category = categorySelect ? categorySelect.value.trim() : activeCategory;
+  if (categorySelect) activeCategory = categorySelect.value.trim();
+  const category = activeCategory;
   const location = locationInput.value.trim();
 
   featured.innerHTML = "Učitavanje ponuda…";
+  const requestId = ++searchRequestId;
 
   try {
     const data = await api(
@@ -207,7 +213,9 @@ async function doSearch() {
       "&location=" + encodeURIComponent(location)
     );
 
-    if (!data.length) {
+    if (requestId !== searchRequestId) return;
+
+    if (!Array.isArray(data) || !data.length) {
       featured.innerHTML = "Nema rezultata za izabranu pretragu.";
       return;
     }
@@ -215,8 +223,10 @@ async function doSearch() {
     featured.innerHTML = data
       .slice(0, 4)
       .map(function(item) {
-        const price = item.price
-          ? new Intl.NumberFormat("sr-RS").format(item.price) + " €"
+        const numericPrice = Number(item.price);
+        const hasPrice = item.price !== null && item.price !== undefined && item.price !== "" && Number.isFinite(numericPrice);
+        const price = hasPrice
+          ? new Intl.NumberFormat("sr-RS").format(numericPrice) + " €"
           : "Po dogovoru";
 
         return `
@@ -231,7 +241,18 @@ async function doSearch() {
         `;
       })
       .join("");
+
+    featured.querySelectorAll("img[data-fallback]").forEach(function(img) {
+      img.addEventListener("error", function() {
+        const placeholder = document.createElement("div");
+        placeholder.className = "offer-image-placeholder";
+        placeholder.setAttribute("aria-label", "Slika oglasa nije dostupna");
+        placeholder.textContent = "📦";
+        img.replaceWith(placeholder);
+      }, { once: true });
+    });
   } catch (error) {
+    if (requestId !== searchRequestId) return;
     console.error("Početne ponude nisu učitane:", error);
     if (!q && !category && !location && featured.dataset.fallbackMarkup) {
       featured.innerHTML = featured.dataset.fallbackMarkup;
@@ -239,6 +260,12 @@ async function doSearch() {
       featured.innerHTML = '<span class="error-message">' + escapeHtml(error.message) + "</span>";
     }
   }
+}
+
+// Sprečava dupli klik na dugme za slanje dok zahtev traje
+function lockForm(form, locked) {
+  const button = form.querySelector('button[type="submit"]');
+  if (button) button.disabled = locked;
 }
 
 function register() {
@@ -279,12 +306,15 @@ function register() {
     individualTab.classList.remove("active");
     companyFields.innerHTML = `
       <input name="companyName" placeholder="Naziv firme" autocomplete="organization" required>
-      <input name="pib" placeholder="PIB" inputmode="numeric">
+      <input name="pib" placeholder="PIB (9 cifara)" inputmode="numeric" pattern="\\d{9}" maxlength="9" title="PIB mora imati tačno 9 cifara">
     `;
   };
 
   registerForm.onsubmit = async function(event) {
     event.preventDefault();
+    if (registerForm.dataset.busy) return;
+    registerForm.dataset.busy = "1";
+    lockForm(registerForm, true);
 
     const formData = new FormData(registerForm);
     const values = Object.fromEntries(formData);
@@ -302,6 +332,9 @@ function register() {
       alert("Registracija je uspešna.");
     } catch (error) {
       alert(error.message);
+    } finally {
+      delete registerForm.dataset.busy;
+      lockForm(registerForm, false);
     }
   };
 }
@@ -321,6 +354,9 @@ function login() {
 
   loginForm.onsubmit = async function(event) {
     event.preventDefault();
+    if (loginForm.dataset.busy) return;
+    loginForm.dataset.busy = "1";
+    lockForm(loginForm, true);
 
     const values = Object.fromEntries(new FormData(loginForm));
 
@@ -337,6 +373,9 @@ function login() {
       alert("Uspešna prijava.");
     } catch (error) {
       alert(error.message);
+    } finally {
+      delete loginForm.dataset.busy;
+      lockForm(loginForm, false);
     }
   };
 }
@@ -366,7 +405,7 @@ function listing() {
         }).join("")}
       </select>
       <input name="location" placeholder="Lokacija" required>
-      <input name="price" type="number" min="0" step="0.01" placeholder="Cena (€)">
+      <input name="price" type="number" min="0" max="100000000" step="0.01" placeholder="Cena (€)">
       <input name="image" type="url" placeholder="Link do slike (opciono)">
       <textarea name="description" placeholder="Opis oglasa"></textarea>
       <button class="submit" type="submit">Objavi oglas</button>
@@ -377,6 +416,9 @@ function listing() {
 
   listingForm.onsubmit = async function(event) {
     event.preventDefault();
+    if (listingForm.dataset.busy) return;
+    listingForm.dataset.busy = "1";
+    lockForm(listingForm, true);
 
     const values = Object.fromEntries(new FormData(listingForm));
 
@@ -391,6 +433,9 @@ function listing() {
       alert("Oglas je uspešno objavljen.");
     } catch (error) {
       alert(error.message);
+    } finally {
+      delete listingForm.dataset.busy;
+      lockForm(listingForm, false);
     }
   };
 }
@@ -412,7 +457,7 @@ function request() {
         }).join("")}
       </select>
       <input name="location" placeholder="Lokacija">
-      <input name="budget" type="number" min="0" step="0.01" placeholder="Budžet (€)">
+      <input name="budget" type="number" min="0" max="100000000" step="0.01" placeholder="Budžet (€)">
       <textarea name="description" placeholder="Opišite šta vam je potrebno"></textarea>
       <button class="submit" type="submit">Pošalji zahtev</button>
     </form>
@@ -422,6 +467,9 @@ function request() {
 
   requestForm.onsubmit = async function(event) {
     event.preventDefault();
+    if (requestForm.dataset.busy) return;
+    requestForm.dataset.busy = "1";
+    lockForm(requestForm, true);
 
     const values = Object.fromEntries(new FormData(requestForm));
 
@@ -435,6 +483,9 @@ function request() {
       alert("Zahtev je uspešno sačuvan.");
     } catch (error) {
       alert(error.message);
+    } finally {
+      delete requestForm.dataset.busy;
+      lockForm(requestForm, false);
     }
   };
 }
@@ -460,7 +511,7 @@ function support() {
 }
 
 function setSupportActiveTab(tabId) {
-  document.querySelectorAll(".tabs button").forEach(function(button) {
+  dialogBody.querySelectorAll(".tabs button").forEach(function(button) {
     button.classList.remove("active");
   });
 
@@ -495,6 +546,16 @@ function showChat() {
   };
 }
 
+function appendChatMessage(chat, text, kind) {
+  const div = document.createElement("div");
+  div.className = "msg " + kind;
+  div.textContent = text || "";
+  chat.appendChild(div);
+  chat.scrollTop = chat.scrollHeight;
+}
+
+let chatBusy = false;
+
 async function sendChat() {
   const input = $("#chatInput");
   const chat = $("#chat");
@@ -505,14 +566,13 @@ async function sendChat() {
 
   const message = input.value.trim();
 
-  if (!message) {
+  if (!message || chatBusy) {
     return;
   }
 
-  chat.innerHTML += `<div class="msg me">${escapeHtml(message)}</div>`;
-
+  chatBusy = true;
+  appendChatMessage(chat, message, "me");
   input.value = "";
-  chat.scrollTop = chat.scrollHeight;
 
   try {
     const data = await api("/api/support/chat", {
@@ -520,12 +580,12 @@ async function sendChat() {
       body: JSON.stringify({ message: message })
     });
 
-    chat.innerHTML += `<div class="msg bot">${escapeHtml(data.answer)}</div>`;
+    appendChatMessage(chat, data.answer || "Nema odgovora.", "bot");
   } catch (error) {
-    chat.innerHTML += `<div class="msg bot">${escapeHtml(error.message)}</div>`;
+    appendChatMessage(chat, error.message, "bot");
+  } finally {
+    chatBusy = false;
   }
-
-  chat.scrollTop = chat.scrollHeight;
 }
 
 function showFaq() {
@@ -586,6 +646,9 @@ function showTicket() {
 
   ticketForm.onsubmit = async function(event) {
     event.preventDefault();
+    if (ticketForm.dataset.busy) return;
+    ticketForm.dataset.busy = "1";
+    lockForm(ticketForm, true);
 
     const values = Object.fromEntries(new FormData(ticketForm));
 
@@ -599,6 +662,9 @@ function showTicket() {
       alert(data.message);
     } catch (error) {
       alert(error.message);
+    } finally {
+      delete ticketForm.dataset.busy;
+      lockForm(ticketForm, false);
     }
   };
 }
@@ -636,7 +702,7 @@ async function loadLatestRequests() {
 
   try {
     const data = await api("/api/requests?limit=5");
-    if (!data.length) {
+    if (!Array.isArray(data) || !data.length) {
       requestList.innerHTML = '<li class="request-item">Trenutno nema aktivnih zahteva.</li>';
       return;
     }
@@ -678,6 +744,12 @@ function bindPageEvents() {
       }
     };
   }
+
+  document.addEventListener("keydown", function(event) {
+    if (event.key === "Escape" && modal && !modal.classList.contains("hidden")) {
+      closeModal();
+    }
+  });
 
   const bindAction = function(element, handler) {
     if (!element) return;
