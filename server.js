@@ -1,14 +1,19 @@
 const express = require("express");
 const path = require("path");
 const { Pool } = require("pg");
+const crypto = require("crypto");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 
 const app = express();
 
 const PORT = process.env.PORT || 3000;
-const JWT_SECRET =
-  process.env.JWT_SECRET || "ponudimi-mvp-change-this-secret";
+if (process.env.NODE_ENV === "production" && !process.env.JWT_SECRET) {
+  console.error("JWT_SECRET mora biti podešen u produkciji.");
+  process.exit(1);
+}
+
+const JWT_SECRET = process.env.JWT_SECRET || "development-only-secret";
 
 const publicPath = path.join(__dirname, "public");
 const CATEGORY_DEFINITIONS = [
@@ -31,7 +36,8 @@ const pool = new Pool({
     : false
 });
 
-app.use(express.json({ limit: "2mb" }));
+app.disable("x-powered-by");
+app.use(express.json({ limit: "256kb" }));
 app.use(express.urlencoded({ extended: true }));
 
 /*
@@ -131,7 +137,7 @@ async function initDatabase() {
     ")"
   );
 
-  const demoPassword = await bcrypt.hash("PonudiMi123!", 10);
+  const demoPassword = await bcrypt.hash(crypto.randomBytes(24).toString("hex"), 10);
 
   await pool.query(
     "INSERT INTO users " +
@@ -289,7 +295,7 @@ app.get("/api/requests", async function(req, res) {
       : 5;
 
     const result = await pool.query(
-      "SELECT id, title, category, location, budget, description, created_at " +
+      "SELECT id, title, category, location, created_at " +
         "FROM requests ORDER BY created_at DESC LIMIT $1",
       [limit]
     );
@@ -464,6 +470,10 @@ app.post("/api/listings", auth, async function(req, res) {
     const price = req.body.price;
     const description = String(req.body.description || "").trim();
     const image = String(req.body.image || "").trim();
+
+    if (image && (!/^https?:\/\//i.test(image) || image.length > 2000)) {
+      return res.status(400).json({ error: "Slika mora biti važeći HTTP(S) URL kraći od 2.000 karaktera." });
+    }
 
     if (!title || !category || !location) {
       return res.status(400).json({
