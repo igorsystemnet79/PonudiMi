@@ -871,7 +871,6 @@ function init() {
 
   doSearch();
   loadCategories();
-  loadLatestRequests();
 }
 
 init();
