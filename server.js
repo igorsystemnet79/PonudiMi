@@ -289,17 +289,49 @@ app.get("/api/listings", async function(req, res) {
 
 app.get("/api/requests", async function(req, res) {
   try {
+    const q = String(req.query.q || "").trim();
+    const category = String(req.query.category || "").trim();
+    const location = String(req.query.location || "").trim();
     const requestedLimit = Number.parseInt(req.query.limit, 10);
     const limit = Number.isFinite(requestedLimit)
       ? Math.min(Math.max(requestedLimit, 1), 20)
       : 5;
 
-    const result = await pool.query(
-      "SELECT id, title, category, location, created_at " +
-        "FROM requests ORDER BY created_at DESC LIMIT $1",
-      [limit]
-    );
+    const conditions = [];
+    const values = [];
 
+    if (q) {
+      values.push("%" + q + "%");
+      const placeholder = "$" + values.length;
+      conditions.push(
+        "(title ILIKE " + placeholder +
+          " OR category ILIKE " + placeholder +
+          " OR location ILIKE " + placeholder + ")"
+      );
+    }
+
+    if (category) {
+      values.push(category);
+      conditions.push("category = $" + values.length);
+    }
+
+    if (location) {
+      values.push("%" + location + "%");
+      conditions.push("location ILIKE $" + values.length);
+    }
+
+    let sql =
+      "SELECT id, title, category, location, created_at " +
+      "FROM requests";
+
+    if (conditions.length > 0) {
+      sql += " WHERE " + conditions.join(" AND ");
+    }
+
+    values.push(limit);
+    sql += " ORDER BY created_at DESC LIMIT $" + values.length;
+
+    const result = await pool.query(sql, values);
     res.json(result.rows);
   } catch (error) {
     console.error("GET /api/requests error:", error);
@@ -309,6 +341,7 @@ app.get("/api/requests", async function(req, res) {
     });
   }
 });
+
 
 app.post("/api/auth/register", async function(req, res) {
   try {
