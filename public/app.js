@@ -699,6 +699,13 @@ function relativeDate(value) {
   return "pre " + days + (days === 1 ? " dan" : " dana");
 }
 
+function scrollToRequestResults() {
+  const section = $("#zahtev");
+  if (section) {
+    section.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+}
+
 async function loadLatestRequests(filters) {
   const requestList = $("#requestList");
   if (!requestList) return;
@@ -724,6 +731,7 @@ async function loadLatestRequests(filters) {
       requestList.innerHTML = isFiltered
         ? '<li class="request-item">Nema zahteva koji odgovaraju pretrazi.</li>'
         : '<li class="request-item">Trenutno nema aktivnih zahteva.</li>';
+      if (isFiltered) scrollToRequestResults();
       return;
     }
 
@@ -734,6 +742,7 @@ async function loadLatestRequests(filters) {
         '<div class="request-date">' + escapeHtml(place) +
         (time ? " · " + time : "") + "</div></li>";
     }).join("");
+    if (isFiltered) scrollToRequestResults();
   } catch (error) {
     if (searchId !== searchRequestId) return;
     console.error("Zahtevi nisu učitani:", error);
