@@ -296,6 +296,10 @@ app.get("/api/requests", async function(req, res) {
     const limit = Number.isFinite(requestedLimit)
       ? Math.min(Math.max(requestedLimit, 1), 20)
       : 5;
+    const requestedOffset = Number.parseInt(req.query.offset, 10);
+    const offset = Number.isFinite(requestedOffset)
+      ? Math.max(requestedOffset, 0)
+      : 0;
 
     const conditions = [];
     const values = [];
@@ -328,8 +332,14 @@ app.get("/api/requests", async function(req, res) {
       sql += " WHERE " + conditions.join(" AND ");
     }
 
-    values.push(limit);
-    sql += " ORDER BY created_at DESC LIMIT $" + values.length;
+    const limitPlaceholder = values.length + 1;
+    const offsetPlaceholder = values.length + 2;
+    values.push(limit, offset);
+    sql +=
+      " ORDER BY created_at DESC LIMIT $" +
+      limitPlaceholder +
+      " OFFSET $" +
+      offsetPlaceholder;
 
     const result = await pool.query(sql, values);
     res.json(result.rows);
