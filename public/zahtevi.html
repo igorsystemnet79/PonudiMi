@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="sr-Latn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#1a1a2e">
+    <meta name="description" content="Svi najnoviji zahtevi na PonudiMi platformi.">
+    <title>Svi zahtevi — PonudiMi</title>
+    <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+    <header class="site-header">
+        <div class="container header-inner">
+            <a href="/" class="header-logo" aria-label="PonudiMi početna strana">
+                <img src="/ponudimi-logo.png" alt="PonudiMi">
+            </a>
+            <a href="/" class="btn btn-login">Početna</a>
+        </div>
+    </header>
+
+    <main class="directory-page">
+        <div class="container">
+            <div class="directory-header">
+                <div>
+                    <p class="directory-eyebrow">PonudiMi</p>
+                    <h1 class="directory-title">Svi najnoviji zahtevi</h1>
+                    <p class="directory-description">
+                        Pregled svih zahteva, sortiran od najnovijeg unosa ka prvom.
+                    </p>
+                </div>
+                <p id="requestCount" class="directory-count" aria-live="polite"></p>
+            </div>
+
+            <p id="requestStatus" class="directory-status" role="status">Učitavanje zahteva…</p>
+            <ol id="requestDirectory" class="directory-list"></ol>
+        </div>
+    </main>
+
+    <script>
+        const requestDirectory = document.getElementById("requestDirectory");
+        const requestStatus = document.getElementById("requestStatus");
+        const requestCount = document.getElementById("requestCount");
+        const pageSize = 20;
+
+        function escapeHtml(value) {
+            return String(value == null ? "" : value).replace(/[&<>"']/g, function(character) {
+                const entities = {
+                    "&": "&amp;",
+                    "<": "&lt;",
+                    ">": "&gt;",
+                    '"': "&quot;",
+                    "'": "&#039;"
+                };
+                return entities[character];
+            });
+        }
+
+        function formatDate(value) {
+            const date = new Date(value);
+            if (Number.isNaN(date.getTime())) return "Datum nije naveden";
+            return new Intl.DateTimeFormat("sr-RS", {
+                dateStyle: "medium",
+                timeStyle: "short"
+            }).format(date);
+        }
+
+        async function loadAllRequests() {
+            const requests = [];
+            let offset = 0;
+
+            while (true) {
+                const response = await fetch("/api/requests?limit=" + pageSize + "&offset=" + offset);
+                const data = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(data.error || "Zahtevi nisu mogli da se učitaju.");
+                }
+
+                if (!Array.isArray(data) || data.length === 0) break;
+                requests.push(...data);
+
+                if (data.length < pageSize) break;
+                offset += data.length;
+            }
+
+            return requests;
+        }
+
+        async function renderRequests() {
+            try {
+                const requests = await loadAllRequests();
+                requestCount.textContent = requests.length + (requests.length === 1 ? " zahtev" : " zahteva");
+
+                if (!requests.length) {
+                    requestStatus.textContent = "Trenutno nema unetih zahteva.";
+                    requestDirectory.innerHTML = '<li class="directory-empty">Nema zahteva za prikaz.</li>';
+                    return;
+                }
+
+                requestStatus.textContent = "Sortirano od najnovijeg unosa ka najstarijem.";
+                requestDirectory.innerHTML = requests.map(function(item) {
+                    return '<li class="directory-item">' +
+                        '<div class="directory-item-content">' +
+                            '<div class="directory-item-title">' + escapeHtml(item.title) + '</div>' +
+                            '<div class="directory-item-meta">' +
+                                '<span>' + escapeHtml(item.category || "Kategorija nije navedena") + '</span>' +
+                                '<span>' + escapeHtml(item.location || "Lokacija nije navedena") + '</span>' +
+                            '</div>' +
+                        '</div>' +
+                        '<time class="directory-item-date" datetime="' + escapeHtml(item.created_at) + '">' +
+                            escapeHtml(formatDate(item.created_at)) +
+                        '</time>' +
+                    '</li>';
+                }).join("");
+            } catch (error) {
+                requestStatus.textContent = "Greška pri učitavanju zahteva.";
+                requestDirectory.innerHTML = '<li class="directory-error">' + escapeHtml(error.message) + '</li>';
+            }
+        }
+
+        renderRequests();
+    </script>
+</body>
+</html>
