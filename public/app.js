@@ -23,7 +23,10 @@ const categoryIcons = ["🚗", "🏠", "📱", "💻", "🛠️", "👷", "🚜"
 
 const categoryCounts = [12580, 23120, 15890, 9452, 18760, 8542, 7310, 4125, 0];
 
-const initialCategory = new URLSearchParams(window.location.search).get("category") || "";
+const initialSearchParams = new URLSearchParams(window.location.search);
+const initialCategory = initialSearchParams.get("category") || "";
+const initialQuery = initialSearchParams.get("q") || "";
+const initialLocation = initialSearchParams.get("location") || initialSearchParams.get("lokacija") || "";
 let activeCategory = initialCategory;
 const categoryImageMap = {
   "Automobili": "https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?w=500&h=400&fit=crop",
@@ -189,9 +192,9 @@ function listingImageMarkup(image, title) {
 let searchRequestId = 0;
 
 async function doSearch() {
-  const searchInput = $("#q");
+  const searchInput = $("#q") || document.querySelector('input[name="q"]');
   const categorySelect = $("#category");
-  const locationInput = $("#location");
+  const locationInput = $("#location") || document.querySelector('input[name="lokacija"]');
   const featured = $("#featured");
   const requestList = $("#requestList");
 
@@ -847,6 +850,11 @@ async function loadLatestRequests(filters) {
 }
 
 function init() {
+  const searchInput = $("#q") || document.querySelector('input[name="q"]');
+  const locationInput = $("#location") || document.querySelector('input[name="lokacija"]');
+  if (searchInput && initialQuery) searchInput.value = initialQuery;
+  if (locationInput && initialLocation) locationInput.value = initialLocation;
+
   renderCategories(categories);
   bindPageEvents();
   updateAuthUI();
