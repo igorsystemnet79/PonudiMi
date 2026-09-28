@@ -193,6 +193,7 @@ async function doSearch() {
   const categorySelect = $("#category");
   const locationInput = $("#location");
   const featured = $("#featured");
+  const requestList = $("#requestList");
 
   if (!searchInput || !locationInput || !featured) {
     return;
@@ -204,7 +205,9 @@ async function doSearch() {
   const location = locationInput.value.trim();
 
   featured.innerHTML = "Učitavanje ponuda…";
+  if (requestList) requestList.innerHTML = "Učitavanje zahteva…";
   const requestId = ++searchRequestId;
+  loadLatestRequests({ q, category, location, searchId: requestId });
 
   try {
     const data = await api(
@@ -696,28 +699,51 @@ function relativeDate(value) {
   return "pre " + days + (days === 1 ? " dan" : " dana");
 }
 
-async function loadLatestRequests() {
+async function loadLatestRequests(filters) {
   const requestList = $("#requestList");
   if (!requestList) return;
 
+  const options = filters || {};
+  const q = String(options.q || "").trim();
+  const category = String(options.category || "").trim();
+  const location = String(options.location || "").trim();
+  const isFiltered = Boolean(q || category || location);
+  const searchId = options.searchId === undefined ? searchRequestId : options.searchId;
+  const params = new URLSearchParams();
+
+  params.set("limit", isFiltered ? "20" : "5");
+  if (q) params.set("q", q);
+  if (category) params.set("category", category);
+  if (location) params.set("location", location);
+
   try {
-    const data = await api("/api/requests?limit=5");
+    const data = await api("/api/requests?" + params.toString());
+    if (searchId !== searchRequestId) return;
+
     if (!Array.isArray(data) || !data.length) {
-      requestList.innerHTML = '<li class="request-item">Trenutno nema aktivnih zahteva.</li>';
+      requestList.innerHTML = isFiltered
+        ? '<li class="request-item">Nema zahteva koji odgovaraju pretrazi.</li>'
+        : '<li class="request-item">Trenutno nema aktivnih zahteva.</li>';
       return;
     }
 
     requestList.innerHTML = data.map(function(item) {
       const place = item.location || "Lokacija nije navedena";
       const time = relativeDate(item.created_at);
-      return `<li class="request-item">${escapeHtml(item.title)}<div class="request-date">${escapeHtml(place)}${time ? " · " + time : ""}</div></li>`;
+      return '<li class="request-item">' + escapeHtml(item.title) +
+        '<div class="request-date">' + escapeHtml(place) +
+        (time ? " · " + time : "") + "</div></li>";
     }).join("");
   } catch (error) {
+    if (searchId !== searchRequestId) return;
     console.error("Zahtevi nisu učitani:", error);
-    if (requestList.dataset.fallbackMarkup) requestList.innerHTML = requestList.dataset.fallbackMarkup;
+    if (!isFiltered && requestList.dataset.fallbackMarkup) {
+      requestList.innerHTML = requestList.dataset.fallbackMarkup;
+    } else {
+      requestList.innerHTML = '<li class="request-item error-message">' + escapeHtml(error.message) + "</li>";
+    }
   }
-}
-function bindPageEvents() {
+}function bindPageEvents() {
   const closeButton = $("#close");
   const searchForm = $("#searchForm");
   const searchButton = $("#searchBtn");
