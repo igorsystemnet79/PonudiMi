@@ -99,6 +99,15 @@ async function initDatabase() {
     ")"
   );
 
+  // Bezbedna dopuna kolona za baze nastale starijom verzijom aplikacije.
+  // Postojeći korisnički podaci se ne brišu niti prepisuju.
+  await pool.query("ALTER TABLE users ADD COLUMN IF NOT EXISTS type TEXT NOT NULL DEFAULT 'individual'");
+  await pool.query("ALTER TABLE users ADD COLUMN IF NOT EXISTS company_name TEXT");
+  await pool.query("ALTER TABLE users ADD COLUMN IF NOT EXISTS pib TEXT");
+  await pool.query("ALTER TABLE users ADD COLUMN IF NOT EXISTS package_name TEXT");
+  await pool.query("ALTER TABLE users ADD COLUMN IF NOT EXISTS package_expires_at TIMESTAMP");
+  await pool.query("ALTER TABLE users ADD COLUMN IF NOT EXISTS created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP");
+
   await pool.query(
     "CREATE TABLE IF NOT EXISTS listings (" +
       "id SERIAL PRIMARY KEY, " +
@@ -362,15 +371,29 @@ app.post("/api/auth/register", async function(req, res) {
     const companyName = String(req.body.companyName || "").trim();
     const pib = String(req.body.pib || "").trim();
 
+    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
     if (!name || !email || !password) {
       return res.status(400).json({
         error: "Ime, email i lozinka su obavezni."
       });
     }
 
-    if (password.length < 6) {
+    if (name.length > 120 || email.length > 254 || companyName.length > 180) {
       return res.status(400).json({
-        error: "Lozinka mora imati najmanje 6 karaktera."
+        error: "Proverite dužinu unetih podataka."
+      });
+    }
+
+    if (!emailPattern.test(email)) {
+      return res.status(400).json({
+        error: "Unesite ispravnu email adresu."
+      });
+    }
+
+    if (password.length < 6 || password.length > 128) {
+      return res.status(400).json({
+        error: "Lozinka mora imati između 6 i 128 karaktera."
       });
     }
 
@@ -383,6 +406,12 @@ app.post("/api/auth/register", async function(req, res) {
     if (type === "company" && !companyName) {
       return res.status(400).json({
         error: "Naziv firme je obavezan."
+      });
+    }
+
+    if (type === "company" && pib && !/^\d{9}$/.test(pib)) {
+      return res.status(400).json({
+        error: "PIB mora sadržati tačno 9 cifara."
       });
     }
 
@@ -422,6 +451,12 @@ app.post("/api/auth/register", async function(req, res) {
       user: user
     });
   } catch (error) {
+    if (error && error.code === "23505") {
+      return res.status(409).json({
+        error: "Nalog sa ovim emailom već postoji."
+      });
+    }
+
     console.error("REGISTER ERROR:", error);
 
     res.status(500).json({
@@ -438,6 +473,12 @@ app.post("/api/auth/login", async function(req, res) {
     if (!email || !password) {
       return res.status(400).json({
         error: "Email i lozinka su obavezni."
+      });
+    }
+
+    if (email.length > 254 || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) || password.length > 128) {
+      return res.status(400).json({
+        error: "Email ili lozinka nisu u ispravnom formatu."
       });
     }
 
