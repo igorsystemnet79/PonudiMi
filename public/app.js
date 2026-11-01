@@ -5,7 +5,12 @@ const $ = function(selector) {
 const modal = $("#modal");
 const dialogBody = $("#dialogBody");
 
-let token = localStorage.getItem("pm_token");
+let token = null;
+try {
+  token = localStorage.getItem("pm_token");
+} catch (error) {
+  console.warn("Lokalna sesija nije dostupna u ovom pregledaču.", error);
+}
 
 let categories = [
   "Automobili",
@@ -331,8 +336,17 @@ function register() {
         body: JSON.stringify({ ...values, type: accountType })
       });
 
+      if (!data || typeof data.token !== "string" || !data.token.trim()) {
+        throw new Error("Server nije vratio ispravnu potvrdu prijave. Pokušajte ponovo.");
+      }
+
       token = data.token;
-      localStorage.setItem("pm_token", token);
+      try {
+        localStorage.setItem("pm_token", token);
+      } catch (storageError) {
+        token = null;
+        throw new Error("Pregledač ne dozvoljava čuvanje prijave. Proverite podešavanja privatnosti.");
+      }
       updateAuthUI();
       closeModal();
       alert("Registracija je uspešna.");
@@ -372,8 +386,17 @@ function login() {
         body: JSON.stringify(values)
       });
 
+      if (!data || typeof data.token !== "string" || !data.token.trim()) {
+        throw new Error("Server nije vratio ispravnu potvrdu prijave. Pokušajte ponovo.");
+      }
+
       token = data.token;
-      localStorage.setItem("pm_token", token);
+      try {
+        localStorage.setItem("pm_token", token);
+      } catch (storageError) {
+        token = null;
+        throw new Error("Pregledač ne dozvoljava čuvanje prijave. Proverite podešavanja privatnosti.");
+      }
       updateAuthUI();
       closeModal();
       alert("Uspešna prijava.");
